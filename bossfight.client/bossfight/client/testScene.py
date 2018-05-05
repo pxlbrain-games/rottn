@@ -3,12 +3,12 @@
 import cocos
 
 class TestScene(cocos.scene.Scene):
-    def __init__(self):
+    def __init__(self, text):
         super(TestScene, self).__init__()
         label = cocos.text.Label(
-            'BossFight',
+            text,
             font_name = 'Arial',
-            font_size = 32,
+            font_size = 16,
             anchor_x = 'center',
             anchor_y = 'center'
         )

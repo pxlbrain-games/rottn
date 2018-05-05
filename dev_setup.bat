@@ -8,13 +8,7 @@ ECHO ##################################
 ECHO Creating Virtual Environment ...
 ECHO ##################################
 MKDIR %~dp0venv
-CALL %path%\Scripts\activate.bat
-ECHO python activated, creating venv ...
-python -m venv %~dp0venv
-ECHO ##################################
-ECHO Activating Virtual Environment ...
-ECHO ##################################
-CALL %~dp0venv\Scripts\activate.bat
+%path%\python.exe -m venv %~dp0venv
 ECHO Appending Development Directory to PYTHONPATH ...
 > %~dp0venv\Lib\site-packages\bossfight.pth ECHO %~dp0bossfight.client\
 >> %~dp0venv\Lib\site-packages\bossfight.pth ECHO %~dp0bossfight.core\
@@ -22,10 +16,10 @@ ECHO Appending Development Directory to PYTHONPATH ...
 ECHO ##################################
 ECHO Installing Dependencies ...
 ECHO ##################################
-python -m pip install --upgrade pip
-pip install pytest
-pip install pyglet
-pip install cocos2d
+%~dp0venv\Scripts\python.exe -m pip install --upgrade pip
+%~dp0venv\Scripts\python.exe -m pip install pytest
+%~dp0venv\Scripts\python.exe -m pip install pyglet
+%~dp0venv\Scripts\python.exe -m pip install cocos2d
 ECHO ##################################
 ECHO Dev Setup completed.
 ECHO Use .\venv environment for testing

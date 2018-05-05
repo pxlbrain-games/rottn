@@ -10,4 +10,4 @@ from bossfight.client import testScene
 director.init()
 
 def test_testScene():
-    assert len(testScene.TestScene().children) == 1
+    assert len(testScene.TestScene('test').children) == 1
