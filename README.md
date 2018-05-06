@@ -10,9 +10,22 @@ Recommended IDE: VSCode + Python Extension (by MS)
 
 1. Clone Repository
 1. Run `.\dev_setup.bat` as Administrator
-1. Open project folder in preferred IDE, maybe install pylint, enable pytest (unit tests are in the `.\tests\` subfolder).
-1. To start the server run `python -m bossfight.server`, the start a client in a new terminal with `python -m bossfight.client`.
+1. IDE-specific setup (VSCode: install pylint, enable pytest for unit tests in `.\tests\`)
 
 ### \*nix/MacOS
 
 No setup scripts yet.
+
+## Documentation
+
+Recommended modelling tool: https://www.draw.io/
+
+Save diagrams (.xml and exported .pdf) to `.\docs`.
+
+## Testing
+
+To start the server run `python -m bossfight.server`, the start any number of clients in additional terminals with `python -m bossfight.client`.
+
+### Unit Tests
+
+py.test unit tests in `.\tests\` folder.
