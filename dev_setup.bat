@@ -20,6 +20,7 @@ ECHO ##################################
 %~dp0venv\Scripts\python.exe -m pip install pytest
 %~dp0venv\Scripts\python.exe -m pip install pyglet
 %~dp0venv\Scripts\python.exe -m pip install cocos2d
+%~dp0venv\Scripts\python.exe -m pip install u-msgpack-python
 ECHO ##################################
 ECHO Dev Setup completed.
 ECHO Use .\venv environment for testing
