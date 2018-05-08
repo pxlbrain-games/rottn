@@ -4,7 +4,7 @@ import socket
 #import bossfight.core.sharedGameData as sharedGameData
 import bossfight.core.gameServiceProtocol as gsp
 
-class GameServiceConnection:
+class UDPGameServiceConnection:
     def __init__(self, server_address):
         self.server_address = server_address
         self._client_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
