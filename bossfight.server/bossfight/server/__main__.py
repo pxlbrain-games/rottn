@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from bossfight.server.testServer import TestUDPServer
+from bossfight.server.testServer import UDPGameService
 
-with TestUDPServer(('localhost', 9990)) as server:
+with UDPGameService(('localhost', 9990)) as server:
     server.serve_forever()
