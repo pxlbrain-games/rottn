@@ -10,10 +10,10 @@ class PackageType(IntEnum):
     GetGameStateUpdateRequest = 2
     PostPlayerActionRequest = 3
     GameServiceResponse = 4
+    GameServiceError = 5
 
-# Unique 4-byte tokens to mark the end of the header of a GameServicePackage and the package itself:
+# Unique 4-byte token to mark the end of the header of a GameServicePackage
 _HEADER_END_TOKEN = bytes.fromhex('b5968459')
-_PACKAGE_END_TOKEN = bytes.fromhex('accc2501')
 
 class _GameServicePackageHeader(ISendable):
     def __init__(self, package_type:PackageType, body_type:str):
@@ -52,28 +52,23 @@ class GameServicePackage:
     def __init__(self, package_type:PackageType, body:ISendable=None):
         self.header = _GameServicePackageHeader(package_type, body.__class__.__name__)
         self.body = body
-    
-    def write_to_datagram(self, dgram_socket_filestream):
+       
+    def to_datagram(self):
         '''
-        Writes a bytepacked datagram representing the GameServicePackage into the file-like byte stream given as parameter.
+        Returns a bytepacked datagram representing the GameServicePackage.
         '''
         self.header.body_type = self.body.__class__.__name__
         datagram = bytearray(self.header.to_bytes())
         datagram.extend(_HEADER_END_TOKEN)
         if self.body != None: datagram.extend(self.body.to_bytes())
-        datagram.extend(_PACKAGE_END_TOKEN)
-        dgram_socket_filestream.write(datagram)
-        dgram_socket_filestream.flush()
+        return bytes(datagram)
     
     @staticmethod
-    def read_from_datagram(dgram_socket_filestream):
+    def from_datagram(datagram:bytes):
         '''
-        Reads the content of the file-like byte stream given as the parameter and returns it as a GameServicePackage object.
+        Unpacks the given bytepacked datagram and returns it's content as a GameServicePackage object.
         '''
-        datagram = bytearray()
-        while _PACKAGE_END_TOKEN not in datagram:
-            datagram.extend(dgram_socket_filestream.read(32))
-        datagram = bytes(datagram)[:-len(_PACKAGE_END_TOKEN)].split(_HEADER_END_TOKEN)
+        datagram = datagram.split(_HEADER_END_TOKEN)
         header = _GameServicePackageHeader.from_bytes(datagram[0])
         if header.body_type != 'NoneType':
             body = getattr(sys.modules[__name__], header.body_type).from_bytes(datagram[1])
