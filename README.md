@@ -2,13 +2,14 @@
 
 Indie game with only procedurally generated boss levels. Online/LAN-Coop. Aim: Boss-AI uses procedurally generated Neural Nets with Reinforcement Learning capacity.
 
-## Development Environment Setup
+## Development Environment 
 
-Recommended IDE: VSCode + Python Extension (by MS)
+https://www.python.org/
+Recommended IDE: VSCode + Python Extension (https://code.visualstudio.com/download)
 
 ### Windows
 
-1. Clone Repository
+1. Clone Repository (https://git-scm.com/download/win)
 1. Run `.\dev_setup.bat` as Administrator
 1. IDE-specific setup (VSCode: install pylint, enable pytest for unit tests in `.\tests\`)
 
@@ -24,8 +25,9 @@ Save diagrams (.xml and exported .pdf) to `.\docs`.
 
 ## Testing
 
-To start the server run `python -m bossfight.server`, the start any number of clients in additional terminals with `python -m bossfight.client`.
+Start the client with `python -m bossfight.client`.
+You can run the server seperately with `python -m bossfight.server`, but currently it is expected that the client starts the server as a subprocess.
 
 ### Unit Tests
 
-py.test unit tests in `.\tests\` folder.
+py.test (https://docs.pytest.org) unit tests in `.\tests\` folder.
