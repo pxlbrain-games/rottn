@@ -30,7 +30,12 @@ class TestGameService:
         assert response.header.package_type == gsp.PackageType.GameServiceResponse
         self.mock_client_request(bytes('Not a proper package', 'utf-8'))
         self.testServer.handle_request()
-        with pytest.raises(socket.timeout):
-            self.mock_client_recv()
+        response = gsp.GameServicePackage.from_datagram(self.mock_client_recv())
+        assert response.header.package_type == gsp.PackageType.GameServiceError and \
+               response.body.error_type == gsp.ErrorType.UnpackError
+        self.mock_client_request(gsp.GameServicePackage(gsp.PackageType.GameServiceResponse).to_datagram())
+        self.testServer.handle_request()
+        response = gsp.GameServicePackage.from_datagram(self.mock_client_recv())
+        assert response.header.package_type == gsp.PackageType.GameServiceError
         self.testServer.server_close()
     

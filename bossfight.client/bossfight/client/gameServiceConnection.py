@@ -8,7 +8,8 @@ class UDPGameServiceConnection:
     def __init__(self, server_address):
         self.server_address = server_address
         self._client_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-        self._client_socket.settimeout(gsp.REQUEST_TIMEOUT)
+        self.request_timeout = 1.0
+        self._client_socket.settimeout(self.request_timeout)
         self._buffer_size = 1024
     
     def send_and_recv(self, package:gsp.GameServicePackage):
@@ -21,4 +22,5 @@ class UDPGameServiceConnection:
         except socket.timeout:
             return gsp.GameServicePackage(
                 gsp.PackageType.GameServiceError,
-                gsp.GameServiceErrorMessage(gsp.ErrorType.RequestTimeOut, 'Server did not respond.'))
+                gsp.ErrorMessage(gsp.ErrorType.RequestTimeout, 'Server did not respond.')
+                )

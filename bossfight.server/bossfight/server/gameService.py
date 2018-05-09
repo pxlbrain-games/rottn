@@ -15,13 +15,26 @@ class UDPGameService(socketserver.ThreadingUDPServer):
 class _UDPGameServiceRequestHandler(socketserver.BaseRequestHandler):
     def handle(self):
         # Read out request
-        gameServiceRequest = gsp.GameServicePackage.from_datagram(self.request[0])
+        try:
+            gameServiceRequest = gsp.GameServicePackage.from_datagram(self.request[0])
+        except:
+            gameServiceRequest = gsp.GameServicePackage(
+                package_type=gsp.PackageType.GameServiceError,
+                body=gsp.ErrorMessage(gsp.ErrorType.UnpackError)
+            )
 
         # Handle request and assign gameServiceResponse here
         if gameServiceRequest.header.package_type == gsp.PackageType.GetSharedGameStateRequest:
-            gameServiceResponse = gsp.GameServicePackage(gsp.PackageType.GameServiceResponse, body=self.server.sharedGameState)
+            gameServiceResponse = gsp.GameServicePackage(
+                package_type=gsp.PackageType.GameServiceResponse,
+                body=self.server.sharedGameState)
+        elif gameServiceRequest.header.package_type == gsp.PackageType.GameServiceError:
+            gameServiceResponse = gameServiceRequest
         else:
-            gameServiceResponse = gsp.GameServicePackage(gsp.PackageType.GameServiceError)
+            gameServiceResponse = gsp.GameServicePackage(
+                package_type=gsp.PackageType.GameServiceError,
+                body=gsp.ErrorMessage(gsp.ErrorType.RequestUnkown)
+                )
         
         # Send response
         self.request[1].sendto(gameServiceResponse.to_datagram(), self.client_address)

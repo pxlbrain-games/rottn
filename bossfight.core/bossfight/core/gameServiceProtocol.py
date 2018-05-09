@@ -5,8 +5,8 @@ from enum import IntEnum
 import umsgpack
 from bossfight.core.sharedGameData import ISendable, SharedGameState
 
-_HEADER_END_TOKEN = bytes.fromhex('b5968459') # Unique 4-byte token to mark the end of the header of a GameServicePackage
-REQUEST_TIMEOUT = 1.0 # timeout in seconds
+# Unique 4-byte token to mark the end of the header of a GameServicePackage
+_HEADER_END_TOKEN = bytes.fromhex('b5968459')
 
 class PackageType(IntEnum):
     GetSharedGameStateRequest = 1
@@ -16,9 +16,11 @@ class PackageType(IntEnum):
     GameServiceError = 5
 
 class ErrorType(IntEnum):
-    RequestTimeOut = 1
+    RequestTimeout = 1
+    UnpackError = 2
+    RequestUnkown = 3
 
-class GameServiceErrorMessage(ISendable):
+class ErrorMessage(ISendable):
     def __init__(self, error_type:ErrorType, message=''):
         self.error_type = error_type
         self.message = message
@@ -30,11 +32,11 @@ class GameServiceErrorMessage(ISendable):
     def from_bytes(bytepack:bytes):
         receivedError = umsgpack.unpackb(bytepack)
         try:
-            return GameServiceErrorMessage(
+            return ErrorMessage(
                 error_type=receivedError['error_type'],
                 message=receivedError['message'])
         except KeyError:
-            raise TypeError('Bytes could no be parsed into GameServiceErrorMessage.')
+            raise TypeError('Bytes could no be parsed into ErrorMessage.')
 
 class _GameServicePackageHeader(ISendable):
     def __init__(self, package_type:PackageType, body_type:str):
