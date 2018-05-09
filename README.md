@@ -5,6 +5,7 @@ Indie game with only procedurally generated boss levels. Online/LAN-Coop. Aim: B
 ## Development Environment 
 
 https://www.python.org/
+
 Recommended IDE: VSCode + Python Extension (https://code.visualstudio.com/download)
 
 ### Windows
