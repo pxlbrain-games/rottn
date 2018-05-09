@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import socketserver
-#import threading
+import threading
 import bossfight.core.sharedGameData as sharedGameData
 import bossfight.core.gameServiceProtocol as gsp
 

@@ -7,10 +7,6 @@ from bossfight.client.scenes.serverTestScene import ServerTestScene
 class MainMenuLayer(cocos.menu.Menu):
     def __init__(self):
         super().__init__(title='BossFight')
-        menu_items = [
-            cocos.menu.MenuItem('Test Server', self.on_test_server),
-            cocos.menu.MenuItem('Quit', self.on_quit)
-        ]
         self.font_title.update({
             'font_size': 64,
             'bold': True
@@ -22,6 +18,10 @@ class MainMenuLayer(cocos.menu.Menu):
         self.font_item_selected.update({
             'color': (255,255,255,255)
         })
+        menu_items = [
+            cocos.menu.MenuItem('Test Server', self.on_test_server),
+            cocos.menu.MenuItem('Quit', self.on_quit)
+        ]
         self.create_menu(menu_items, cocos.menu.zoom_in(), cocos.menu.zoom_out(), cocos.menu.shake())
     
     def on_test_server(self):
