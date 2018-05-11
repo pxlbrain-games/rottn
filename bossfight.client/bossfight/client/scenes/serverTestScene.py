@@ -9,42 +9,44 @@ import sys
 class ServerTestTextLayer(cocos.layer.Layer):
     def __init__(self):
         super().__init__()
-
-    def on_enter(self):
-        super().on_enter()
-        request = gsp.GameServicePackage(gsp.PackageType.GetSharedGameStateRequest)
-        try:
-            response = self.parent.connection.send_and_recv(request)
-            if response.header.package_type == gsp.PackageType.GameServiceResponse and response.header.body_type == 'SharedGameState':
-                self.add(cocos.text.Label(
-                    'Connection successful!',
-                    font_name='Arial',
-                    font_size=16,
-                    anchor_x='center',
-                    anchor_y='center',
-                    position=(320, 240)
-                    ))
-        except:
-            self.add(cocos.text.Label(
-                'Connection failed.',
-                font_name='Arial',
-                font_size=16,
-                anchor_x='center',
-                anchor_y='center',
-                position=(320, 240)
-                ))
-
+        self.add(cocos.text.Label(
+            'Waiting for Server ...',
+            font_name='Arial',
+            font_size=16,
+            anchor_x='center',
+            anchor_y='center',
+            position=(320, 240)
+            ), name=str(gameServiceConnection.ConnectionStatus.WaitingForServer))
+        self.add(cocos.text.Label(
+            'Connected',
+            font_name='Arial',
+            font_size=16,
+            anchor_x='center',
+            anchor_y='center',
+            position=(320, 240)
+            ), name=str(gameServiceConnection.ConnectionStatus.Connected))
+        self.add(cocos.text.Label(
+            'Disconnected',
+            font_name='Arial',
+            font_size=16,
+            anchor_x='center',
+            anchor_y='center',
+            position=(320, 240)
+            ), name=str(gameServiceConnection.ConnectionStatus.Disconnected))
+        for child in self.get_children(): child.visible = False
+    
 class ServerTestScene(cocos.scene.Scene):
     def __init__(self):
         super().__init__()
-        self.add(ServerTestTextLayer())
-        self.connection = gameServiceConnection.UDPGameServiceConnection(('localhost', 9990))
+        self.add(ServerTestTextLayer(), name='text_layer')
         self.server_process = subprocess.Popen([sys.executable, '-m', 'bossfight.server'])
-        try:
-            self.server_process.wait(timeout=1.0)
-        except subprocess.TimeoutExpired:
-            pass
+        self.connection = gameServiceConnection.GameServiceConnection(('localhost', 9999))
+        self.schedule(self.update_text)
     
+    def update_text(self, dt):
+        for child in self.get('text_layer').get_children(): child.visible = False
+        self.get('text_layer').get(str(self.connection.connection_status)).visible = True
+
     def on_exit(self):
         self.server_process.terminate()
         super().on_exit()

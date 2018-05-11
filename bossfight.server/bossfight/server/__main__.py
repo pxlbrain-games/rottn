@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import threading
-from bossfight.server.gameService import UDPGameService
+from bossfight.server.gameService import GameService
 
-server = UDPGameService(('localhost', 9990))
+server = GameService(('localhost', 9999))
 server_thread = threading.Thread(target=server.serve_forever)
 server_thread.start()
-server_thread.join(5.0)
-print('Server ran for 5 s.')
+server_thread.join(10.0)
+print('Server ran for 10 s.')
 server.shutdown()

@@ -18,7 +18,7 @@ class PackageType(IntEnum):
 class ErrorType(IntEnum):
     RequestTimeout = 1
     UnpackError = 2
-    RequestUnkown = 3
+    RequestInvalid = 3
 
 class ErrorMessage(ISendable):
     def __init__(self, error_type:ErrorType, message=''):

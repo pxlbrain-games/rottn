@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from bossfight.server.gameService import UDPGameService
+from bossfight.server.gameService import GameService
 import bossfight.core.gameServiceProtocol as gsp
 import socket
 import pytest
@@ -8,7 +8,7 @@ import pytest
 class TestGameService:
 
     server_address = ('localhost', 9998)
-    testServer = UDPGameService(server_address)
+    testServer = GameService(server_address)
     mock_client_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
     mock_client_socket.settimeout(1.0)
 
@@ -20,7 +20,7 @@ class TestGameService:
         
     def test_UDPGameServiceInstance(self):
         assert self.testServer.sharedGameState == gsp.SharedGameState()
-        assert self.testServer.RequestHandlerClass.__name__ == '_UDPGameServiceRequestHandler'
+        assert self.testServer.RequestHandlerClass.__name__ == '_GameServiceRequestHandler'
     
     def test_GameServicePackageTransmission(self):
         self.testServer.server_activate()

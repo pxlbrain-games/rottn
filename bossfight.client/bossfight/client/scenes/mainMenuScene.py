@@ -22,13 +22,13 @@ class MainMenuLayer(cocos.menu.Menu):
             cocos.menu.MenuItem('Test Server', self.on_test_server),
             cocos.menu.MenuItem('Quit', self.on_quit)
         ]
-        self.create_menu(menu_items, cocos.menu.zoom_in(), cocos.menu.zoom_out(), cocos.menu.shake())
+        self.create_menu(menu_items, cocos.menu.zoom_in(), cocos.menu.zoom_out())#, cocos.menu.shake())
     
     def on_test_server(self):
-        director.replace(ServerTestScene())
+        director.push(ServerTestScene())
     
     def on_quit(self):
-        director.terminate_app = True
+        self.parent.end()
 
 class MainMenuScene(cocos.scene.Scene):
     def __init__(self):

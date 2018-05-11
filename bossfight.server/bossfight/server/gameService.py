@@ -2,39 +2,44 @@
 
 import socketserver
 import threading
+import time
 import bossfight.core.sharedGameData as sharedGameData
 import bossfight.core.gameServiceProtocol as gsp
 
-class UDPGameService(socketserver.ThreadingUDPServer):
+class GameService(socketserver.ThreadingUDPServer):
     '''Threading UDP server that manages clients and processes requests.'''
 
     def __init__(self, server_address):
-        super().__init__(server_address, _UDPGameServiceRequestHandler)
+        super().__init__(server_address, _GameServiceRequestHandler)
         self.sharedGameState = sharedGameData.SharedGameState()
 
-class _UDPGameServiceRequestHandler(socketserver.BaseRequestHandler):
+class _GameServiceRequestHandler(socketserver.BaseRequestHandler):
     def handle(self):
         # Read out request
         try:
-            gameServiceRequest = gsp.GameServicePackage.from_datagram(self.request[0])
+            request = gsp.GameServicePackage.from_datagram(self.request[0])
         except:
-            gameServiceRequest = gsp.GameServicePackage(
+            # if unpacking request failed send back error message and exit handle function
+            response = gsp.GameServicePackage(
                 package_type=gsp.PackageType.GameServiceError,
-                body=gsp.ErrorMessage(gsp.ErrorType.UnpackError)
-            )
+                body=gsp.ErrorMessage(gsp.ErrorType.UnpackError, 'Server responded: Byte error.')
+                )
+            self.request[1].sendto(response.to_datagram(), self.client_address)
+            return
 
-        # Handle request and assign gameServiceResponse here
-        if gameServiceRequest.header.package_type == gsp.PackageType.GetSharedGameStateRequest:
-            gameServiceResponse = gsp.GameServicePackage(
+        # Handle request and assign response here
+        if request.header.package_type == gsp.PackageType.GetSharedGameStateRequest or \
+           request.header.package_type == gsp.PackageType.GetGameStateUpdateRequest:
+            # respond by sending back the shared game state
+            response = gsp.GameServicePackage(
                 package_type=gsp.PackageType.GameServiceResponse,
                 body=self.server.sharedGameState)
-        elif gameServiceRequest.header.package_type == gsp.PackageType.GameServiceError:
-            gameServiceResponse = gameServiceRequest
         else:
-            gameServiceResponse = gsp.GameServicePackage(
+            # if none of the above were a match the request was invalid
+            response = gsp.GameServicePackage(
                 package_type=gsp.PackageType.GameServiceError,
-                body=gsp.ErrorMessage(gsp.ErrorType.RequestUnkown)
+                body=gsp.ErrorMessage(gsp.ErrorType.RequestInvalid, 'Server responded: Request invalid.')
                 )
         
         # Send response
-        self.request[1].sendto(gameServiceResponse.to_datagram(), self.client_address)
+        self.request[1].sendto(response.to_datagram(), self.client_address)
