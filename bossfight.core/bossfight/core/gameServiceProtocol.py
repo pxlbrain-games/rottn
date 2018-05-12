@@ -9,6 +9,14 @@ from bossfight.core.sharedGameData import ISendable, SharedGameState
 _HEADER_END_TOKEN = bytes.fromhex('b5968459')
 
 class PackageType(IntEnum):
+    '''
+    Enum class with the following values:
+    - *GetSharedGameStateRequest*: As client request the full shared game state from the server. body=None
+    - *GetGameStateUpdateRequest*: As client request all polled game state updates. body=None
+    - *PostPlayerActionRequest*: As client post a player action to the GameService. body=PlayerAction object
+    - *GameServiceResponse*: As server respond to a client request. body=request-dependent
+    - *GameServiceError*: As server report an error to the client. body=ErrorMessage
+    '''
     GetSharedGameStateRequest = 1
     GetGameStateUpdateRequest = 2
     PostPlayerActionRequest = 3
@@ -16,6 +24,14 @@ class PackageType(IntEnum):
     GameServiceError = 5
 
 class ErrorType(IntEnum):
+    '''
+    Enum class with the following values:
+    - *RequestTimeout*: Server response took to long.
+    - *UnpackError*: Request or response bytepack corrupted.
+    - *RequestInvalid*: Server could not handle the request.
+
+    To be used as part of an *ErrorMessage* object in a *GameServiceError* package.
+    '''
     RequestTimeout = 1
     UnpackError = 2
     RequestInvalid = 3
@@ -69,8 +85,9 @@ class _GameServicePackageHeader(ISendable):
 
 class GameServicePackage:
     '''
-    Contains `.header` and `.body` attributes. The header contains information about the request, the body and the client.
-    The body is some object of a core class like `SharedGameState`, `SharedGameStateUpdate` or `PlayerAction`.
+    Contains *header* and *body* as attributes. The header contains information about the the package type and body.
+    The body is some object of a core class like *ErrorMessage*, *SharedGameState*, *SharedGameStateUpdate*
+    or *PlayerAction*.
     '''
     def __init__(self, package_type:PackageType, body:ISendable=None):
         self.header = _GameServicePackageHeader(package_type, body.__class__.__name__)
@@ -89,7 +106,7 @@ class GameServicePackage:
     @staticmethod
     def from_datagram(datagram:bytes):
         '''
-        Unpacks the given bytepacked datagram and returns it's content as a GameServicePackage object.
+        Unpacks the given bytepacked datagram and returns it's content as a *GameServicePackage* object.
         '''
         datagram = datagram.split(_HEADER_END_TOKEN)
         header = _GameServicePackageHeader.from_bytes(datagram[0])

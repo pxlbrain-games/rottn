@@ -48,5 +48,6 @@ class ServerTestScene(cocos.scene.Scene):
         self.get('text_layer').get(str(self.connection.connection_status)).visible = True
 
     def on_exit(self):
+        self.connection.close()
         self.server_process.terminate()
         super().on_exit()

@@ -7,7 +7,9 @@ import bossfight.core.sharedGameData as sharedGameData
 import bossfight.core.gameServiceProtocol as gsp
 
 class GameService(socketserver.ThreadingUDPServer):
-    '''Threading UDP server that manages clients and processes requests.'''
+    '''Threading UDP server that manages clients and processes requests.
+    Call *serve_forever*() in a seperate thread for the server to start handling requests from *GameServiceConnection*s.
+    Call *shutdown*() to stop it.'''
 
     def __init__(self, server_address):
         super().__init__(server_address, _GameServiceRequestHandler)

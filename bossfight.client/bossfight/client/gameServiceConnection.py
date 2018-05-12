@@ -8,11 +8,25 @@ import bossfight.core.sharedGameData as sharedGameData
 import bossfight.core.gameServiceProtocol as gsp
 
 class ConnectionStatus(IntEnum):
+    '''
+    Enum class with the following values:
+    - *Connected*: Connection is running.
+    - *WaitingForServer*: Connection is trying to connect/reconnect to the server.
+    - *Disconnected*: Connection is not communicating with the server.
+    '''
     Connected = 1
     WaitingForServer = 2
     Disconnected = 3
 
 class GameServiceConnection:
+    '''
+    Initialization of a *GameServiceConnection* will open a connection to a BossFight GameService with the
+    specified *server_address* as a tuple containing the IP-adress as a string and the port as an int.
+    Check the *connection_status* attribute to get the status of the Connection as an *ConnectionStatus* object.
+
+    A running *GameServiceConnection* will request an update of *sharedGameState* from the server every
+    *update_cycle_interval* seconds. *sharedGameState* is a *sharedGameData.SharedGameState* object.
+    '''
 
     @property
     def request_timeout(self):
@@ -35,10 +49,10 @@ class GameServiceConnection:
         self._update_cycle_thread.start()
     
     def _send_and_recv(self, package:gsp.GameServicePackage):
-        '''
-        Sends *package* to the GameService and returns the servers response (as a GameServicePackage).
-        '''
+        
+        # Send package to server ...
         self._client_socket.sendto(package.to_datagram(), self.server_address)
+        # ... and return response if possible, otherwise return GameServiceError package
         try:
             return gsp.GameServicePackage.from_datagram(self._client_socket.recv(self._buffer_size))
         except socket.timeout:
@@ -54,18 +68,29 @@ class GameServiceConnection:
 
     def reconnect(self):
         '''
-        Will try to reconnect to the server if connection_status == ConnectionStatus.Disconnected.
+        Will try to reconnect to the server if *connection_status* == *ConnectionStatus.Disconnected*.
         Otherwise does nothing.
         '''
         if not self._update_cycle_thread.is_alive():
             self._update_cycle_thread = threading.Thread(target=self._update_cycle)
             self._update_cycle_thread.start()
+    
+    def close(self):
+        '''
+        Will stop the connection from sending any further requests to the server.
+        Will do nothing if *connection_status* == *ConnectionStatus.Disconnected*.
+        '''
+        t0 = time.time()
+        # Force update cycle to end
+        while self._update_cycle_thread.is_alive() and time.time()-t0 < self.request_timeout:
+            self.connection_status = ConnectionStatus.Disconnected
+        if self._update_cycle_thread.is_alive(): raise threading.ThreadError
 
     def _try_connect(self):
         t0 = time.time()
         self.connection_status = ConnectionStatus.WaitingForServer
         # Try to successfully get the shared game state for connection_timeout seconds
-        while time.time()-t0 < self.connection_timeout:
+        while time.time()-t0 < self.connection_timeout and not self.connection_status == ConnectionStatus.Disconnected:
             response = self._send_and_recv(gsp.GameServicePackage(gsp.PackageType.GetSharedGameStateRequest))
             if response.header.package_type == gsp.PackageType.GameServiceResponse:
                 self.sharedGameState = response.body

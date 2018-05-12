@@ -6,14 +6,14 @@ import umsgpack
 class ISendable:
     '''
     Interface for objects that are supposed to be sendable as part of a server request or response.
-    Inheriting classes must implement the static method `from_bytes(bytepack)` and possibly `to_bytes(self)`.
-    `from_bytes(bytepack)` should return an instance of the inheriting class, if the argument was generated with `to_bytes()`.
+    Inheriting classes must implement the static method *from_bytes*(bytepack) and possibly *to_bytes*(self).
+    *from_bytes*(bytepack) should return an instance of the inheriting class from bytepack generated with *to_bytes*().
     '''
 
     def to_bytes(self):
         '''
         Packs and return a small a binary representation of self.
-        Override this, if simple __dict__ serialization is insufficient.
+        Override this, if simple *__dict__* serialization is insufficient.
         '''
         return umsgpack.packb(self.__dict__)
 
@@ -23,13 +23,18 @@ class ISendable:
         raise NotImplementedError
 
 class GameStatus(IntEnum):
+    '''
+    Enum class with the values:
+    - *Paused*
+    - *Active*
+    '''
     Paused = 1
     Active = 2
 
 class SharedGameState(ISendable):
     '''
     Contains game state information that is required to be known both by the server and the client.
-    Provides methods for sending and receiving SharedGameState objects via UDP sockets.
+    Provides methods for sending and receiving SharedGameState objects via *GameService* and *GameServiceConnection*.
     '''
 
     def __init__(self, game_status=GameStatus.Paused):
@@ -40,7 +45,7 @@ class SharedGameState(ISendable):
     '''
     @staticmethod
     def from_bytes(bytepack):
-        '''Decodes a a bytes object into a SharedGameState.'''
+        '''Decodes a a bytes object into a *SharedGameState*.'''
         receivedGameState = umsgpack.unpackb(bytepack)
         try:
             return SharedGameState(game_status=receivedGameState['game_status'])
