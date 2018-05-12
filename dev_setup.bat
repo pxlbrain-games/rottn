@@ -1,9 +1,10 @@
 @ECHO off
 ECHO Only run this once!
-ECHO Create venv, add path to PYTHONPATH and install dependencies?
+ECHO Create venv, add project path to it and install all dependencies?
 SET /p continue=[y/n] 
 IF %continue%==n EXIT
-SET /p path=Input path to Python Distribution (with backslashes): 
+ECHO Input path to Python 3.6+ installation
+SET /p path=(the directory that contains the python.exe, without a slash at the end): 
 ECHO ##################################
 ECHO Creating Virtual Environment ...
 ECHO ##################################
@@ -17,12 +18,10 @@ ECHO ##################################
 ECHO Installing Dependencies ...
 ECHO ##################################
 %~dp0venv\Scripts\python.exe -m pip install --upgrade pip
-%~dp0venv\Scripts\python.exe -m pip install pytest
-%~dp0venv\Scripts\python.exe -m pip install pyglet
-%~dp0venv\Scripts\python.exe -m pip install cocos2d
-%~dp0venv\Scripts\python.exe -m pip install u-msgpack-python
+%~dp0venv\Scripts\python.exe -m pip install -r %~dp0requirements.txt
 ECHO ##################################
 ECHO Dev Setup completed.
 ECHO Use .\venv environment for testing
+ECHO and development.
 ECHO ##################################
 PAUSE
