@@ -4,6 +4,18 @@ import cocos
 from cocos.director import director
 from bossfight.client.scenes.serverTestScene import ServerTestScene
 
+
+class MainMenuScene(cocos.scene.Scene):
+    def __init__(self):
+        super().__init__()
+        self.open_main_menu()
+    
+    def open_options_menu(self):
+        self.add(OptionsMenuLayer())
+    
+    def open_main_menu(self):
+        self.add(MainMenuLayer())
+
 class MainMenuLayer(cocos.menu.Menu):
     def __init__(self):
         super().__init__(title='BossFight')
@@ -29,12 +41,41 @@ class MainMenuLayer(cocos.menu.Menu):
         director.push(ServerTestScene())
     
     def on_options(self):
-        #self.visible = False
-        self.pause()
+        self.parent.open_options_menu()
+        self.kill()
     
     def on_quit(self):
         self.parent.end()
 
-class MainMenuScene(cocos.scene.Scene):
+class OptionsMenuLayer(cocos.menu.Menu):
     def __init__(self):
-        super().__init__(MainMenuLayer())
+        super().__init__(title='Options')
+        self.font_title.update({
+            'font_size': 32,
+            'bold': True
+        })
+        self.font_item.update({
+            'font_size': 16
+        })
+        self.font_item_selected.update(self.font_item)
+        self.font_item_selected.update({
+            'color': (255,255,255,255)
+        })
+        self.resolutions = ['640x480', '1024x720', '1920x1080']
+        self.fullscreen = False
+        menu_items = [
+            cocos.menu.MultipleMenuItem('Resolution: ', self.on_resolution, self.resolutions, 0),
+            cocos.menu.ToggleMenuItem('Fullscreen: ', self.on_fullscreen, self.fullscreen),
+            cocos.menu.MenuItem('Back', self.on_back)
+        ]
+        self.create_menu(menu_items, cocos.menu.zoom_in(), cocos.menu.zoom_out())
+    
+    def on_resolution(self, resolution):
+        pass
+    
+    def on_fullscreen(self, fullscreen):
+        pass
+
+    def on_back(self):
+        self.parent.open_main_menu()
+        self.kill()
