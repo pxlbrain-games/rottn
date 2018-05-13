@@ -79,7 +79,7 @@ class _GameServicePackageHeader(ISendable):
                 package_type=PackageType.GameServiceError,
                 body_type='NoneType'
             )
-            received_header.__dict__.update(received_header_dict)
+            received_header.__dict__ = received_header_dict
             return received_header
         except TypeError:
             raise TypeError('Bytes could no be parsed into _GameServicePackageHeader.')

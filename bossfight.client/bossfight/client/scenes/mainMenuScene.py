@@ -2,6 +2,7 @@
 
 import cocos
 from cocos.director import director
+from pyglet.window import NoSuchScreenModeException
 from bossfight.client.config import Config
 from bossfight.client.scenes.serverTestScene import ServerTestScene
 
@@ -63,9 +64,14 @@ class OptionsMenuLayer(cocos.menu.Menu):
         })
         self.config = Config()
         self.resolutions = ['640x480', '800x600', '1024x768', '1920x1080']
+        current_resolution = [
+            idx for idx, value in enumerate(self.resolutions) \
+            if value.__contains__(str(self.config.screen_width))
+        ][0]
         menu_items = [
-            cocos.menu.MultipleMenuItem('Resolution: ', self.on_resolution, self.resolutions, 1),
+            cocos.menu.MultipleMenuItem('Resolution: ', self.on_resolution, self.resolutions, current_resolution),
             cocos.menu.ToggleMenuItem('Fullscreen: ', self.on_fullscreen, self.config.fullscreen),
+            cocos.menu.MenuItem('Revert to default', self.on_default),
             cocos.menu.MenuItem('Apply', self.on_apply),
             cocos.menu.MenuItem('Back', self.on_back)
         ]
@@ -73,21 +79,29 @@ class OptionsMenuLayer(cocos.menu.Menu):
 
     def on_resolution(self, index):
         width_height = self.resolutions[index].split('x')
-        self.config.screen_resolution = {
-            'width': int(width_height[0]),
-            'height': int(width_height[1])
-        }
+        self.config.screen_width = int(width_height[0])
+        self.config.screen_height = int(width_height[1])
 
     def on_fullscreen(self, value):
-        self.config.fullscreen = value
+        self.config.fullscreen = bool(value)
+
+    def on_default(self):
+        self.config.set_default()
+        self.parent.open_options_menu()
+        self.kill()
 
     def on_apply(self):
-        self.config.save()
-        director.window.set_fullscreen(
-            fullscreen=self.config.fullscreen,
-            width=self.config.screen_resolution['width'],
-            height=self.config.screen_resolution['height']
-        )
+        try:
+            director.window.set_fullscreen(
+                fullscreen=self.config.fullscreen,
+                width=self.config.screen_width,
+                height=self.config.screen_height
+            )
+            self.config.save()
+        except NoSuchScreenModeException:
+            self.config.load()
+            self.parent.open_options_menu()
+            self.kill()
 
     def on_back(self):
         self.parent.open_main_menu()

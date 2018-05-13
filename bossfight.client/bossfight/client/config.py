@@ -5,10 +5,8 @@ import json
 import appdirs
 
 DEFAULT_CONFIG = {
-    'screen_resolution': {
-        'width': 800,
-        'height': 600
-    },
+    'screen_width': 800,
+    'screen_height': 600,
     'fullscreen': False
 }
 

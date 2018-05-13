@@ -13,9 +13,9 @@ class TestConfig:
         assert config_instance.__dict__ != DEFAULT_CONFIG
         other_config_instance = Config()
         assert config_instance.__dict__ == other_config_instance.__dict__
-        other_config_instance.screen_resolution['width'] = 920
+        other_config_instance.screen_width = 920
         assert config_instance.__dict__ == other_config_instance.__dict__
-        assert config_instance.screen_resolution['height'] == 600
+        assert config_instance.screen_height == 600
 
     def test_config_persistence(self, tmpdir, monkeypatch):
         monkeypatch.setattr(Config, 'path', os.path.join(tmpdir, 'test_config.json'))
