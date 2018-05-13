@@ -4,7 +4,6 @@ import cocos
 from cocos.director import director
 from bossfight.client.scenes.serverTestScene import ServerTestScene
 
-
 class MainMenuScene(cocos.scene.Scene):
     def __init__(self):
         super().__init__()
@@ -35,7 +34,7 @@ class MainMenuLayer(cocos.menu.Menu):
             cocos.menu.MenuItem('Options', self.on_options),
             cocos.menu.MenuItem('Quit', self.on_quit)
         ]
-        self.create_menu(menu_items, cocos.menu.zoom_in(), cocos.menu.zoom_out())#, cocos.menu.shake())
+        self.create_menu(menu_items, cocos.menu.zoom_in(), cocos.menu.zoom_out())
     
     def on_test_server(self):
         director.push(ServerTestScene())
@@ -61,11 +60,12 @@ class OptionsMenuLayer(cocos.menu.Menu):
         self.font_item_selected.update({
             'color': (255,255,255,255)
         })
-        self.resolutions = ['640x480', '1024x720', '1920x1080']
+        self.resolutions = ['640x480', '800x600', '1024x768', '1920x1080']
         self.fullscreen = False
         menu_items = [
             cocos.menu.MultipleMenuItem('Resolution: ', self.on_resolution, self.resolutions, 0),
             cocos.menu.ToggleMenuItem('Fullscreen: ', self.on_fullscreen, self.fullscreen),
+            cocos.menu.MenuItem('Apply', self.on_apply),
             cocos.menu.MenuItem('Back', self.on_back)
         ]
         self.create_menu(menu_items, cocos.menu.zoom_in(), cocos.menu.zoom_out())
@@ -74,6 +74,9 @@ class OptionsMenuLayer(cocos.menu.Menu):
         pass
     
     def on_fullscreen(self, fullscreen):
+        pass
+    
+    def on_apply(self):
         pass
 
     def on_back(self):

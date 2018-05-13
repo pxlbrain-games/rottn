@@ -6,8 +6,8 @@ import umsgpack
 class ISendable:
     '''
     Interface for objects that are supposed to be sendable as part of a server request or response.
-    Inheriting classes must implement the static method *from_bytes*(bytepack) and possibly *to_bytes*(self).
-    *from_bytes*(bytepack) should return an instance of the inheriting class from bytepack generated with *to_bytes*().
+    Inheriting classes must implement the static method *from_bytes(bytepack)* and possibly *to_bytes(self)*.
+    *from_bytes(bytepack)* should return an instance of the inheriting class from bytepack generated with *to_bytes()*.
     '''
 
     def to_bytes(self):
@@ -34,7 +34,7 @@ class GameStatus(IntEnum):
 class SharedGameState(ISendable):
     '''
     Contains game state information that is required to be known both by the server and the client.
-    Provides methods for sending and receiving SharedGameState objects via *GameService* and *GameServiceConnection*.
+    Provides methods for sending and receiving *SharedGameState* objects via *GameService* and *GameServiceConnection*.
     '''
 
     def __init__(self, game_status=GameStatus.Paused):
@@ -46,9 +46,11 @@ class SharedGameState(ISendable):
     @staticmethod
     def from_bytes(bytepack):
         '''Decodes a a bytes object into a *SharedGameState*.'''
-        receivedGameState = umsgpack.unpackb(bytepack)
         try:
-            return SharedGameState(game_status=receivedGameState['game_status'])
+            receivedGameState_dict = umsgpack.unpackb(bytepack)
+            receivedGameState = SharedGameState()
+            receivedGameState.__dict__.update(receivedGameState_dict)
+            return receivedGameState
         except KeyError:
             raise TypeError('Bytes could no be parsed into SharedGameState.')
     

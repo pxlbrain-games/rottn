@@ -46,11 +46,11 @@ class ErrorMessage(ISendable):
     '''
     @staticmethod
     def from_bytes(bytepack:bytes):
-        receivedError = umsgpack.unpackb(bytepack)
         try:
-            return ErrorMessage(
-                error_type=receivedError['error_type'],
-                message=receivedError['message'])
+            receivedError_dict = umsgpack.unpackb(bytepack)
+            receivedError = ErrorMessage(error_type=ErrorType.RequestInvalid)
+            receivedError.__dict__.update(receivedError_dict)
+            return receivedError
         except KeyError:
             raise TypeError('Bytes could no be parsed into ErrorMessage.')
 
@@ -64,11 +64,11 @@ class _GameServicePackageHeader(ISendable):
     '''
     @staticmethod
     def from_bytes(bytepack:bytes):
-        receivedHeader = umsgpack.unpackb(bytepack)
         try:
-            return _GameServicePackageHeader(
-                package_type=receivedHeader['package_type'],
-                body_type=receivedHeader['body_type'])
+            receivedHeader_dict = umsgpack.unpackb(bytepack)
+            receivedHeader = _GameServicePackageHeader(package_type=PackageType.GameServiceError, body_type='NoneType')
+            receivedHeader.__dict__.update(receivedHeader_dict)
+            return receivedHeader
         except KeyError:
             raise TypeError('Bytes could no be parsed into _GameServicePackageHeader.')
     
