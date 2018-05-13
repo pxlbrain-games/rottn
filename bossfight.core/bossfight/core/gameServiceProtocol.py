@@ -60,7 +60,7 @@ class ErrorMessage(ISendable):
             received_error = ErrorMessage(error_type=ErrorType.RequestInvalid)
             received_error.__dict__.update(received_error_dict)
             return received_error
-        except KeyError:
+        except TypeError:
             raise TypeError('Bytes could no be parsed into ErrorMessage.')
 
 class _GameServicePackageHeader(ISendable):
@@ -81,7 +81,7 @@ class _GameServicePackageHeader(ISendable):
             )
             received_header.__dict__.update(received_header_dict)
             return received_header
-        except KeyError:
+        except TypeError:
             raise TypeError('Bytes could no be parsed into _GameServicePackageHeader.')
 
     '''

@@ -22,7 +22,7 @@ class _GameServiceRequestHandler(socketserver.BaseRequestHandler):
         # Read out request
         try:
             request = gsp.GameServicePackage.from_datagram(self.request[0])
-        except InsufficientDataException:
+        except (InsufficientDataException, TypeError):
             # if unpacking request failed send back error message and exit handle function
             response = gsp.GameServicePackage(
                 package_type=gsp.PackageType.GameServiceError,
