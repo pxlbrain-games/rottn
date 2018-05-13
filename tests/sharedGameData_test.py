@@ -18,8 +18,8 @@ class TestSharedGameState:
 
     def test_shared_game_state_bytepacking(self):
         bytepack = self.shared_game_state.to_bytes()
-        unpackedGameState = SharedGameState.from_bytes(bytepack)
-        assert self.shared_game_state == unpackedGameState
+        unpacked_game_state = SharedGameState.from_bytes(bytepack)
+        assert self.shared_game_state == unpacked_game_state
         with pytest.raises(TypeError) as exception:
             SharedGameState.from_bytes('This is not a SharedGameState'.encode('utf-8'))
             assert str(exception.value) == 'Bytes could no be parsed into SharedGameState.'

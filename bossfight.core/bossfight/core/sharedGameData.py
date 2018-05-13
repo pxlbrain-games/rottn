@@ -6,8 +6,9 @@ import umsgpack
 class ISendable:
     '''
     Interface for objects that are supposed to be sendable as part of a server request or response.
-    Inheriting classes must implement the static method *from_bytes(bytepack)* and possibly *to_bytes(self)*.
-    *from_bytes(bytepack)* should return an instance of the inheriting class from bytepack generated with *to_bytes()*.
+    Inheriting classes must implement the static method *from_bytes(bytepack)* and possibly
+    *to_bytes(self)*. *from_bytes(bytepack)* should return an instance of the inheriting class from
+    bytepack generated with *to_bytes()*.
     '''
 
     def to_bytes(self):
@@ -34,7 +35,8 @@ class GameStatus(IntEnum):
 class SharedGameState(ISendable):
     '''
     Contains game state information that is required to be known both by the server and the client.
-    Provides methods for sending and receiving *SharedGameState* objects via *GameService* and *GameServiceConnection*.
+    Provides methods for sending and receiving *SharedGameState* objects via *GameService* and
+    *GameServiceConnection*.
     '''
 
     def __init__(self, game_status=GameStatus.Paused):
@@ -47,13 +49,13 @@ class SharedGameState(ISendable):
     def from_bytes(bytepack):
         '''Decodes a a bytes object into a *SharedGameState*.'''
         try:
-            receivedGameState_dict = umsgpack.unpackb(bytepack)
-            receivedGameState = SharedGameState()
-            receivedGameState.__dict__.update(receivedGameState_dict)
-            return receivedGameState
+            received_game_state_dict = umsgpack.unpackb(bytepack)
+            received_game_state = SharedGameState()
+            received_game_state.__dict__.update(received_game_state_dict)
+            return received_game_state
         except KeyError:
             raise TypeError('Bytes could no be parsed into SharedGameState.')
-    
+
     '''
     Overrides of object member functions
     '''
@@ -61,6 +63,6 @@ class SharedGameState(ISendable):
         if isinstance(other, self.__class__):
             return self.game_status == other.game_status
         return False
-    
+
     def __ne__(self, other):
         return not self.__eq__(other)

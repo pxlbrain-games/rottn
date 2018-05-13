@@ -18,7 +18,7 @@ class TestGameService:
         return self.mock_client_socket.recv(buffer_size)
 
     def test_game_service_instantiation(self):
-        assert self.server.sharedGameState == gsp.SharedGameState()
+        assert self.server.shared_game_state == gsp.SharedGameState()
         assert self.server.RequestHandlerClass.__name__ == '_GameServiceRequestHandler'
 
     def test_game_service_request_handler(self):

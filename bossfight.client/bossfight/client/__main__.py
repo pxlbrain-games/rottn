@@ -7,6 +7,7 @@ from bossfight.client.config import Config
 config = Config()
 
 director.init(
+    caption='BossFight',
     fullscreen=config.fullscreen,
     width=config.screen_resolution['width'],
     height=config.screen_resolution['height']

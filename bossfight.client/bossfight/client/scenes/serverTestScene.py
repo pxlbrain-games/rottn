@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import sys
+import subprocess
 import cocos
 import bossfight.client.gameServiceConnection as gameServiceConnection
-import bossfight.core.gameServiceProtocol as gsp
-import subprocess
-import sys
 
 class ServerTestTextLayer(cocos.layer.Layer):
     def __init__(self):
@@ -34,7 +33,7 @@ class ServerTestTextLayer(cocos.layer.Layer):
             position=(320, 240)
             ), name=str(gameServiceConnection.ConnectionStatus.Disconnected))
         for child in self.get_children(): child.visible = False
-    
+
 class ServerTestScene(cocos.scene.Scene):
     def __init__(self):
         super().__init__()
@@ -42,7 +41,7 @@ class ServerTestScene(cocos.scene.Scene):
         self.server_process = subprocess.Popen([sys.executable, '-m', 'bossfight.server'])
         self.connection = gameServiceConnection.GameServiceConnection(('localhost', 9999))
         self.schedule(self.update_text)
-    
+
     def update_text(self, dt):
         for child in self.get('text_layer').get_children(): child.visible = False
         self.get('text_layer').get(str(self.connection.connection_status)).visible = True
