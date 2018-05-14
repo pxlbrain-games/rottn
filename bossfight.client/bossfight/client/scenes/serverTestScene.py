@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import subprocess
 import cocos
 from bossfight.client.config import Config

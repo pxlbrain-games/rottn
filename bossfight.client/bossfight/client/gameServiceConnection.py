@@ -46,7 +46,7 @@ class GameServiceConnection:
         self.connection_timeout = 5.0
         self._buffer_size = 1024
         self._update_cycle_thread = threading.Thread(target=self._update_cycle)
-        self.update_cycle_interval = 0.1
+        self.update_cycle_interval = 0.03
         self.connection_status = ConnectionStatus.WaitingForServer
         self._update_cycle_thread.start()
 
@@ -95,6 +95,7 @@ class GameServiceConnection:
         # Try to successfully get the shared game state for connection_timeout seconds
         while time.time()-t_0 < self.connection_timeout and \
           not self.connection_status == ConnectionStatus.Disconnected:
+            t_1 = time.time()
             response = self._send_and_recv(
                 gsp.GameServicePackage(gsp.PackageType.GetSharedGameStateRequest)
             )
@@ -103,7 +104,9 @@ class GameServiceConnection:
                 self.connection_status = ConnectionStatus.Connected
                 return # Connection successful, leave _try_connect()
             elif response.header.package_type == gsp.PackageType.GameServiceError:
-                print(response.body.message)
+                pass#print(response.body.message)
+            dt = time.time()-t_1
+            time.sleep(max(self.update_cycle_interval-dt, 0))
         # if this point is reached connection was unsuccessful
         self.connection_status = ConnectionStatus.Disconnected
 
@@ -118,7 +121,7 @@ class GameServiceConnection:
                 self.shared_game_state = response.body
             else:
                 if response.header.package_type == gsp.PackageType.GameServiceError:
-                    print(response.body.message)
+                    pass#print(response.body.message)
                 self._try_connect()
-            delta_t = time.time()-t_0
-            time.sleep(max(self.update_cycle_interval-delta_t, 0))
+            dt = time.time()-t_0
+            time.sleep(max(self.update_cycle_interval-dt, 0))
