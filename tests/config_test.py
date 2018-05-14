@@ -18,6 +18,7 @@ class TestConfig:
         other_config_instance.revert_to_default()
         assert config_instance.screen_mode['height'] == \
             Config.get_default()['screen_mode']['height']
+        Config._initialized = False
 
     def test_config_persistence(self, tmpdir, monkeypatch):
         monkeypatch.setattr(Config, 'path', os.path.join(tmpdir, 'test_config.json'))
