@@ -36,7 +36,11 @@ class MainMenuLayer(cocos.menu.Menu):
             cocos.menu.MenuItem('Options', self.on_options),
             cocos.menu.MenuItem('Quit', self.on_quit)
         ]
-        self.create_menu(menu_items, cocos.menu.zoom_in(), cocos.menu.zoom_out())
+        self.create_menu(
+            items=menu_items,
+            selected_effect=cocos.menu.zoom_in(),
+            unselected_effect=cocos.menu.zoom_out()
+        )
 
     def on_test_server(self):
         director.push(ServerTestScene())
@@ -66,16 +70,25 @@ class OptionsMenuLayer(cocos.menu.Menu):
         self.resolutions = ['640x480', '800x600', '1024x768', '1920x1080']
         current_resolution = [
             idx for idx, value in enumerate(self.resolutions) \
-            if value == str(self.config.screen_mode['width']) + 'x' + str(self.config.screen_mode['height'])
+            if value == str(self.config.screen_mode['width']) + 'x' \
+            + str(self.config.screen_mode['height'])
         ][0]
         menu_items = [
-            cocos.menu.MultipleMenuItem('Resolution: ', self.on_resolution, self.resolutions, current_resolution),
-            cocos.menu.ToggleMenuItem('Fullscreen: ', self.on_fullscreen, self.config.screen_mode['fullscreen']),
+            cocos.menu.MultipleMenuItem(
+                'Resolution: ', self.on_resolution, self.resolutions, current_resolution
+            ),
+            cocos.menu.ToggleMenuItem(
+                'Fullscreen: ', self.on_fullscreen, self.config.screen_mode['fullscreen']
+            ),
             cocos.menu.MenuItem('Revert to default', self.on_default),
             cocos.menu.MenuItem('Apply', self.on_apply),
             cocos.menu.MenuItem('Back', self.on_back)
         ]
-        self.create_menu(menu_items, cocos.menu.zoom_in(), cocos.menu.zoom_out())
+        self.create_menu(
+            items=menu_items,
+            selected_effect=cocos.menu.zoom_in(),
+            unselected_effect=cocos.menu.zoom_out()
+        )
 
     def on_resolution(self, index):
         width_height = self.resolutions[index].split('x')
@@ -106,3 +119,6 @@ class OptionsMenuLayer(cocos.menu.Menu):
     def on_back(self):
         self.parent.open_main_menu()
         self.kill()
+
+    def on_quit(self):
+        self.on_back()

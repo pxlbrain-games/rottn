@@ -38,17 +38,21 @@ class GameServiceConnection:
     def request_timeout(self, value: float):
         self._client_socket.settimeout(value)
 
-    def __init__(self, server_address):
+    def __init__(self, server_address, closed=False):
         self.shared_game_state = sharedGameData.SharedGameState()
         self.server_address = server_address
         self._client_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         self.request_timeout = 0.5
         self.connection_timeout = 5.0
         self._buffer_size = 1024
-        self._update_cycle_thread = threading.Thread(target=self._update_cycle)
         self.update_cycle_interval = 0.03
-        self.connection_status = ConnectionStatus.WaitingForServer
-        self._update_cycle_thread.start()
+        if not closed:
+            self._update_cycle_thread = threading.Thread(target=self._update_cycle)
+            self.connection_status = ConnectionStatus.WaitingForServer
+            self._update_cycle_thread.start()
+        else:
+            self._update_cycle_thread = threading.Thread()
+            self.connection_status = ConnectionStatus.Disconnected
 
     def _send_and_recv(self, package: gsp.GameServicePackage):
 
@@ -68,16 +72,16 @@ class GameServiceConnection:
                 gsp.ErrorMessage(gsp.ErrorType.RequestTimeout, 'Server not found.')
             )
 
-    def reconnect(self):
+    def connect(self):
         '''
-        Will try to reconnect to the server if *connection_status* is *Disconnected*.
+        Will try to connect/reconnect to the server if *connection_status* is *Disconnected*.
         Otherwise does nothing.
         '''
         if not self._update_cycle_thread.is_alive():
             self._update_cycle_thread = threading.Thread(target=self._update_cycle)
             self._update_cycle_thread.start()
 
-    def close(self):
+    def disconnect(self):
         '''
         Will stop the connection from sending any further requests to the server.
         Will do nothing if *connection_status* == *ConnectionStatus.Disconnected*.
