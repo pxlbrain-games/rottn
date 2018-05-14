@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import os
 import json
 import appdirs
 
 DEFAULT_CONFIG = {
-    'screen_width': 800,
-    'screen_height': 600,
-    'fullscreen': False
+    'screen_mode': {
+        'width': 800,
+        'height': 600,
+        'fullscreen': False
+    },
+    'local_server_exec': [sys.executable, '-m', 'bossfight.server']
 }
 
 class Config:
@@ -24,6 +28,9 @@ class Config:
         self.__dict__ = Config._singleton_state
         if os.path.exists(Config.path):
             self.load()
+            for key in DEFAULT_CONFIG.keys():
+                if key not in self.__dict__.keys():
+                    self.__dict__[key] = DEFAULT_CONFIG[key]
         else:
             self.set_default()
             self.save()
@@ -32,7 +39,10 @@ class Config:
         '''
         Reverts config data to the default configuration defined in *DEFAULT_CONFIG*.
         '''
-        self.__dict__.update(DEFAULT_CONFIG)
+        self.__dict__.update(
+            # JSON serialization + deserialization for deep copy
+            json.loads(json.dumps(DEFAULT_CONFIG))
+        ) 
 
     def save(self):
         '''

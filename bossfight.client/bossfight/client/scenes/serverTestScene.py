@@ -3,6 +3,7 @@
 import sys
 import subprocess
 import cocos
+from bossfight.client.config import Config
 import bossfight.client.gameServiceConnection as gameServiceConnection
 
 class ServerTestTextLayer(cocos.layer.Layer):
@@ -38,7 +39,7 @@ class ServerTestScene(cocos.scene.Scene):
     def __init__(self):
         super().__init__()
         self.add(ServerTestTextLayer(), name='text_layer')
-        self.server_process = subprocess.Popen([sys.executable, '-m', 'bossfight.server'])
+        self.server_process = subprocess.Popen(Config().local_server_exec)
         self.connection = gameServiceConnection.GameServiceConnection(('localhost', 9999))
         self.schedule(self.update_text)
 

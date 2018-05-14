@@ -66,11 +66,11 @@ class OptionsMenuLayer(cocos.menu.Menu):
         self.resolutions = ['640x480', '800x600', '1024x768', '1920x1080']
         current_resolution = [
             idx for idx, value in enumerate(self.resolutions) \
-            if value.__contains__(str(self.config.screen_width))
+            if value == str(self.config.screen_mode['width']) + 'x' + str(self.config.screen_mode['height'])
         ][0]
         menu_items = [
             cocos.menu.MultipleMenuItem('Resolution: ', self.on_resolution, self.resolutions, current_resolution),
-            cocos.menu.ToggleMenuItem('Fullscreen: ', self.on_fullscreen, self.config.fullscreen),
+            cocos.menu.ToggleMenuItem('Fullscreen: ', self.on_fullscreen, self.config.screen_mode['fullscreen']),
             cocos.menu.MenuItem('Revert to default', self.on_default),
             cocos.menu.MenuItem('Apply', self.on_apply),
             cocos.menu.MenuItem('Back', self.on_back)
@@ -79,11 +79,11 @@ class OptionsMenuLayer(cocos.menu.Menu):
 
     def on_resolution(self, index):
         width_height = self.resolutions[index].split('x')
-        self.config.screen_width = int(width_height[0])
-        self.config.screen_height = int(width_height[1])
+        self.config.screen_mode['width'] = int(width_height[0])
+        self.config.screen_mode['height'] = int(width_height[1])
 
-    def on_fullscreen(self, value):
-        self.config.fullscreen = bool(value)
+    def on_fullscreen(self, fullscreen):
+        self.config.screen_mode['fullscreen'] = bool(fullscreen)
 
     def on_default(self):
         self.config.set_default()
@@ -93,9 +93,9 @@ class OptionsMenuLayer(cocos.menu.Menu):
     def on_apply(self):
         try:
             director.window.set_fullscreen(
-                fullscreen=self.config.fullscreen,
-                width=self.config.screen_width,
-                height=self.config.screen_height
+                fullscreen=self.config.screen_mode['fullscreen'],
+                width=self.config.screen_mode['width'],
+                height=self.config.screen_mode['height']
             )
             self.config.save()
         except NoSuchScreenModeException:
