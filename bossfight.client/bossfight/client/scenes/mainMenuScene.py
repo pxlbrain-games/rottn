@@ -86,7 +86,7 @@ class OptionsMenuLayer(cocos.menu.Menu):
         self.config.screen_mode['fullscreen'] = bool(fullscreen)
 
     def on_default(self):
-        self.config.set_default()
+        self.config.revert_to_default()
         self.parent.open_options_menu()
         self.kill()
 

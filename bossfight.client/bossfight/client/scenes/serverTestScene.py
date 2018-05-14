@@ -33,7 +33,8 @@ class ServerTestTextLayer(cocos.layer.Layer):
             anchor_y='center',
             position=(320, 240)
             ), name=str(gameServiceConnection.ConnectionStatus.Disconnected))
-        for child in self.get_children(): child.visible = False
+        for child in self.get_children():
+            child.visible = False
 
 class ServerTestScene(cocos.scene.Scene):
     def __init__(self):
@@ -44,7 +45,8 @@ class ServerTestScene(cocos.scene.Scene):
         self.schedule(self.update_text)
 
     def update_text(self, dt):
-        for child in self.get('text_layer').get_children(): child.visible = False
+        for child in self.get('text_layer').get_children():
+            child.visible = False
         self.get('text_layer').get(str(self.connection.connection_status)).visible = True
 
     def on_exit(self):

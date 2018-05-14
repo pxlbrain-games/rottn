@@ -5,7 +5,7 @@ import os
 import json
 import appdirs
 
-DEFAULT_CONFIG = {
+_DEFAULT_CONFIG = {
     'screen_mode': {
         'width': 800,
         'height': 600,
@@ -13,6 +13,8 @@ DEFAULT_CONFIG = {
     },
     'local_server_exec': [sys.executable, '-m', 'bossfight.server']
 }
+
+
 
 class Config:
     '''
@@ -23,26 +25,34 @@ class Config:
         appdirs.AppDirs(appname='bossfight', appauthor='ePyCom').user_config_dir,
         'client_config.json')
     _singleton_state = {}
+    _initialized = False
 
     def __init__(self):
         self.__dict__ = Config._singleton_state
-        if os.path.exists(Config.path):
-            self.load()
-            for key in DEFAULT_CONFIG.keys():
-                if key not in self.__dict__.keys():
-                    self.__dict__[key] = DEFAULT_CONFIG[key]
-        else:
-            self.set_default()
-            self.save()
+        if not Config._initialized:
+            if os.path.exists(Config.path):
+                self.load()
+                # If config keys have been added or changed:
+                for key in _DEFAULT_CONFIG:
+                    if key not in self.__dict__:
+                        self.__dict__[key] = Config.get_default()[key]
+            else:
+                self.revert_to_default()
+                self.save()
+            Config._initialized = True
 
-    def set_default(self):
+    def revert_to_default(self):
         '''
         Reverts config data to the default configuration defined in *DEFAULT_CONFIG*.
         '''
-        self.__dict__.update(
-            # JSON serialization + deserialization for deep copy
-            json.loads(json.dumps(DEFAULT_CONFIG))
-        ) 
+        self.__dict__.update(Config.get_default())
+
+    @staticmethod
+    def get_default():
+        '''
+        Returns a deep copy of the default configuration dictionary.
+        '''
+        return json.loads(json.dumps(_DEFAULT_CONFIG))
 
     def save(self):
         '''
