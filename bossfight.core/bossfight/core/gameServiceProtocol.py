@@ -2,8 +2,7 @@
 
 import sys
 from enum import IntEnum
-import umsgpack
-from bossfight.core.sharedGameData import ISendable, SharedGameState
+from bossfight.core.sharedGameData import Sendable, SharedGameState
 
 # Unique 4-byte token to mark the end of the header of a GameServicePackage
 _HEADER_END_TOKEN = bytes.fromhex('b5968459')
@@ -41,12 +40,12 @@ class ErrorType(IntEnum):
     UnpackError = 2
     RequestInvalid = 3
 
-class ErrorMessage(ISendable):
+class ErrorMessage(Sendable):
     '''
     The ISendable type *ErrorMessage* is used for the body of *GameServicePackage*s with
     *package_type* *PackageType.GameServiceError* in their *header*.
     '''
-    def __init__(self, error_type: ErrorType, message: str = ''):
+    def __init__(self, error_type=ErrorType.RequestInvalid, message=''):
         self.error_type = error_type
         self.message = message
 
@@ -55,16 +54,10 @@ class ErrorMessage(ISendable):
     '''
     @staticmethod
     def from_bytes(bytepack: bytes):
-        try:
-            received_error_dict = umsgpack.unpackb(bytepack)
-            received_error = ErrorMessage(error_type=ErrorType.RequestInvalid)
-            received_error.__dict__.update(received_error_dict)
-            return received_error
-        except TypeError:
-            raise TypeError('Bytes could no be parsed into ErrorMessage.')
+        return Sendable.from_bytes(ErrorMessage, bytepack)
 
-class _GameServicePackageHeader(ISendable):
-    def __init__(self, package_type: PackageType, body_type: str):
+class _GameServicePackageHeader(Sendable):
+    def __init__(self, package_type: PackageType=PackageType.GameServiceResponse, body_type='NoneType'):
         self.package_type = package_type
         self.body_type = body_type
 
@@ -73,16 +66,7 @@ class _GameServicePackageHeader(ISendable):
     '''
     @staticmethod
     def from_bytes(bytepack: bytes):
-        try:
-            received_header_dict = umsgpack.unpackb(bytepack)
-            received_header = _GameServicePackageHeader(
-                package_type=PackageType.GameServiceError,
-                body_type='NoneType'
-            )
-            received_header.__dict__ = received_header_dict
-            return received_header
-        except TypeError:
-            raise TypeError('Bytes could no be parsed into _GameServicePackageHeader.')
+        return Sendable.from_bytes(_GameServicePackageHeader, bytepack)
 
     '''
     Override object members
@@ -101,7 +85,7 @@ class GameServicePackage:
     package type and body. The body is some object of a core class like *ErrorMessage*,
     *SharedGameState*, *SharedGameStateUpdate* or *PlayerAction*.
     '''
-    def __init__(self, package_type: PackageType, body: ISendable = None):
+    def __init__(self, package_type: PackageType, body: Sendable = None):
         self.header = _GameServicePackageHeader(package_type, body.__class__.__name__)
         self.body = body
 
