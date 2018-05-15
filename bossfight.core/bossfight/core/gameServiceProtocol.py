@@ -57,7 +57,7 @@ class ErrorMessage(Sendable):
         return Sendable.from_bytes(ErrorMessage, bytepack)
 
 class _GameServicePackageHeader(Sendable):
-    def __init__(self, package_type: PackageType=PackageType.GameServiceResponse, body_type='NoneType'):
+    def __init__(self, package_type=PackageType.GameServiceResponse, body_type='NoneType'):
         self.package_type = package_type
         self.body_type = body_type
 
