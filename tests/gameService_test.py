@@ -7,7 +7,7 @@ import bossfight.core.gameServiceProtocol as gsp
 class TestGameService:
 
     server_address = ('localhost', 9998)
-    server = GameService(server_address)
+    server = GameService(server_address[0], server_address[1])
     mock_client_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
     mock_client_socket.settimeout(1.0)
 
