@@ -19,11 +19,12 @@ _DEFAULT_CONFIG = {
 class Config:
     '''
     Singleton class that stores all the client configuration info.
-    (You can create as many instances as you like, the all will refer to the same config data.)
+    You can create as many instances as you like, they all will refer to the same config data.
     '''
     path = os.path.join(
         appdirs.AppDirs(appname='bossfight', appauthor='ePyCom').user_config_dir,
-        'client_config.json')
+        'client_config.json'
+    )
     _singleton_state = {}
     _initialized = False
 

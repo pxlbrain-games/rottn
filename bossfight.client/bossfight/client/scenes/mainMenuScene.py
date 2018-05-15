@@ -117,6 +117,7 @@ class OptionsMenuLayer(cocos.menu.Menu):
             self.kill()
 
     def on_back(self):
+        self.config.load()
         self.parent.open_main_menu()
         self.kill()
 

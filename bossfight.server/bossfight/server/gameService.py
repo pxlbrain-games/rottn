@@ -2,6 +2,7 @@
 
 import socketserver
 from umsgpack import InsufficientDataException
+import netifaces
 import bossfight.core.sharedGameData as sharedGameData
 import bossfight.core.gameServiceProtocol as gsp
 
@@ -13,9 +14,28 @@ class GameService(socketserver.ThreadingUDPServer):
     *GameServiceConnection*s. Call *shutdown*() to stop it.
     '''
 
-    def __init__(self, server_address):
-        super().__init__(server_address, _GameServiceRequestHandler)
+    def __init__(self, ip_address: str, port: int):
+        super().__init__((ip_address, port), _GameServiceRequestHandler)
         self.shared_game_state = sharedGameData.SharedGameState()
+
+    def get_address(self):
+        '''
+        Returns a tuple *(ip_address: str, port: int)* that represents the servers address.
+        '''
+        return self.socket.getsockname()
+
+    @staticmethod
+    def get_available_ip_addresses():
+        '''
+        Returns a list of all available IP addresses that the server can be bound to.
+        Keep in mind that `127.0.0.1` is only suitable for local servers.
+        '''
+        addresses = []
+        for interface in netifaces.interfaces():
+            if netifaces.AF_INET in netifaces.ifaddresses(interface):
+                for link in netifaces.ifaddresses(interface)[netifaces.AF_INET]:
+                    addresses.append(link['addr'])
+        return addresses
 
 class _GameServiceRequestHandler(socketserver.BaseRequestHandler):
     def handle(self):

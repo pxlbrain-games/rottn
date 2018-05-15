@@ -8,9 +8,9 @@ config = Config()
 
 director.init(
     caption='BossFight',
-    fullscreen=config.fullscreen,
-    width=config.screen_resolution['width'],
-    height=config.screen_resolution['height']
+    fullscreen=config.screen_mode['fullscreen'],
+    width=config.screen_mode['width'],
+    height=config.screen_mode['height']
 )
 director.show_FPS = True
 
