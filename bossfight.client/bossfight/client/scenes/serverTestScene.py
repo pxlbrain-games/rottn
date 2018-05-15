@@ -5,6 +5,50 @@ import cocos
 from bossfight.client.config import Config
 import bossfight.client.gameServiceConnection as gameServiceConnection
 
+class ServerListEntryNode(cocos.text.Label):
+
+    entry_counter = 1
+
+    def __init__(self, server_address, process_id, init_position, entry_number):
+        entry_text = 'Server ' + str(ServerListEntryNode.entry_counter) + '\n' \
+                   + 'IP Address: ' + server_address[0] + ':' + str(server_address[1]) + '\n' \
+                   + 'PID: ' + str(process_id)
+        super().__init__(
+            text=entry_text,
+            position=(init_position[0], init_position[1]-entry_number*160),
+            width=700,
+            height=160,
+            multiline=True,
+            font_name='Arial',
+            font_size=32,
+            anchor_x='left',
+            anchor_y='top'
+        )
+        ServerListEntryNode.entry_counter += 1
+
+class ServerListLayer(cocos.layer.Layer):
+    def __init__(self):
+        super().__init__()
+        self.add(
+            cocos.text.Label(
+                'Server List',
+                position=(650, 850),
+                font_name='Arial',
+                font_size=48,
+                anchor_x='left',
+                anchor_y='bottom'
+            )
+        )
+        #for i in range(5):
+        #    self.add(
+        #        ServerListEntryNode(('test', 1), 2, (650, 800), i)
+        #    )
+
+    def add_entry(self, ip_address, port, process_id):
+        self.add(
+            ServerListEntryNode((ip_address, port), process_id, (650, 800), len(self.children))
+        )
+
 class ServerTestTextLayer(cocos.layer.Layer):
     def __init__(self):
         super().__init__()
@@ -39,11 +83,11 @@ class ServerTestMenuLayer(cocos.menu.Menu):
     def __init__(self):
         super().__init__('GameService Test')
         self.font_title.update({
-            'font_size': 32,
+            'font_size': 64,
             'bold': True
         })
         self.font_item.update({
-            'font_size': 16
+            'font_size': 32
         })
         self.font_item_selected.update(self.font_item)
         self.font_item_selected.update({
@@ -59,15 +103,25 @@ class ServerTestMenuLayer(cocos.menu.Menu):
             selected_effect=cocos.menu.zoom_in(),
             unselected_effect=cocos.menu.zoom_out(),
             layout_strategy=cocos.menu.fixedPositionMenuLayout([
-                (150, 160),
-                (150, 130),
-                (150, 100)
+                (300, 900),
+                (300, 850),
+                (300, 800)
             ])
         )
 
     def on_create_server(self):
         if self.parent.server_process is None:
-            self.parent.server_process = subprocess.Popen(Config().local_server_exec)
+            self.parent.server_process = subprocess.Popen(
+                Config().local_server_exec,
+                stdout=subprocess.PIPE
+            )
+            ip_address = str(self.parent.server_process.stdout.readline())
+            port = int(self.parent.server_process.stdout.readline())
+            self.parent.get('server_list').add_entry(
+                ip_address,
+                port,
+                self.parent.server_process.pid
+            )
 
     def on_open_connection(self):
         if self.parent.connection is None:
@@ -84,6 +138,7 @@ class ServerTestScene(cocos.scene.Scene):
         super().__init__()
         self.add(ServerTestTextLayer(), name='text_layer')
         self.add(ServerTestMenuLayer(), name='menu_layer')
+        self.add(ServerListLayer(), name='server_list')
         self.server_process = None
         self.connection = None
         self.schedule(self.update_text)

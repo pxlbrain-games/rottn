@@ -8,6 +8,11 @@ config = Config()
 
 director.init(
     caption='BossFight',
+    fullscreen=False,
+    width=1920,
+    height=1080
+)
+director.window.set_fullscreen(
     fullscreen=config.screen_mode['fullscreen'],
     width=config.screen_mode['width'],
     height=config.screen_mode['height']

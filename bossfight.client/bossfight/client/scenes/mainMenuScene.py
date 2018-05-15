@@ -21,11 +21,11 @@ class MainMenuLayer(cocos.menu.Menu):
     def __init__(self):
         super().__init__(title='BossFight')
         self.font_title.update({
-            'font_size': 64,
+            'font_size': 128,
             'bold': True
         })
         self.font_item.update({
-            'font_size': 32
+            'font_size': 64
         })
         self.font_item_selected.update(self.font_item)
         self.font_item_selected.update({
@@ -56,18 +56,18 @@ class OptionsMenuLayer(cocos.menu.Menu):
     def __init__(self):
         super().__init__(title='Options')
         self.font_title.update({
-            'font_size': 32,
+            'font_size': 64,
             'bold': True
         })
         self.font_item.update({
-            'font_size': 16
+            'font_size': 32
         })
         self.font_item_selected.update(self.font_item)
         self.font_item_selected.update({
             'color': (255, 255, 255, 255)
         })
         self.config = Config()
-        self.resolutions = ['640x480', '800x600', '1024x768', '1920x1080']
+        self.resolutions = ['854x480', '1280x720', '1600x900', '1920x1080']
         current_resolution = [
             idx for idx, value in enumerate(self.resolutions) \
             if value == str(self.config.screen_mode['width']) + 'x' \

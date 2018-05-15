@@ -7,14 +7,12 @@ import appdirs
 
 _DEFAULT_CONFIG = {
     'screen_mode': {
-        'width': 800,
-        'height': 600,
+        'width': 854,
+        'height': 480,
         'fullscreen': False
     },
     'local_server_exec': [sys.executable, '-m', 'bossfight.server']
 }
-
-
 
 class Config:
     '''
