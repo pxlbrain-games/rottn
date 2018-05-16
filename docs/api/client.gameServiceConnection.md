@@ -27,7 +27,7 @@ GameServiceConnection(self, server_address, closed=False)
 Initialization of a *GameServiceConnection* will open a connection to a BossFight GameService
 with the specified *server_address* as a tuple containing the IP-adress as a string and the
 port as an int. Check the *connection_status* attribute to get the status of the Connection as
-a *ConnectionStatus* object.
+a *ConnectionStatus()* attribute.
 
 A running *GameServiceConnection* will request an update of *sharedGameState* from the server
 every *update_cycle_interval* seconds.
@@ -39,8 +39,8 @@ every *update_cycle_interval* seconds.
 GameServiceConnection.connect(self)
 ```
 
-Will try to connect/reconnect to the server if *connection_status* is *Disconnected*.
-Otherwise does nothing.
+Will try to connect/reconnect to the server if *connection_status* is
+*ConnectionStatus().Disconnected*, otherwise does nothing.
 
 <h3 id="bossfight.client.gameServiceConnection.GameServiceConnection.disconnect">disconnect</h3>
 
@@ -49,5 +49,5 @@ GameServiceConnection.disconnect(self)
 ```
 
 Will stop the connection from sending any further requests to the server.
-Will do nothing if *connection_status* == *ConnectionStatus.Disconnected*.
+Will do nothing if *connection_status* == *ConnectionStatus().Disconnected*.
 

@@ -21,11 +21,17 @@ class GameService(socketserver.ThreadingUDPServer):
         super().__init__((ip_address, port), _GameServiceRequestHandler)
         self.shared_game_state = sharedGameData.SharedGameState()
 
-    def get_address(self):
+    def get_ip_address(self):
         '''
-        Returns a tuple *(ip_address: str, port: int)* that represents the servers address.
+        Returns the servers IP address as a string.
         '''
-        return self.socket.getsockname()
+        return self.socket.getsockname()[0]
+
+    def get_port(self):
+        '''
+        Returns the servers port as an integer.
+        '''
+        return self.socket.getsockname()[1]
 
 class _GameServiceRequestHandler(socketserver.BaseRequestHandler):
     def handle(self):

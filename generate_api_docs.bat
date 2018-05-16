@@ -7,6 +7,7 @@ ECHO ##################################
 .\venv\Scripts\pydocmd.exe simple bossfight.core+ bossfight.core.sharedGameData++ > .\docs\api\core.sharedGameData.md
 .\venv\Scripts\pydocmd.exe simple bossfight.core+ bossfight.core.mixins++ > .\docs\api\core.mixins.md
 .\venv\Scripts\pydocmd.exe simple bossfight.client+ bossfight.client.gameServiceConnection++ > .\docs\api\client.gameServiceConnection.md
+.\venv\Scripts\pydocmd.exe simple bossfight.client+ bossfight.client.serverManager++ > .\docs\api\client.serverManager.md
 .\venv\Scripts\pydocmd.exe simple bossfight.client+ bossfight.client.config++ > .\docs\api\client.config.md
 ECHO ##################################
 ECHO Doc generation completed.

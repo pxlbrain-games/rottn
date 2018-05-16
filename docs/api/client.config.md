@@ -4,9 +4,8 @@
 <h1 id="bossfight.client.config">bossfight.client.config</h1>
 
 
-Module that manages access to the clients configuration. Via *config.get* you get
-a singleton object that allows access to the config keys as attributes:
-`config.get.screen_mode['width'] = 1920`
+Module that manages access to the clients configuration. With *config.get* provides
+as a singleton object that allows access to the config keys as attributes.
 Use *load()* and *save()* to persist and restore config on/from disk.
 
 <h2 id="bossfight.client.config.get_default">get_default</h2>

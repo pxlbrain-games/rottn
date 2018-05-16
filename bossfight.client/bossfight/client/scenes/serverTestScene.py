@@ -3,6 +3,7 @@
 import subprocess
 import cocos
 import bossfight.client.config as config
+import bossfight.client.serverManager as serverManager
 import bossfight.client.gameServiceConnection as gameServiceConnection
 
 class ServerListEntryNode(cocos.text.Label):
@@ -10,6 +11,7 @@ class ServerListEntryNode(cocos.text.Label):
     entry_counter = 1
 
     def __init__(self, server_address, process_id, init_position, entry_number):
+        self.pid = process_id
         entry_text = 'Server ' + str(ServerListEntryNode.entry_counter) + ' - ' \
                    + 'PID: ' + str(process_id) + '\n' \
                    + 'IP Address: ' + server_address[0] + ':' + str(server_address[1])
@@ -25,6 +27,11 @@ class ServerListEntryNode(cocos.text.Label):
             anchor_y='top'
         )
         ServerListEntryNode.entry_counter += 1
+        self.schedule(self.update)
+
+    def update(self, dt):
+        if not self.pid in serverManager.get_running_processes():
+            self.kill()
 
 class ServerListLayer(cocos.layer.Layer):
     def __init__(self):
@@ -60,7 +67,7 @@ class ServerTestTextLayer(cocos.layer.Layer):
             anchor_x='center',
             anchor_y='center',
             position=(320, 240)
-            ), name=str(gameServiceConnection.ConnectionStatus.WaitingForServer))
+            ), name=str(gameServiceConnection.ConnectionStatus().WaitingForServer))
         self.add(cocos.text.Label(
             'Connected',
             font_name='Arial',
@@ -68,7 +75,7 @@ class ServerTestTextLayer(cocos.layer.Layer):
             anchor_x='center',
             anchor_y='center',
             position=(320, 240)
-            ), name=str(gameServiceConnection.ConnectionStatus.Connected))
+            ), name=str(gameServiceConnection.ConnectionStatus().Connected))
         self.add(cocos.text.Label(
             'Disconnected',
             font_name='Arial',
@@ -76,7 +83,7 @@ class ServerTestTextLayer(cocos.layer.Layer):
             anchor_x='center',
             anchor_y='center',
             position=(320, 240)
-            ), name=str(gameServiceConnection.ConnectionStatus.Disconnected))
+            ), name=str(gameServiceConnection.ConnectionStatus().Disconnected))
         for child in self.get_children():
             child.visible = False
 
@@ -111,18 +118,23 @@ class ServerTestMenuLayer(cocos.menu.Menu):
         )
 
     def on_create_server(self):
-        if self.parent.server_process is None:
-            self.parent.server_process = subprocess.Popen(
-                config.get.local_server_exec,
-                stdout=subprocess.PIPE
-            )
-            ip_address = str(self.parent.server_process.stdout.readline(), 'utf-8').strip()
-            port = int(self.parent.server_process.stdout.readline())
-            self.parent.get('server_list').add_entry(
-                ip_address,
-                port,
-                self.parent.server_process.pid
-            )
+        #if self.parent.server_process is None:
+        #    cmd = config.get.local_server_exec.copy()
+        #    cmd.extend(['localhost', '9999'])
+        #    self.parent.server_process = subprocess.Popen(
+        #        cmd,
+        #        stdout=subprocess.PIPE
+        #    )
+        #    ip_address = str(self.parent.server_process.stdout.readline(), 'utf-8').strip()
+        #    port = int(self.parent.server_process.stdout.readline())
+        pid = serverManager.run_server()
+        ip_address = serverManager.get_ip_address(pid)
+        port = serverManager.get_port(pid)
+        self.parent.get('server_list').add_entry(
+            ip_address,
+            port,
+            pid#self.parent.server_process.pid
+        )
 
     def on_open_connection(self):
         if self.parent.connection is None:
@@ -140,7 +152,7 @@ class ServerTestScene(cocos.scene.Scene):
         self.add(ServerTestTextLayer(), name='text_layer')
         self.add(ServerTestMenuLayer(), name='menu_layer')
         self.add(ServerListLayer(), name='server_list')
-        self.server_process = None
+        #self.server_process = None
         self.connection = None
         self.schedule(self.update_text)
 
@@ -153,6 +165,8 @@ class ServerTestScene(cocos.scene.Scene):
     def on_exit(self):
         if not self.connection is None:
             self.connection.disconnect()
-        if not self.server_process is None:
-            self.server_process.terminate()
+        #if not self.server_process is None:
+        #    self.server_process.terminate()
+        for pid in serverManager.get_running_processes():
+            serverManager.shutdown(pid)
         super().on_exit()

@@ -1,19 +1,37 @@
 # -*- coding: utf-8 -*-
+'''
+Main script of bossfight.server package.
+
+- `bossfight.server` will run a local server on an arbitrary free port
+- `bossfight.server ip_address` will start a server on an arbitrary free port
+bound to the given IP address.
+- `bossfight.server ip_address port` will run a server on the specified port
+and IP address.
+
+In either case the server process will give the following output on stdout
+directly after starting the server:
+
+`ip_address\\n
+
+port\\EOF`
+'''
 
 import sys
 import threading
 from bossfight.server.gameService import GameService
 
-for arg in sys.argv:
-    pass
+if len(sys.argv) == 1:
+    SERVER = GameService('localhost', 0)
+elif len(sys.argv) == 2:
+    SERVER = GameService(sys.argv[1], 0)
+else:
+    SERVER = GameService(sys.argv[1], int(sys.argv[2]))
 
-server = GameService('localhost', 9999)
-print(str(server.get_address()[0]))
-print(server.get_address()[1])
+print(SERVER.get_ip_address())
+print(SERVER.get_port())
 sys.stdout.close()
-#sys.stdout.write(server.get_address()[0] + '\n' + str(server.get_address()[1]) + '\n')
-server_thread = threading.Thread(target=server.serve_forever)
-server_thread.start()
-server_thread.join(10.0)
+SERVER_THREAD = threading.Thread(target=SERVER.serve_forever)
+SERVER_THREAD.start()
+SERVER_THREAD.join(10.0)
 #print('Server ran for 10 s.')
-server.shutdown()
+SERVER.shutdown()
