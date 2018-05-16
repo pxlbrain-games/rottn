@@ -21,6 +21,8 @@ If using pylint with VSCode: add
 ]`
 to *.\\.vscode\settings.json*
 
+If you're missing dependencies run `.\dev_update.bat` to install them in your venv.
+
 ### \*nix/MacOS
 
 No setup scripts yet.
@@ -37,11 +39,13 @@ Save diagrams (.xml and exported .pdf with same name) to `.\docs\diagrams\`.
 
 ### API Documentation
 
-Generate code documentation from docstrings using *pydocmd* (https://github.com/NiklasRosenstein/pydoc-markdown). Example command in Python terminal (venv) from project directory:
+We generate markdown files from docstrings using *pydocmd* (https://github.com/NiklasRosenstein/pydoc-markdown).
+When you made changes in an API module, just run `.\generate_api_docs.bat` to update the documentation.
 
-`pydocmd simple bossfight.server+ bossfight.server.gameService+ > .\docs\api\server.core.gameService.md`
+If you added a new module, you have to add a line to the batch script. Example for new core module:
+`.\venv\Scripts\pydocmd.exe simple bossfight.core+ bossfight.core.myModule+ > .\docs\api\core.myModule.md`
 
-Generate a new .md file whenever API components and/or their docstrings have been changed or added.
+So for this project good API documentation means good docstrings (in markdown format)!
 
 ## Testing
 

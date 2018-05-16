@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+'''
+This module mainly contains the *GameServiceConnection* class, which represents a connection to a
+running GameService (meaning a game server). Use this to manage your server connections.
+'''
 
 import socket
 from enum import IntEnum

@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+'''
+Module that manages access to the clients configuration. Contains the *Config* class,
+which acts as an interface to a singleton config data state in memory and deals with
+saving/loading the client config on/from disk.
+'''
 
 import sys
 import os

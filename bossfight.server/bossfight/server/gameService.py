@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+'''
+This module defines the *GameService* class, a server that can handle requests from
+a client's *GameServiceConnection* object.
+'''
 
 import socketserver
 from umsgpack import InsufficientDataException

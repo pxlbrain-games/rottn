@@ -1,8 +1,17 @@
 # -*- coding: utf-8 -*-
+'''
+Module that defines the network protocol, which *GameServiceConnection*s and *GamerService*s use
+to communicate. It contains the *GameServicePackage* class, which represents a unit of information
+that client and server can exchange with each other, as well as classes that make up parts
+of a package.
+'''
 
 import sys
 from enum import IntEnum
-from bossfight.core.sharedGameData import Sendable, SharedGameState
+from bossfight.core.sharedGameData import SharedGameState
+# SharedGameState is not used explicitely, but it needs to be findable
+# via 'getattr()' in 'GameServicePackage.from_datagram()'!
+from bossfight.core.mixins import Sendable
 
 # Unique 4-byte token to mark the end of the header of a GameServicePackage
 _HEADER_END_TOKEN = bytes.fromhex('b5968459')
@@ -42,19 +51,12 @@ class ErrorType(IntEnum):
 
 class ErrorMessage(Sendable):
     '''
-    The ISendable type *ErrorMessage* is used for the body of *GameServicePackage*s with
+    The sendable type *ErrorMessage* is used for the body of *GameServicePackage*s with
     *package_type* *PackageType.GameServiceError* in their *header*.
     '''
     def __init__(self, error_type=ErrorType.RequestInvalid, message=''):
         self.error_type = error_type
         self.message = message
-
-    '''
-    Implement ISendable
-    '''
-    @staticmethod
-    def from_bytes(bytepack: bytes):
-        return Sendable.from_bytes(ErrorMessage, bytepack)
 
 class _GameServicePackageHeader(Sendable):
     def __init__(self, package_type=PackageType.GameServiceResponse, body_type='NoneType'):
@@ -62,14 +64,7 @@ class _GameServicePackageHeader(Sendable):
         self.body_type = body_type
 
     '''
-    Implementation of ISendable interface
-    '''
-    @staticmethod
-    def from_bytes(bytepack: bytes):
-        return Sendable.from_bytes(_GameServicePackageHeader, bytepack)
-
-    '''
-    Override object members
+    Override 'object' members
     '''
     def __eq__(self, other):
         if isinstance(other, self.__class__):
