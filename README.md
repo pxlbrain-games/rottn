@@ -43,7 +43,7 @@ We generate markdown files from docstrings using *pydocmd* (https://github.com/N
 When you made changes in an API module, just run `.\generate_api_docs.bat` to update the documentation.
 
 If you added a new module, you have to add a line to the batch script. Example for new core module:
-`.\venv\Scripts\pydocmd.exe simple bossfight.core+ bossfight.core.myModule+ > .\docs\api\core.myModule.md`
+`.\venv\Scripts\pydocmd.exe simple bossfight.core+ bossfight.core.myModule++ > .\docs\api\core.myModule.md`
 
 So for this project good API documentation means good docstrings (in markdown format)!
 

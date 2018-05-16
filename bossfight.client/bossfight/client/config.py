@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 '''
-Module that manages access to the clients configuration. Contains the *Config* class,
-which acts as an interface to a singleton config data state in memory and deals with
-saving/loading the client config on/from disk.
+Module that manages access to the clients configuration. With *config.get* provides
+as a singleton object that allows access to the config keys as attributes.
+Use *load()* and *save()* to persist and restore config on/from disk.
 '''
 
 import sys
@@ -23,63 +23,51 @@ CONFIG_PATH = os.path.join(
     appdirs.AppDirs(appname='bossfight', appauthor='ePyCom').user_config_dir,
     'client_config.json'
     )
-_SINGLETON_STATE = {}
+_CURRENT_CONFIG = {}
 _CONFIG_INITIALIZED = False
 
-class Config:
+get = type('Config', tuple([object]), _CURRENT_CONFIG)()
+get.__dict__ = _CURRENT_CONFIG
+
+def get_default():
     '''
-    Singleton class that stores all the client configuration info.
-    You can create as many instances as you like, they all will refer to the same config data.
+    Returns a deep copy of the default configuration dictionary.
     '''
+    return json.loads(json.dumps(_DEFAULT_CONFIG))
 
-    def __init__(self):
-        global _SINGLETON_STATE, _CONFIG_INITIALIZED, CONFIG_PATH, _DEFAULT_CONFIG
-        self.__dict__ = _SINGLETON_STATE
-        if not _CONFIG_INITIALIZED:
-            if os.path.exists(CONFIG_PATH):
-                self.load()
-                # If config keys have been added or changed:
-                for key in _DEFAULT_CONFIG:
-                    if key not in self.__dict__:
-                        self.__dict__[key] = Config.get_default()[key]
-            else:
-                self.revert_to_default()
-                self.save()
-            _CONFIG_INITIALIZED = True
+def revert_to_default():
+    '''
+    Reverts config data to the default configuration.
+    '''
+    _CURRENT_CONFIG.update(get_default())
 
-    def revert_to_default(self):
-        '''
-        Reverts config data to the default configuration defined in *DEFAULT_CONFIG*.
-        '''
-        self.__dict__.update(Config.get_default())
+def save():
+    '''
+    Saves the client configuration data in a json file in the application data directory.
 
-    @staticmethod
-    def get_default():
-        '''
-        Returns a deep copy of the default configuration dictionary.
-        '''
-        global _DEFAULT_CONFIG
-        return json.loads(json.dumps(_DEFAULT_CONFIG))
+    Windows 7+: `C:\\Users\\{username}\\AppData\\Local\\ePyCom\\bossfight\\client_config.json`
+    '''
+    if not os.path.exists(os.path.dirname(CONFIG_PATH)):
+        os.makedirs(os.path.dirname(CONFIG_PATH))
+    with open(CONFIG_PATH, mode='w') as file:
+        json.dump(_CURRENT_CONFIG, file, indent=4)
 
-    def save(self):
-        '''
-        Saves the client configuration data in a json file in the application data directory.
+def load():
+    '''
+    Loads the client configuration data from a json file in the application data directory.
 
-        Windows 7+: `C:\\Users\\{username}\\AppData\\Local\\ePyCom\\bossfight\\client_config.json`
-        '''
-        global CONFIG_PATH
-        if not os.path.exists(os.path.dirname(CONFIG_PATH)):
-            os.makedirs(os.path.dirname(CONFIG_PATH))
-        with open(CONFIG_PATH, mode='w') as file:
-            json.dump(self.__dict__, file, indent=4)
+    Windows 7+: `C:\\Users\\{username}\\AppData\\Local\\ePyCom\\bossfight\\client_config.json`
+    '''
+    if os.path.exists(CONFIG_PATH):
+        with open(CONFIG_PATH, mode='r') as file:
+            _CURRENT_CONFIG.update(json.load(file))
 
-    def load(self):
-        '''
-        Loads the client configuration data from a json file in the application data directory.
-
-        Windows 7+: `C:\\Users\\{username}\\AppData\\Local\\ePyCom\\bossfight\\client_config.json`
-        '''
-        global CONFIG_PATH
-        if os.path.exists(CONFIG_PATH):
-            with open(CONFIG_PATH, mode='r') as file:
-                self.__dict__.update(json.load(file))
+if os.path.exists(CONFIG_PATH):
+    load()
+    # If config keys have been added or changed:
+    for key in _DEFAULT_CONFIG:
+        if key not in _CURRENT_CONFIG:
+            _CURRENT_CONFIG[key] = get_default()[key]
+else:
+    revert_to_default()
+    save()

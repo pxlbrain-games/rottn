@@ -2,7 +2,7 @@
 
 import subprocess
 import cocos
-from bossfight.client.config import Config
+import bossfight.client.config as config
 import bossfight.client.gameServiceConnection as gameServiceConnection
 
 class ServerListEntryNode(cocos.text.Label):
@@ -10,14 +10,14 @@ class ServerListEntryNode(cocos.text.Label):
     entry_counter = 1
 
     def __init__(self, server_address, process_id, init_position, entry_number):
-        entry_text = 'Server ' + str(ServerListEntryNode.entry_counter) + '\n' \
-                   + 'IP Address: ' + server_address[0] + ':' + str(server_address[1]) + '\n' \
-                   + 'PID: ' + str(process_id)
+        entry_text = 'Server ' + str(ServerListEntryNode.entry_counter) + ' - ' \
+                   + 'PID: ' + str(process_id) + '\n' \
+                   + 'IP Address: ' + server_address[0] + ':' + str(server_address[1])
         super().__init__(
             text=entry_text,
             position=(init_position[0], init_position[1]-entry_number*160),
-            width=700,
-            height=160,
+            width=600,
+            height=120,
             multiline=True,
             font_name='Arial',
             font_size=32,
@@ -39,14 +39,15 @@ class ServerListLayer(cocos.layer.Layer):
                 anchor_y='bottom'
             )
         )
-        #for i in range(5):
-        #    self.add(
-        #        ServerListEntryNode(('test', 1), 2, (650, 800), i)
-        #    )
 
-    def add_entry(self, ip_address, port, process_id):
+    def add_entry(self, ip_address, port, pid):
         self.add(
-            ServerListEntryNode((ip_address, port), process_id, (650, 800), len(self.children))
+            ServerListEntryNode(
+                server_address=(ip_address, port),
+                process_id=pid,
+                init_position=(650, 800),
+                entry_number=len(self.children)-1
+            )
         )
 
 class ServerTestTextLayer(cocos.layer.Layer):
@@ -112,10 +113,10 @@ class ServerTestMenuLayer(cocos.menu.Menu):
     def on_create_server(self):
         if self.parent.server_process is None:
             self.parent.server_process = subprocess.Popen(
-                Config().local_server_exec,
+                config.get.local_server_exec,
                 stdout=subprocess.PIPE
             )
-            ip_address = str(self.parent.server_process.stdout.readline())
+            ip_address = str(self.parent.server_process.stdout.readline(), 'utf-8').strip()
             port = int(self.parent.server_process.stdout.readline())
             self.parent.get('server_list').add_entry(
                 ip_address,

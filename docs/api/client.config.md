@@ -4,49 +4,40 @@
 <h1 id="bossfight.client.config">bossfight.client.config</h1>
 
 
-Module that manages access to the clients configuration. Contains the *Config* class,
-which acts as an interface to a singleton config data state in memory and deals with
-saving/loading the client config on/from disk.
+Module that manages access to the clients configuration. With *config.get* provides
+as a singleton object that allows access to the config keys as attributes.
+Use *load()* and *save()* to persist and restore config on/from disk.
 
-<h2 id="bossfight.client.config.Config">Config</h2>
-
-```python
-Config(self)
-```
-
-Singleton class that stores all the client configuration info.
-You can create as many instances as you like, they all will refer to the same config data.
-
-<h3 id="bossfight.client.config.Config.get_default">get_default</h3>
+<h2 id="bossfight.client.config.get_default">get_default</h2>
 
 ```python
-Config.get_default()
+get_default()
 ```
 
 Returns a deep copy of the default configuration dictionary.
 
-<h3 id="bossfight.client.config.Config.revert_to_default">revert_to_default</h3>
+<h2 id="bossfight.client.config.revert_to_default">revert_to_default</h2>
 
 ```python
-Config.revert_to_default(self)
+revert_to_default()
 ```
 
-Reverts config data to the default configuration defined in *DEFAULT_CONFIG*.
+Reverts config data to the default configuration.
 
-<h3 id="bossfight.client.config.Config.save">save</h3>
+<h2 id="bossfight.client.config.save">save</h2>
 
 ```python
-Config.save(self)
+save()
 ```
 
 Saves the client configuration data in a json file in the application data directory.
 
 Windows 7+: `C:\Users\{username}\AppData\Local\ePyCom\bossfight\client_config.json`
 
-<h3 id="bossfight.client.config.Config.load">load</h3>
+<h2 id="bossfight.client.config.load">load</h2>
 
 ```python
-Config.load(self)
+load()
 ```
 
 Loads the client configuration data from a json file in the application data directory.

@@ -2,9 +2,7 @@
 
 from cocos.director import director
 from bossfight.client.scenes.mainMenuScene import MainMenuScene
-from bossfight.client.config import Config
-
-config = Config()
+import bossfight.client.config as config
 
 director.init(
     caption='BossFight',
@@ -13,9 +11,9 @@ director.init(
     height=1080
 )
 director.window.set_fullscreen(
-    fullscreen=config.screen_mode['fullscreen'],
-    width=config.screen_mode['width'],
-    height=config.screen_mode['height']
+    fullscreen=config.get.screen_mode['fullscreen'],
+    width=config.get.screen_mode['width'],
+    height=config.get.screen_mode['height']
 )
 director.show_FPS = True
 
