@@ -10,10 +10,10 @@ class TestSharedGameState:
     shared_game_state = SharedGameState()
 
     def test_shared_game_state_instantiation(self):
-        assert self.shared_game_state.game_status == GameStatus.Paused
-        paused_game_state = SharedGameState(game_status=GameStatus.Active)
+        assert self.shared_game_state.game_status == GameStatus().Paused
+        paused_game_state = SharedGameState(game_status=GameStatus().Active)
         assert self.shared_game_state.game_status != paused_game_state.game_status
-        paused_game_state.game_status = GameStatus.Paused
+        paused_game_state.game_status = GameStatus().Paused
         assert self.shared_game_state == paused_game_state
 
     def test_shared_game_state_bytepacking(self):

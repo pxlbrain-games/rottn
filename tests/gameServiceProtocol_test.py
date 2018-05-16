@@ -17,7 +17,7 @@ class TestGameServicePackage:
         assert self.game_service_package == other_game_service_package
         other_game_service_package.body = SharedGameState()
         assert self.game_service_package != other_game_service_package
-        assert other_game_service_package.body.game_status == GameStatus.Paused
+        assert other_game_service_package.body.game_status == GameStatus().Paused
 
     def test_game_service_package_header_bytepacking(self):
         bytepack = self.game_service_package.header.to_bytes()
@@ -38,4 +38,4 @@ class TestGameServicePackage:
         )
         datagram = other_game_service_package.to_datagram()
         received_package = GameServicePackage.from_datagram(datagram)
-        assert received_package.body.game_status == GameStatus.Paused
+        assert received_package.body.game_status == GameStatus().Paused
