@@ -48,7 +48,8 @@ def run_server(ip_address='localhost', port=0):
     cmd.extend([ip_address, str(port)])
     server_process = subprocess.Popen(
         cmd,
-        stdout=subprocess.PIPE
+        stdout=subprocess.PIPE,
+        stdin=subprocess.PIPE
     )
     _RUNNING_PROCESSES[server_process.pid] = {
         'process': server_process,
@@ -76,8 +77,14 @@ def shutdown(pid):
     '''
     Terminates the server process with process ID *pid*.
     '''
-    _RUNNING_PROCESSES[pid]['process'].terminate()
-    del _RUNNING_PROCESSES[pid]
+    try:
+        _RUNNING_PROCESSES[pid]['process'].communicate(input='shutdown\n'.encode('utf-8'), timeout=1.0)
+        del _RUNNING_PROCESSES[pid]
+    except subprocess.TimeoutExpired:
+        _RUNNING_PROCESSES[pid]['process'].terminate()
+        del _RUNNING_PROCESSES[pid]
+    except KeyError:
+        return
 
 def clean_up():
     '''

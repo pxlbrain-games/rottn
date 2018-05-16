@@ -14,6 +14,9 @@ directly after starting the server:
 `ip_address\\n
 
 port\\EOF`
+
+To shutdown the server, write a line containing `shutdown` to the processes
+*stdin* channel.
 '''
 
 import sys
@@ -30,8 +33,12 @@ else:
 print(SERVER.get_ip_address())
 print(SERVER.get_port())
 sys.stdout.close()
+
 SERVER_THREAD = threading.Thread(target=SERVER.serve_forever)
 SERVER_THREAD.start()
-SERVER_THREAD.join(10.0)
-#print('Server ran for 10 s.')
-SERVER.shutdown()
+
+SHUTDOWN = False
+while not SHUTDOWN:
+    if sys.stdin.readline().__contains__('shutdown'):
+        SERVER.shutdown()
+        SHUTDOWN = True

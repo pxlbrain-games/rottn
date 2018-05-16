@@ -123,6 +123,7 @@ class ServerTestMenuLayer(cocos.menu.Menu):
             ),
             cocos.menu.MenuItem('Create Server', self.on_create_server),
             #cocos.menu.MenuItem('Open Connection', self.on_open_connection),
+            cocos.menu.MenuItem('Shutdown All', self.on_shutdown_all),
             cocos.menu.MenuItem('Back', self.on_back)
         ]
         self.create_menu(
@@ -132,7 +133,8 @@ class ServerTestMenuLayer(cocos.menu.Menu):
             layout_strategy=cocos.menu.fixedPositionMenuLayout([
                 (350, 900),
                 (350, 850),
-                (350, 800)
+                (350, 800),
+                (350, 750)
             ])
         )
 
@@ -140,9 +142,7 @@ class ServerTestMenuLayer(cocos.menu.Menu):
         self.selected_ip_idx = selected_ip_idx
 
     def on_create_server(self):
-        pid = serverManager.run_server(
-            self.ip_addresses[self.selected_ip_idx]
-        )
+        pid = serverManager.run_server(self.ip_addresses[self.selected_ip_idx])
         ip_address = serverManager.get_ip_address(pid)
         port = serverManager.get_port(pid)
         self.parent.get('server_list').add_entry(
@@ -150,10 +150,14 @@ class ServerTestMenuLayer(cocos.menu.Menu):
             port,
             pid
         )
+    
+    def on_shutdown_all(self):
+        serverManager.clean_up()
 
     def on_open_connection(self):
         if self.parent.connection is None:
-            self.parent.connection = gameServiceConnection.GameServiceConnection(('localhost', 9999))
+            self.parent.connection = \
+                gameServiceConnection.GameServiceConnection(('localhost', 9999))
 
     def on_back(self):
         self.parent.end()
