@@ -19,22 +19,24 @@ _DEFAULT_CONFIG = {
     'local_server_exec': [sys.executable, '-m', 'bossfight.server']
 }
 
+CONFIG_PATH = os.path.join(
+    appdirs.AppDirs(appname='bossfight', appauthor='ePyCom').user_config_dir,
+    'client_config.json'
+    )
+_SINGLETON_STATE = {}
+_CONFIG_INITIALIZED = False
+
 class Config:
     '''
     Singleton class that stores all the client configuration info.
     You can create as many instances as you like, they all will refer to the same config data.
     '''
-    path = os.path.join(
-        appdirs.AppDirs(appname='bossfight', appauthor='ePyCom').user_config_dir,
-        'client_config.json'
-    )
-    _singleton_state = {}
-    _initialized = False
 
     def __init__(self):
-        self.__dict__ = Config._singleton_state
-        if not Config._initialized:
-            if os.path.exists(Config.path):
+        global _SINGLETON_STATE, _CONFIG_INITIALIZED, CONFIG_PATH, _DEFAULT_CONFIG
+        self.__dict__ = _SINGLETON_STATE
+        if not _CONFIG_INITIALIZED:
+            if os.path.exists(CONFIG_PATH):
                 self.load()
                 # If config keys have been added or changed:
                 for key in _DEFAULT_CONFIG:
@@ -43,7 +45,7 @@ class Config:
             else:
                 self.revert_to_default()
                 self.save()
-            Config._initialized = True
+            _CONFIG_INITIALIZED = True
 
     def revert_to_default(self):
         '''
@@ -56,6 +58,7 @@ class Config:
         '''
         Returns a deep copy of the default configuration dictionary.
         '''
+        global _DEFAULT_CONFIG
         return json.loads(json.dumps(_DEFAULT_CONFIG))
 
     def save(self):
@@ -64,9 +67,10 @@ class Config:
 
         Windows 7+: `C:\\Users\\{username}\\AppData\\Local\\ePyCom\\bossfight\\client_config.json`
         '''
-        if not os.path.exists(os.path.dirname(Config.path)):
-            os.makedirs(os.path.dirname(Config.path))
-        with open(Config.path, mode='w') as file:
+        global CONFIG_PATH
+        if not os.path.exists(os.path.dirname(CONFIG_PATH)):
+            os.makedirs(os.path.dirname(CONFIG_PATH))
+        with open(CONFIG_PATH, mode='w') as file:
             json.dump(self.__dict__, file, indent=4)
 
     def load(self):
@@ -75,6 +79,7 @@ class Config:
 
         Windows 7+: `C:\\Users\\{username}\\AppData\\Local\\ePyCom\\bossfight\\client_config.json`
         '''
-        if os.path.exists(Config.path):
-            with open(Config.path, mode='r') as file:
+        global CONFIG_PATH
+        if os.path.exists(CONFIG_PATH):
+            with open(CONFIG_PATH, mode='r') as file:
                 self.__dict__.update(json.load(file))

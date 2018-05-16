@@ -33,3 +33,21 @@ A running *GameServiceConnection* will request an update of *sharedGameState* fr
 every *update_cycle_interval* seconds.
 *sharedGameState* is a *sharedGameData.SharedGameState* object.
 
+<h3 id="bossfight.client.gameServiceConnection.GameServiceConnection.connect">connect</h3>
+
+```python
+GameServiceConnection.connect(self)
+```
+
+Will try to connect/reconnect to the server if *connection_status* is *Disconnected*.
+Otherwise does nothing.
+
+<h3 id="bossfight.client.gameServiceConnection.GameServiceConnection.disconnect">disconnect</h3>
+
+```python
+GameServiceConnection.disconnect(self)
+```
+
+Will stop the connection from sending any further requests to the server.
+Will do nothing if *connection_status* == *ConnectionStatus.Disconnected*.
+

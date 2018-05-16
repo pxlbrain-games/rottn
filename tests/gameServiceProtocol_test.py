@@ -7,13 +7,13 @@ from bossfight.core.sharedGameData import SharedGameState, GameStatus
 
 class TestGameServicePackage:
 
-    game_service_package = GameServicePackage(PackageType.GetSharedGameStateRequest)
+    game_service_package = GameServicePackage(PackageType().GetSharedGameStateRequest)
 
     def test_game_service_package_instantiation(self):
         assert self.game_service_package.body is None
-        other_game_service_package = GameServicePackage(PackageType.PostPlayerActionRequest)
+        other_game_service_package = GameServicePackage(PackageType().PostPlayerActionRequest)
         assert self.game_service_package != other_game_service_package
-        other_game_service_package.header.package_type = PackageType.GetSharedGameStateRequest
+        other_game_service_package.header.package_type = PackageType().GetSharedGameStateRequest
         assert self.game_service_package == other_game_service_package
         other_game_service_package.body = SharedGameState()
         assert self.game_service_package != other_game_service_package
@@ -33,7 +33,7 @@ class TestGameServicePackage:
         received_package = GameServicePackage.from_datagram(datagram)
         assert received_package == self.game_service_package
         other_game_service_package = GameServicePackage(
-            PackageType.GetGameStateUpdateRequest,
+            PackageType().GetGameStateUpdateRequest,
             body=SharedGameState()
         )
         datagram = other_game_service_package.to_datagram()

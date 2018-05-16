@@ -49,9 +49,9 @@ class _GameServiceRequestHandler(socketserver.BaseRequestHandler):
         except (InsufficientDataException, TypeError):
             # if unpacking request failed send back error message and exit handle function
             response = gsp.GameServicePackage(
-                package_type=gsp.PackageType.GameServiceError,
+                package_type=gsp.PackageType().GameServiceError,
                 body=gsp.ErrorMessage(
-                    gsp.ErrorType.UnpackError,
+                    gsp.ErrorType().UnpackError,
                     'Server responded: Byte error.'
                 )
             )
@@ -59,19 +59,19 @@ class _GameServiceRequestHandler(socketserver.BaseRequestHandler):
             return
 
         # Handle request and assign response here
-        if request.header.package_type == gsp.PackageType.GetSharedGameStateRequest or \
-           request.header.package_type == gsp.PackageType.GetGameStateUpdateRequest:
+        if request.header.package_type == gsp.PackageType().GetSharedGameStateRequest or \
+           request.header.package_type == gsp.PackageType().GetGameStateUpdateRequest:
             # respond by sending back the shared game state
             response = gsp.GameServicePackage(
-                package_type=gsp.PackageType.GameServiceResponse,
+                package_type=gsp.PackageType().GameServiceResponse,
                 body=self.server.shared_game_state
             )
         else:
             # if none of the above were a match the request was invalid
             response = gsp.GameServicePackage(
-                package_type=gsp.PackageType.GameServiceError,
+                package_type=gsp.PackageType().GameServiceError,
                 body=gsp.ErrorMessage(
-                    gsp.ErrorType.RequestInvalid,
+                    gsp.ErrorType().RequestInvalid,
                     'Server responded: Request invalid.'
                 )
             )

@@ -5,22 +5,27 @@ running GameService (meaning a game server). Use this to manage your server conn
 '''
 
 import socket
-from enum import IntEnum
 import threading
 import time
 import bossfight.core.sharedGameData as sharedGameData
 import bossfight.core.gameServiceProtocol as gsp
 
-class ConnectionStatus(IntEnum):
+class ConnectionStatus:
     '''
     Enum class with the following values:
     - *Connected*: Connection is running.
     - *WaitingForServer*: Connection is trying to connect/reconnect to the server.
     - *Disconnected*: Connection is not communicating with the server.
     '''
-    Connected = 1
-    WaitingForServer = 2
-    Disconnected = 3
+    @property
+    def Connected(self):
+        return 1
+    @property
+    def WaitingForServer(self):
+        return 2
+    @property
+    def Disconnected(self):
+        return 3
 
 class GameServiceConnection:
     '''
