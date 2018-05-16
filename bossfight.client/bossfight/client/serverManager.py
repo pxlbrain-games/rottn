@@ -18,18 +18,12 @@ def get_running_processes():
     return list(_RUNNING_PROCESSES.keys()).copy()
 
 def _update_processes():
-    while len(_RUNNING_PROCESSES) > 0:
-        processes_to_delete = []
+    while _RUNNING_PROCESSES:
         for pid in get_running_processes():
             try:
                 if _RUNNING_PROCESSES[pid]['process'].wait(timeout=0.3) is not None:
-                    processes_to_delete.append(pid)
+                    del _RUNNING_PROCESSES[pid]
             except (subprocess.TimeoutExpired, KeyError):
-                pass
-        for pid in processes_to_delete:
-            try:
-                del _RUNNING_PROCESSES[pid]
-            except KeyError:
                 pass
 
 def get_available_ip_addresses():
@@ -42,6 +36,7 @@ def get_available_ip_addresses():
         if netifaces.AF_INET in netifaces.ifaddresses(interface):
             for link in netifaces.ifaddresses(interface)[netifaces.AF_INET]:
                 addresses.append(link['addr'])
+    addresses.reverse()
     return addresses
 
 def run_server(ip_address='localhost', port=0):
@@ -86,7 +81,7 @@ def shutdown(pid):
 
 def clean_up():
     '''
-    Terminates all running server processes and the serverManager update thread
+    Terminates all running server processes.
     '''
     for pid in get_running_processes():
         shutdown(pid)
