@@ -3,6 +3,7 @@
 from cocos.director import director
 from bossfight.client.scenes.mainMenuScene import MainMenuScene
 import bossfight.client.config as config
+import bossfight.client.serverManager as serverManager
 
 director.init(
     caption='BossFight',
@@ -20,3 +21,5 @@ director.show_FPS = True
 # Run bossfight.server and then run the client on another terminal
 
 director.run(MainMenuScene())
+
+serverManager.clean_up()

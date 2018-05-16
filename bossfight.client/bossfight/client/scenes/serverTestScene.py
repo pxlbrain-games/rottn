@@ -12,12 +12,13 @@ class ServerListEntryNode(cocos.text.Label):
 
     def __init__(self, server_address, process_id, init_position, entry_number):
         self.pid = process_id
-        entry_text = 'Server ' + str(ServerListEntryNode.entry_counter) + ' - ' \
+        self.index = ServerListEntryNode.entry_counter
+        entry_text = 'Server ' + str(self.index) + ' - ' \
                    + 'PID: ' + str(process_id) + '\n' \
                    + 'IP Address: ' + server_address[0] + ':' + str(server_address[1])
         super().__init__(
             text=entry_text,
-            position=(init_position[0], init_position[1]-entry_number*160),
+            position=(init_position[0], init_position[1]-entry_number*140),
             width=600,
             height=120,
             multiline=True,
@@ -32,6 +33,10 @@ class ServerListEntryNode(cocos.text.Label):
     def update(self, dt):
         if not self.pid in serverManager.get_running_processes():
             self.kill()
+            for entry in self.parent.get_children():
+                if entry.__class__ == ServerListEntryNode and \
+                  entry.index > self.index:
+                    entry.do(cocos.actions.MoveBy((0, 140), 0.3))
 
 class ServerListLayer(cocos.layer.Layer):
     def __init__(self):
@@ -39,20 +44,26 @@ class ServerListLayer(cocos.layer.Layer):
         self.add(
             cocos.text.Label(
                 'Server List',
-                position=(650, 850),
+                position=(700, 850),
                 font_name='Arial',
                 font_size=48,
                 anchor_x='left',
                 anchor_y='bottom'
             )
         )
+        for pid in serverManager.get_running_processes():
+            self.add_entry(
+                ip_address=serverManager.get_ip_address(pid),
+                port=serverManager.get_port(pid),
+                pid=pid
+            )
 
     def add_entry(self, ip_address, port, pid):
         self.add(
             ServerListEntryNode(
                 server_address=(ip_address, port),
                 process_id=pid,
-                init_position=(650, 800),
+                init_position=(700, 800),
                 entry_number=len(self.children)-1
             )
         )
@@ -101,9 +112,17 @@ class ServerTestMenuLayer(cocos.menu.Menu):
         self.font_item_selected.update({
             'color': (255, 255, 255, 255)
         })
+        self.ip_addresses = serverManager.get_available_ip_addresses()
+        self.selected_ip_idx = 0
         menu_items = [
+            cocos.menu.MultipleMenuItem(
+                label='IP: ',
+                callback_func=self.on_ip_address,
+                items=serverManager.get_available_ip_addresses(),
+                default_item=self.selected_ip_idx
+            ),
             cocos.menu.MenuItem('Create Server', self.on_create_server),
-            cocos.menu.MenuItem('Open Connection', self.on_open_connection),
+            #cocos.menu.MenuItem('Open Connection', self.on_open_connection),
             cocos.menu.MenuItem('Back', self.on_back)
         ]
         self.create_menu(
@@ -111,29 +130,25 @@ class ServerTestMenuLayer(cocos.menu.Menu):
             selected_effect=cocos.menu.zoom_in(),
             unselected_effect=cocos.menu.zoom_out(),
             layout_strategy=cocos.menu.fixedPositionMenuLayout([
-                (300, 900),
-                (300, 850),
-                (300, 800)
+                (350, 900),
+                (350, 850),
+                (350, 800)
             ])
         )
 
+    def on_ip_address(self, selected_ip_idx):
+        self.selected_ip_idx = selected_ip_idx
+
     def on_create_server(self):
-        #if self.parent.server_process is None:
-        #    cmd = config.get.local_server_exec.copy()
-        #    cmd.extend(['localhost', '9999'])
-        #    self.parent.server_process = subprocess.Popen(
-        #        cmd,
-        #        stdout=subprocess.PIPE
-        #    )
-        #    ip_address = str(self.parent.server_process.stdout.readline(), 'utf-8').strip()
-        #    port = int(self.parent.server_process.stdout.readline())
-        pid = serverManager.run_server()
+        pid = serverManager.run_server(
+            self.ip_addresses[self.selected_ip_idx]
+        )
         ip_address = serverManager.get_ip_address(pid)
         port = serverManager.get_port(pid)
         self.parent.get('server_list').add_entry(
             ip_address,
             port,
-            pid#self.parent.server_process.pid
+            pid
         )
 
     def on_open_connection(self):
@@ -152,7 +167,6 @@ class ServerTestScene(cocos.scene.Scene):
         self.add(ServerTestTextLayer(), name='text_layer')
         self.add(ServerTestMenuLayer(), name='menu_layer')
         self.add(ServerListLayer(), name='server_list')
-        #self.server_process = None
         self.connection = None
         self.schedule(self.update_text)
 
@@ -165,8 +179,4 @@ class ServerTestScene(cocos.scene.Scene):
     def on_exit(self):
         if not self.connection is None:
             self.connection.disconnect()
-        #if not self.server_process is None:
-        #    self.server_process.terminate()
-        for pid in serverManager.get_running_processes():
-            serverManager.shutdown(pid)
         super().on_exit()

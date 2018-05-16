@@ -6,6 +6,14 @@
 
 A module that helps with running and maintaining bossfight.server processes.
 
+<h2 id="bossfight.client.serverManager.get_running_processes">get_running_processes</h2>
+
+```python
+get_running_processes()
+```
+
+Returns an iterable list of *pid*s of running server processes.
+
 <h2 id="bossfight.client.serverManager.get_available_ip_addresses">get_available_ip_addresses</h2>
 
 ```python
@@ -39,14 +47,6 @@ get_port(pid)
 
 Returns the the port of the server running under ther process ID *pid*.
 
-<h2 id="bossfight.client.serverManager.get_running_processes">get_running_processes</h2>
-
-```python
-get_running_processes()
-```
-
-Returns an iterable list of *pid*s of running server processes.
-
 <h2 id="bossfight.client.serverManager.shutdown">shutdown</h2>
 
 ```python
@@ -54,4 +54,12 @@ shutdown(pid)
 ```
 
 Terminates the server process with process ID *pid*.
+
+<h2 id="bossfight.client.serverManager.clean_up">clean_up</h2>
+
+```python
+clean_up()
+```
+
+Terminates all running server processes and the serverManager update thread
 

@@ -11,18 +11,26 @@ import bossfight.client.config as config
 _RUNNING_PROCESSES = {}
 _UPDATE_THREAD = threading.Thread()
 
+def get_running_processes():
+    '''
+    Returns an iterable list of *pid*s of running server processes.
+    '''
+    return list(_RUNNING_PROCESSES.keys()).copy()
+
 def _update_processes():
     while len(_RUNNING_PROCESSES) > 0:
         processes_to_delete = []
-        cached_processes = list(_RUNNING_PROCESSES.keys()).copy()
-        for pid in cached_processes:
+        for pid in get_running_processes():
             try:
-                if _RUNNING_PROCESSES[pid]['process'].wait(timeout=1.0) is not None:
+                if _RUNNING_PROCESSES[pid]['process'].wait(timeout=0.3) is not None:
                     processes_to_delete.append(pid)
-            except subprocess.TimeoutExpired:
+            except (subprocess.TimeoutExpired, KeyError):
                 pass
         for pid in processes_to_delete:
-            del _RUNNING_PROCESSES[pid]
+            try:
+                del _RUNNING_PROCESSES[pid]
+            except KeyError:
+                pass
 
 def get_available_ip_addresses():
     '''
@@ -69,15 +77,16 @@ def get_port(pid):
     '''
     return _RUNNING_PROCESSES[pid]['port']
 
-def get_running_processes():
-    '''
-    Returns an iterable list of *pid*s of running server processes.
-    '''
-    return list(_RUNNING_PROCESSES.keys()).copy()
-
 def shutdown(pid):
     '''
     Terminates the server process with process ID *pid*.
     '''
     _RUNNING_PROCESSES[pid]['process'].terminate()
     del _RUNNING_PROCESSES[pid]
+
+def clean_up():
+    '''
+    Terminates all running server processes and the serverManager update thread
+    '''
+    for pid in get_running_processes():
+        shutdown(pid)
