@@ -61,5 +61,5 @@ Terminates the server process with process ID *pid*.
 clean_up()
 ```
 
-Terminates all running server processes and the serverManager update thread
+Terminates all running server processes.
 
