@@ -63,6 +63,9 @@ class GameServiceConnection:
             self._update_cycle_thread = threading.Thread()
             self.connection_status = ConnectionStatus().Disconnected
 
+    def __del__(self):
+        self._client_socket.close()
+
     def _send_and_recv(self, package: gsp.GameServicePackage):
 
         # Send package to server ...

@@ -54,7 +54,7 @@ def run_server(ip_address='localhost', port=0):
     _RUNNING_PROCESSES[server_process.pid] = {
         'process': server_process,
         'ip_address': str(server_process.stdout.readline(), 'utf-8').strip(),
-        'port': int(server_process.stdout.readline())
+        'port': int(server_process.stdout.readline()),
     }
     if not _UPDATE_THREAD.is_alive():
         _UPDATE_THREAD = threading.Thread(target=_update_processes)

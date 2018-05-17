@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import subprocess
 import cocos
-import bossfight.client.config as config
 import bossfight.client.serverManager as serverManager
 import bossfight.client.gameServiceConnection as gameServiceConnection
 
@@ -68,35 +66,102 @@ class ServerListLayer(cocos.layer.Layer):
             )
         )
 
-class ServerTestTextLayer(cocos.layer.Layer):
-    def __init__(self):
+class ConnectionTextLayer(cocos.layer.Layer):
+    def __init__(self, position, connection):
         super().__init__()
         self.add(cocos.text.Label(
             'Waiting for Server ...',
             font_name='Arial',
             font_size=16,
-            anchor_x='center',
-            anchor_y='center',
-            position=(320, 240)
+            anchor_x='left',
+            anchor_y='top',
+            position=position
             ), name=str(gameServiceConnection.ConnectionStatus().WaitingForServer))
         self.add(cocos.text.Label(
             'Connected',
             font_name='Arial',
             font_size=16,
-            anchor_x='center',
-            anchor_y='center',
-            position=(320, 240)
+            anchor_x='left',
+            anchor_y='top',
+            position=position
             ), name=str(gameServiceConnection.ConnectionStatus().Connected))
         self.add(cocos.text.Label(
             'Disconnected',
             font_name='Arial',
             font_size=16,
-            anchor_x='center',
-            anchor_y='center',
-            position=(320, 240)
+            anchor_x='left',
+            anchor_y='top',
+            position=position
             ), name=str(gameServiceConnection.ConnectionStatus().Disconnected))
         for child in self.get_children():
             child.visible = False
+        self.connection = connection
+        self.schedule(self.update_text)
+
+    def update_text(self, dt):
+        for child in self.get_children():
+            child.visible = False
+        self.get(str(self.connection.connection_status)).visible = True
+
+class ConnectionListEntryNode(cocos.text.Label):
+
+    entry_counter = 1
+
+    def __init__(self, server_address, init_position, entry_number, connection):
+        self.index = ConnectionListEntryNode.entry_counter
+        entry_text = 'Connection ' + str(self.index) + '\n' \
+                   + 'IP Address: ' + server_address[0] + ':' + str(server_address[1])
+        super().__init__(
+            text=entry_text,
+            position=(init_position[0], init_position[1]-entry_number*140),
+            width=600,
+            height=120,
+            multiline=True,
+            font_name='Arial',
+            font_size=32,
+            anchor_x='left',
+            anchor_y='top'
+        )
+        ConnectionListEntryNode.entry_counter += 1
+        self.add(ConnectionTextLayer(
+            position=(0, -95),
+            connection=connection
+        ), name='text_layer')
+        self.connection = connection
+        self.schedule(self.update)
+
+    def update(self, dt):
+        if not self.connection in self.parent.parent.connections:
+            self.get('text_layer').kill()
+            self.kill()
+            for entry in self.parent.get_children():
+                if entry.__class__ == ConnectionListEntryNode and \
+                  entry.index > self.index:
+                    entry.do(cocos.actions.MoveBy((0, 140), 0.3))
+
+class ConnectionListLayer(cocos.layer.Layer):
+    def __init__(self):
+        super().__init__()
+        self.add(
+            cocos.text.Label(
+                'Connection List',
+                position=(1300, 850),
+                font_name='Arial',
+                font_size=48,
+                anchor_x='left',
+                anchor_y='bottom'
+            )
+        )
+
+    def add_entry(self, ip_address, port, connection):
+        self.add(
+            ConnectionListEntryNode(
+                server_address=(ip_address, port),
+                init_position=(1300, 800),
+                entry_number=len(self.children)-1,
+                connection=connection
+            )
+        )
 
 class ServerTestMenuLayer(cocos.menu.Menu):
     def __init__(self):
@@ -112,17 +177,30 @@ class ServerTestMenuLayer(cocos.menu.Menu):
         self.font_item_selected.update({
             'color': (255, 255, 255, 255)
         })
-        self.ip_addresses = serverManager.get_available_ip_addresses()
-        self.selected_ip_idx = 0
+        self.server_ip_addresses = serverManager.get_available_ip_addresses()
+        self.selected_server_ip_idx = 0
+        self.selected_connection_address = (self.server_ip_addresses[0], 9999)
         menu_items = [
             cocos.menu.MultipleMenuItem(
                 label='IP: ',
-                callback_func=self.on_ip_address,
-                items=serverManager.get_available_ip_addresses(),
-                default_item=self.selected_ip_idx
+                callback_func=self.on_server_ip_address,
+                items=self.server_ip_addresses,
+                default_item=self.selected_server_ip_idx
             ),
             cocos.menu.MenuItem('Create Server', self.on_create_server),
-            #cocos.menu.MenuItem('Open Connection', self.on_open_connection),
+            cocos.menu.EntryMenuItem(
+                label='IP: ',
+                callback_func=self.on_connection_ip_address,
+                value=self.server_ip_addresses[0],
+                max_length=16
+            ),
+            cocos.menu.EntryMenuItem(
+                label='Port: ',
+                callback_func=self.on_connection_port,
+                value='9999',
+                max_length=5
+            ),
+            cocos.menu.MenuItem('Open Connection', self.on_open_connection),
             cocos.menu.MenuItem('Shutdown All', self.on_shutdown_all),
             cocos.menu.MenuItem('Back', self.on_back)
         ]
@@ -133,16 +211,21 @@ class ServerTestMenuLayer(cocos.menu.Menu):
             layout_strategy=cocos.menu.fixedPositionMenuLayout([
                 (350, 900),
                 (350, 850),
-                (350, 800),
-                (350, 750)
+                (350, 750),
+                (350, 700),
+                (350, 650),
+                (350, 550),
+                (350, 500)
             ])
         )
 
-    def on_ip_address(self, selected_ip_idx):
-        self.selected_ip_idx = selected_ip_idx
+    def on_server_ip_address(self, selected_ip_idx):
+        self.selected_server_ip_idx = selected_ip_idx
 
     def on_create_server(self):
-        pid = serverManager.run_server(self.ip_addresses[self.selected_ip_idx])
+        pid = serverManager.run_server(
+            self.server_ip_addresses[self.selected_server_ip_idx]
+        )
         ip_address = serverManager.get_ip_address(pid)
         port = serverManager.get_port(pid)
         self.parent.get('server_list').add_entry(
@@ -150,14 +233,33 @@ class ServerTestMenuLayer(cocos.menu.Menu):
             port,
             pid
         )
-    
-    def on_shutdown_all(self):
-        serverManager.clean_up()
+
+    def on_connection_ip_address(self, new_value):
+        self.selected_connection_address = (
+            new_value,
+            self.selected_connection_address[1]
+        )
+
+    def on_connection_port(self, new_value):
+        try:
+            self.selected_connection_address = (
+                self.selected_connection_address[0],
+                int(new_value)
+            )
+        except ValueError:
+            pass
 
     def on_open_connection(self):
-        if self.parent.connection is None:
-            self.parent.connection = \
-                gameServiceConnection.GameServiceConnection(('localhost', 9999))
+        connection = gameServiceConnection.GameServiceConnection(self.selected_connection_address)
+        self.parent.connections.append(connection)
+        self.parent.get('connection_list').add_entry(
+            ip_address=self.selected_connection_address[0],
+            port=self.selected_connection_address[1],
+            connection=connection
+        )
+
+    def on_shutdown_all(self):
+        serverManager.clean_up()
 
     def on_back(self):
         self.parent.end()
@@ -168,19 +270,13 @@ class ServerTestMenuLayer(cocos.menu.Menu):
 class ServerTestScene(cocos.scene.Scene):
     def __init__(self):
         super().__init__()
-        self.add(ServerTestTextLayer(), name='text_layer')
+        self.connections = []
         self.add(ServerTestMenuLayer(), name='menu_layer')
         self.add(ServerListLayer(), name='server_list')
-        self.connection = None
-        self.schedule(self.update_text)
-
-    def update_text(self, dt):
-        for child in self.get('text_layer').get_children():
-            child.visible = False
-        if not self.connection is None:
-            self.get('text_layer').get(str(self.connection.connection_status)).visible = True
+        self.add(ConnectionListLayer(), name='connection_list')
+        #self.schedule(self.update_text)
 
     def on_exit(self):
-        if not self.connection is None:
-            self.connection.disconnect()
+        for connection in self.connections:
+            connection.disconnect()
         super().on_exit()
