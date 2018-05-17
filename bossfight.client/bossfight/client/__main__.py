@@ -17,9 +17,6 @@ director.window.set_fullscreen(
     height=config.get.screen_mode['height']
 )
 director.show_FPS = True
-
-# Run bossfight.server and then run the client on another terminal
-
 director.run(MainMenuScene())
 
 serverManager.clean_up()

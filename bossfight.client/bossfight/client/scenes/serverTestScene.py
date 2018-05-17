@@ -274,7 +274,6 @@ class ServerTestScene(cocos.scene.Scene):
         self.add(ServerTestMenuLayer(), name='menu_layer')
         self.add(ServerListLayer(), name='server_list')
         self.add(ConnectionListLayer(), name='connection_list')
-        #self.schedule(self.update_text)
 
     def on_exit(self):
         for connection in self.connections:
