@@ -42,7 +42,7 @@ class ServerListLayer(cocos.layer.Layer):
         self.add(
             cocos.text.Label(
                 'Server List',
-                position=(700, 850),
+                position=(650, 850),
                 font_name='Arial',
                 font_size=48,
                 anchor_x='left',
@@ -61,7 +61,7 @@ class ServerListLayer(cocos.layer.Layer):
             ServerListEntryNode(
                 server_address=(ip_address, port),
                 process_id=pid,
-                init_position=(700, 800),
+                init_position=(600, 800),
                 entry_number=len(self.children)-1
             )
         )
@@ -157,7 +157,7 @@ class ConnectionListLayer(cocos.layer.Layer):
         self.add(
             ConnectionListEntryNode(
                 server_address=(ip_address, port),
-                init_position=(1300, 800),
+                init_position=(1250, 800),
                 entry_number=len(self.children)-1,
                 connection=connection
             )
@@ -209,13 +209,13 @@ class ServerTestMenuLayer(cocos.menu.Menu):
             selected_effect=cocos.menu.zoom_in(),
             unselected_effect=cocos.menu.zoom_out(),
             layout_strategy=cocos.menu.fixedPositionMenuLayout([
-                (350, 900),
-                (350, 850),
-                (350, 750),
-                (350, 700),
-                (350, 650),
-                (350, 550),
-                (350, 500)
+                (280, 900),
+                (280, 850),
+                (280, 750),
+                (280, 700),
+                (280, 650),
+                (280, 550),
+                (280, 500)
             ])
         )
 
