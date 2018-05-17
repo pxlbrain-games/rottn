@@ -24,7 +24,6 @@ CONFIG_PATH = os.path.join(
     'client_config.json'
     )
 _CURRENT_CONFIG = {}
-_CONFIG_INITIALIZED = False
 
 get = type('Config', tuple([object]), _CURRENT_CONFIG)()
 get.__dict__ = _CURRENT_CONFIG
