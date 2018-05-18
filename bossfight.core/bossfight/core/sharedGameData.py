@@ -32,6 +32,15 @@ class SharedGameState(Sendable):
         self.game_status = game_status
         self.time_order = time_order
 
+        ### ONLY FOR TESTING PURPOSES
+        self.test_pos = 0
+
+    def is_paused(self):
+        '''
+        Returns *True* if game status is *Paused*.
+        '''
+        return self.game_status == GameStatus().Paused
+
     '''
     Overrides of 'object' member functions
     '''

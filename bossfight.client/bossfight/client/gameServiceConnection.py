@@ -127,8 +127,8 @@ class GameServiceConnection:
                 return # Connection successful, leave _try_connect()
             #elif response.is_error():
             #    print(response.body.message)
-            dt = time.time()-t_1
-            time.sleep(max(self.update_cycle_interval-dt, 0))
+            dt = time.time() - t_1
+            time.sleep(max(self.update_cycle_interval - dt, 0))
         # if this point is reached connection was unsuccessful
         self.connection_status = ConnectionStatus().Disconnected
 

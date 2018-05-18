@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import pyglet.resource
 from cocos.director import director
 from bossfight.client.scenes.mainMenuScene import MainMenuScene
 import bossfight.client.config as config
@@ -11,6 +12,8 @@ director.init(
     width=1920,
     height=1080
 )
+pyglet.resource.path = ['resources/spritesheets']
+pyglet.resource.reindex()
 director.window.set_fullscreen(
     fullscreen=config.get.screen_mode['fullscreen'],
     width=config.get.screen_mode['width'],

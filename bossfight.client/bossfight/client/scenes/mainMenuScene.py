@@ -4,6 +4,7 @@ import cocos
 from cocos.director import director
 from pyglet.window import NoSuchScreenModeException
 import bossfight.client.config as config
+from bossfight.client.scenes.gameLoopTestScene import GameLoopTestScene
 from bossfight.client.scenes.serverTestScene import ServerTestScene
 
 class MainMenuScene(cocos.scene.Scene):
@@ -32,6 +33,7 @@ class MainMenuLayer(cocos.menu.Menu):
             'color': (255, 255, 255, 255)
         })
         menu_items = [
+            cocos.menu.MenuItem('Test Game Loop', self.on_test_loop),
             cocos.menu.MenuItem('Test Server', self.on_test_server),
             cocos.menu.MenuItem('Options', self.on_options),
             cocos.menu.MenuItem('Quit', self.on_quit)
@@ -41,6 +43,9 @@ class MainMenuLayer(cocos.menu.Menu):
             selected_effect=cocos.menu.zoom_in(),
             unselected_effect=cocos.menu.zoom_out()
         )
+    
+    def on_test_loop(self):
+        director.push(GameLoopTestScene())
 
     def on_test_server(self):
         director.push(ServerTestScene())

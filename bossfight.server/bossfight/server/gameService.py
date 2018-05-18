@@ -25,7 +25,7 @@ class GameService(socketserver.ThreadingUDPServer):
 
     def start(self):
         '''
-        Runs the server in a dedicated Thread.
+        Runs the server in a dedicated Thread. Does nothing if server is already runing.
         Must be called for the server to handle requests and is terminated by *shutdown()*
         '''
         if not self._server_thread.is_alive():
@@ -59,7 +59,8 @@ class _GameServiceRequestHandler(socketserver.BaseRequestHandler):
         if request.is_update_request():
             update = sharedGameData.SharedGameStateUpdate(
                 time_order=self.server.shared_game_state.time_order,
-                game_status=self.server.shared_game_state.game_status
+                game_status=self.server.shared_game_state.game_status,
+                test_pos=self.server.shared_game_state.test_pos
             )
             response = gsp.response(update)
         elif request.is_state_request():
