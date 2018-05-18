@@ -21,18 +21,18 @@ Enum class with the values:
 <h2 id="bossfight.core.sharedGameData.SharedGameState">SharedGameState</h2>
 
 ```python
-SharedGameState(self, time_order_index=0, game_status=1)
+SharedGameState(self, time_order=0, game_status=1)
 ```
 
 Contains game state information that is required to be known both by the server and the client.
 Since it is a *Sendable*, it can only contain basic python types as attributes.
 
-*time_order_index* should be in alignment with the servers current update counter.
+*time_order* should be in alignment with the servers current update counter.
 
 <h2 id="bossfight.core.sharedGameData.SharedGameStateUpdate">SharedGameStateUpdate</h2>
 
 ```python
-SharedGameStateUpdate(self, time_order_index:int, **kwargs)
+SharedGameStateUpdate(self, time_order=0, **kwargs)
 ```
 
 Represents a set of changes to carry out on a *SharedGameState*.

@@ -76,3 +76,86 @@ GameServicePackage.to_datagram(self)
 
 Returns a bytepacked datagram representing the GameServicePackage.
 
+<h3 id="bossfight.core.gameServiceProtocol.GameServicePackage.is_response">is_response</h3>
+
+```python
+GameServicePackage.is_response(self)
+```
+
+Returns *True* if the package is of package type *GameServiceResponse*.
+
+<h3 id="bossfight.core.gameServiceProtocol.GameServicePackage.is_error">is_error</h3>
+
+```python
+GameServicePackage.is_error(self)
+```
+
+Returns *True* if the package is of package type *GameServiceError*.
+
+<h3 id="bossfight.core.gameServiceProtocol.GameServicePackage.is_update_request">is_update_request</h3>
+
+```python
+GameServicePackage.is_update_request(self)
+```
+
+Returns *True* if the package is of package type *GetGameStateUpdateRequest*.
+
+<h3 id="bossfight.core.gameServiceProtocol.GameServicePackage.is_state_request">is_state_request</h3>
+
+```python
+GameServicePackage.is_state_request(self)
+```
+
+Returns *True* if the package is of package type *GetSharedGameStateRequest*.
+
+<h2 id="bossfight.core.gameServiceProtocol.timeout_error">timeout_error</h2>
+
+```python
+timeout_error(message='')
+```
+
+Returns a *GameServicePackage* with package type *GameServiceError*,
+error type *RequestTimeout* and *message* as error message.
+
+<h2 id="bossfight.core.gameServiceProtocol.unpack_error">unpack_error</h2>
+
+```python
+unpack_error(message='')
+```
+
+Returns a *GameServicePackage* with package type *GameServiceError*,
+error type *UnpackError* and *message* as error message.
+
+<h2 id="bossfight.core.gameServiceProtocol.request_invalid_error">request_invalid_error</h2>
+
+```python
+request_invalid_error(message='')
+```
+
+Returns a *GameServicePackage* with package type *GameServiceError*,
+error type *RequestInvalid* and *message* as error message.
+
+<h2 id="bossfight.core.gameServiceProtocol.game_state_request">game_state_request</h2>
+
+```python
+game_state_request()
+```
+
+Returns a *GameServicePackage* with package type *GetSharedGameStateRequest*.
+
+<h2 id="bossfight.core.gameServiceProtocol.game_state_update_request">game_state_update_request</h2>
+
+```python
+game_state_update_request(time_order:int)
+```
+
+Returns a *GameServicePackage* with package type *GetGameStateUpdateRequest*.
+
+<h2 id="bossfight.core.gameServiceProtocol.response">response</h2>
+
+```python
+response(body:bossfight.core.mixins.Sendable)
+```
+
+Returns a *GameServicePackage* with package type *GameServiceResponse*.
+

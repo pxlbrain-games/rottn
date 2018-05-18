@@ -51,3 +51,19 @@ GameServiceConnection.disconnect(self)
 Will stop the connection from sending any further requests to the server.
 Will do nothing if *connection_status* == *ConnectionStatus().Disconnected*.
 
+<h3 id="bossfight.client.gameServiceConnection.GameServiceConnection.is_connected">is_connected</h3>
+
+```python
+GameServiceConnection.is_connected(self)
+```
+
+Returns *True* if the connection status is *Connected*.
+
+<h3 id="bossfight.client.gameServiceConnection.GameServiceConnection.is_waiting">is_waiting</h3>
+
+```python
+GameServiceConnection.is_waiting(self)
+```
+
+Returns *True* if the connection status is *WaitingForServer*.
+
