@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 '''
-Game logic
+This module handles the game logic, that is to be simulated by the server.
+A game loop takes a *SharedGameState* and will update it according to the game logic
+defined in it's update cycle, as long as the *game_status* is not *Paused*.
 '''
 
 import threading
@@ -42,6 +44,7 @@ class GameLoop:
             t = time.time()
             ### SIMULATING A SINE FOR TESTING
             self.shared_game_state.test_pos += math.cos(2.5*t)*max(self.update_cycle_interval, dt)
+            # It is important that the game loop manages time ordering
             self.shared_game_state.time_order += 1
             dt = time.time() - t
             time.sleep(max(self.update_cycle_interval-dt, 0))

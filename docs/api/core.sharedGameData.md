@@ -29,6 +29,14 @@ Since it is a *Sendable*, it can only contain basic python types as attributes.
 
 *time_order* should be in alignment with the servers current update counter.
 
+<h3 id="bossfight.core.sharedGameData.SharedGameState.is_paused">is_paused</h3>
+
+```python
+SharedGameState.is_paused(self)
+```
+
+Returns *True* if game status is *Paused*.
+
 <h2 id="bossfight.core.sharedGameData.SharedGameStateUpdate">SharedGameStateUpdate</h2>
 
 ```python

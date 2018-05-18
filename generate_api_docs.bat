@@ -3,6 +3,7 @@ ECHO ##################################
 ECHO Generating Markdown files ...
 ECHO ##################################
 .\venv\Scripts\pydocmd.exe simple bossfight.server+ bossfight.server.gameService++ > .\docs\api\server.gameService.md
+.\venv\Scripts\pydocmd.exe simple bossfight.server+ bossfight.server.gameLoop++ > .\docs\api\server.gameLoop.md
 .\venv\Scripts\pydocmd.exe simple bossfight.core+ bossfight.core.gameServiceProtocol++ > .\docs\api\core.gameServiceProtocol.md
 .\venv\Scripts\pydocmd.exe simple bossfight.core+ bossfight.core.sharedGameData++ > .\docs\api\core.sharedGameData.md
 .\venv\Scripts\pydocmd.exe simple bossfight.core+ bossfight.core.mixins++ > .\docs\api\core.mixins.md

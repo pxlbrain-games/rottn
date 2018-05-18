@@ -18,6 +18,15 @@ Threading UDP server that manages clients and processes requests.
 Call *serve_forever*() in a seperate thread for the server to start handling requests from
 *GameServiceConnection*s. Call *shutdown*() to stop it.
 
+<h3 id="bossfight.server.gameService.GameService.start">start</h3>
+
+```python
+GameService.start(self)
+```
+
+Runs the server in a dedicated Thread. Does nothing if server is already runing.
+Must be called for the server to handle requests and is terminated by *shutdown()*
+
 <h3 id="bossfight.server.gameService.GameService.get_ip_address">get_ip_address</h3>
 
 ```python
