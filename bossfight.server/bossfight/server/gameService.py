@@ -5,6 +5,7 @@ a client's *GameServiceConnection* object.
 '''
 
 import socketserver
+import threading
 from umsgpack import InsufficientDataException
 import bossfight.core.sharedGameData as sharedGameData
 import bossfight.core.gameServiceProtocol as gsp
@@ -20,6 +21,16 @@ class GameService(socketserver.ThreadingUDPServer):
     def __init__(self, ip_address: str, port: int):
         super().__init__((ip_address, port), _GameServiceRequestHandler)
         self.shared_game_state = sharedGameData.SharedGameState()
+        self._server_thread = threading.Thread()
+
+    def start(self):
+        '''
+        Runs the server in a dedicated Thread.
+        Must be called for the server to handle requests and is terminated by *shutdown()*
+        '''
+        if not self._server_thread.is_alive():
+            self._server_thread = threading.Thread(target=self.serve_forever)
+            self._server_thread.start()
 
     def get_ip_address(self):
         '''

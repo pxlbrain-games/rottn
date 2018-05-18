@@ -20,7 +20,6 @@ To shutdown the server, write a line containing `shutdown` to the processes
 '''
 
 import sys
-import threading
 from bossfight.server.gameService import GameService
 
 if len(sys.argv) == 1:
@@ -34,8 +33,7 @@ print(SERVER.get_ip_address())
 print(SERVER.get_port())
 sys.stdout.close()
 
-SERVER_THREAD = threading.Thread(target=SERVER.serve_forever)
-SERVER_THREAD.start()
+SERVER.start()
 
 SHUTDOWN = False
 while not SHUTDOWN:
