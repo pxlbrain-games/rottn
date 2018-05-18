@@ -65,6 +65,7 @@ class GameServiceConnection:
             self.connection_status = ConnectionStatus().Disconnected
 
     def __del__(self):
+        self.disconnect()
         self._client_socket.close()
 
     def _send_and_recv(self, package: gsp.GameServicePackage):

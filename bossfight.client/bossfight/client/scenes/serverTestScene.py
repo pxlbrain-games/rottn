@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import cocos
+from pyglet.window import mouse
+from cocos.director import director
 import bossfight.client.serverManager as serverManager
 import bossfight.client.gameServiceConnection as gameServiceConnection
 
@@ -37,6 +39,9 @@ class ServerListEntryNode(cocos.text.Label):
                     entry.do(cocos.actions.MoveBy((0, 140), 0.3))
 
 class ServerListLayer(cocos.layer.Layer):
+
+    is_event_handler = True
+
     def __init__(self):
         super().__init__()
         self.add(
@@ -65,6 +70,16 @@ class ServerListLayer(cocos.layer.Layer):
                 entry_number=len(self.children)-1
             )
         )
+
+    def on_mouse_press(self, x, y, buttons, modifiers):
+        x, y = director.get_virtual_coordinates(x, y)
+        if 500 < x < 1170:
+            upper_end = 800
+            for child in self.get_children():
+                if child.__class__ == ServerListEntryNode:
+                    if upper_end > y > upper_end - 120:
+                        serverManager.shutdown(child.pid)
+                    upper_end -= 140
 
 class ConnectionTextLayer(cocos.layer.Layer):
     def __init__(self, position, connection):
@@ -138,6 +153,9 @@ class ConnectionListEntryNode(cocos.text.Label):
                     entry.do(cocos.actions.MoveBy((0, 140), 0.3))
 
 class ConnectionListLayer(cocos.layer.Layer):
+
+    is_event_handler = True
+
     def __init__(self):
         super().__init__()
         self.add(
@@ -160,6 +178,22 @@ class ConnectionListLayer(cocos.layer.Layer):
                 connection=connection
             )
         )
+
+    def on_mouse_press(self, x, y, buttons, modifiers):
+        x, y = director.get_virtual_coordinates(x, y)
+        if 1300 < x < 1870:
+            upper_end = 800
+            for child in self.get_children():
+                if child.__class__ == ConnectionListEntryNode:
+                    if upper_end > y > upper_end - 125:
+                        if buttons & mouse.LEFT:
+                            if child.connection.is_connected():
+                                child.connection.disconnect()
+                            else:
+                                child.connection.connect()
+                        else:
+                            self.parent.connections.remove(child.connection)
+                    upper_end -= 140
 
 class ServerTestMenuLayer(cocos.menu.Menu):
     def __init__(self):
