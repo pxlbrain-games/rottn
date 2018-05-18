@@ -25,12 +25,12 @@ class SharedGameState(Sendable):
     Contains game state information that is required to be known both by the server and the client.
     Since it is a *Sendable*, it can only contain basic python types as attributes.
 
-    *time_order_index* should be in alignment with the servers current update counter.
+    *time_order* should be in alignment with the servers current update counter.
     '''
 
-    def __init__(self, time_order_index=0, game_status=GameStatus().Paused):
+    def __init__(self, time_order=0, game_status=GameStatus().Paused):
         self.game_status = game_status
-        self.time_order_index = time_order_index
+        self.time_order = time_order
 
     '''
     Overrides of 'object' member functions
@@ -57,9 +57,9 @@ class SharedGameStateUpdate(Sendable):
     also heavier update (meaning it will contain more data).
     '''
 
-    def __init__(self, time_order_index: int, **kwargs):
+    def __init__(self, time_order=0, **kwargs):
         self.__dict__ = kwargs
-        self.time_order_index = time_order_index
+        self.time_order = time_order
 
     # Adding to another update should return an updated update
     def __add__(self, other):
@@ -72,16 +72,16 @@ class SharedGameStateUpdate(Sendable):
 
     # Adding to a SharedGameState should update and return the state
     def __radd__(self, other):
-        if self.time_order_index > other.time_order_index:
+        if self.time_order > other.time_order:
             other.__dict__.update(self.__dict__)
         return other
 
     # Check time ordering
     def __lt__(self, other):
-        return self.time_order_index < other.time_order_index
+        return self.time_order < other.time_order
 
     def __gt__(self, other):
-        return self.time_order_index > other.time_order_index
+        return self.time_order > other.time_order
 
 class PlayerAction(Sendable):
     '''

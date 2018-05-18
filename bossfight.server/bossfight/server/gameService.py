@@ -40,33 +40,23 @@ class _GameServiceRequestHandler(socketserver.BaseRequestHandler):
             request = gsp.GameServicePackage.from_datagram(self.request[0])
         except (InsufficientDataException, TypeError):
             # if unpacking request failed send back error message and exit handle function
-            response = gsp.GameServicePackage(
-                package_type=gsp.PackageType().GameServiceError,
-                body=gsp.ErrorMessage(
-                    gsp.ErrorType().UnpackError,
-                    'Server responded: Byte error.'
-                )
-            )
+            response = gsp.unpack_error('Server responded: Byte error.')
             self.request[1].sendto(response.to_datagram(), self.client_address)
             return
 
         # Handle request and assign response here
-        if request.header.package_type == gsp.PackageType().GetSharedGameStateRequest or \
-           request.header.package_type == gsp.PackageType().GetGameStateUpdateRequest:
-            # respond by sending back the shared game state
-            response = gsp.GameServicePackage(
-                package_type=gsp.PackageType().GameServiceResponse,
-                body=self.server.shared_game_state
+        if request.is_update_request():
+            update = sharedGameData.SharedGameStateUpdate(
+                time_order=self.server.shared_game_state.time_order,
+                game_status=self.server.shared_game_state.game_status
             )
+            response = gsp.response(update)
+        elif request.is_state_request():
+            # respond by sending back the shared game state
+            response = gsp.response(self.server.shared_game_state)
         else:
             # if none of the above were a match the request was invalid
-            response = gsp.GameServicePackage(
-                package_type=gsp.PackageType().GameServiceError,
-                body=gsp.ErrorMessage(
-                    gsp.ErrorType().RequestInvalid,
-                    'Server responded: Request invalid.'
-                )
-            )
+            response = gsp.request_invalid_error('Server responded: Request invalid.')
 
         # Send response
         self.request[1].sendto(response.to_datagram(), self.client_address)

@@ -7,7 +7,7 @@ of a package.
 '''
 
 import sys
-from bossfight.core.sharedGameData import SharedGameState
+from bossfight.core.sharedGameData import SharedGameState, SharedGameStateUpdate
 # SharedGameState is not used explicitely, but it needs to be findable
 # via 'getattr()' in 'GameServicePackage.from_datagram()'!
 from bossfight.core.mixins import Sendable
@@ -124,6 +124,30 @@ class GameServicePackage:
             body = None
         return GameServicePackage(header.package_type, body)
 
+    def is_response(self):
+        '''
+        Returns *True* if the package is of package type *GameServiceResponse*.
+        '''
+        return self.header.package_type == PackageType().GameServiceResponse
+
+    def is_error(self):
+        '''
+        Returns *True* if the package is of package type *GameServiceError*.
+        '''
+        return self.header.package_type == PackageType().GameServiceError
+
+    def is_update_request(self):
+        '''
+        Returns *True* if the package is of package type *GetGameStateUpdateRequest*.
+        '''
+        return self.header.package_type == PackageType().GetGameStateUpdateRequest
+    
+    def is_state_request(self):
+        '''
+        Returns *True* if the package is of package type *GetSharedGameStateRequest*.
+        '''
+        return self.header.package_type == PackageType().GetSharedGameStateRequest
+
     '''
     Override object members
     '''
@@ -134,3 +158,70 @@ class GameServicePackage:
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+def timeout_error(message=''):
+    '''
+    Returns a *GameServicePackage* with package type *GameServiceError*,
+    error type *RequestTimeout* and *message* as error message.
+    '''
+    return GameServicePackage(
+        package_type=PackageType().GameServiceError,
+        body=ErrorMessage(
+            error_type=ErrorType().RequestTimeout,
+            message=message
+        )
+    )
+
+def unpack_error(message=''):
+    '''
+    Returns a *GameServicePackage* with package type *GameServiceError*,
+    error type *UnpackError* and *message* as error message.
+    '''
+    return GameServicePackage(
+        package_type=PackageType().GameServiceError,
+        body=ErrorMessage(
+            error_type=ErrorType().UnpackError,
+            message=message
+        )
+    )
+
+def request_invalid_error(message=''):
+    '''
+    Returns a *GameServicePackage* with package type *GameServiceError*,
+    error type *RequestInvalid* and *message* as error message.
+    '''
+    return GameServicePackage(
+        package_type=PackageType().GameServiceError,
+        body=ErrorMessage(
+            error_type=ErrorType().RequestInvalid,
+            message=message
+        )
+    )
+
+def game_state_request():
+    '''
+    Returns a *GameServicePackage* with package type *GetSharedGameStateRequest*.
+    '''
+    return GameServicePackage(
+        package_type=PackageType().GetSharedGameStateRequest
+    )
+
+def game_state_update_request(time_order: int):
+    '''
+    Returns a *GameServicePackage* with package type *GetGameStateUpdateRequest*.
+    '''
+    return GameServicePackage(
+        package_type=PackageType().GetGameStateUpdateRequest,
+        body=SharedGameStateUpdate(
+            time_order=time_order
+        )
+    )
+
+def response(body: Sendable):
+    '''
+    Returns a *GameServicePackage* with package type *GameServiceResponse*.
+    '''
+    return GameServicePackage(
+        package_type=PackageType().GameServiceResponse,
+        body=body
+    )

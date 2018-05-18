@@ -53,6 +53,7 @@ class GameServiceConnection:
         self._client_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         self.request_timeout = 0.5
         self.connection_timeout = 5.0
+        self.latency = 0
         self._buffer_size = 1024
         self.update_cycle_interval = 0.03
         if not closed:
@@ -74,15 +75,9 @@ class GameServiceConnection:
         try:
             return gsp.GameServicePackage.from_datagram(self._client_socket.recv(self._buffer_size))
         except socket.timeout:
-            return gsp.GameServicePackage(
-                gsp.PackageType().GameServiceError,
-                gsp.ErrorMessage(gsp.ErrorType().RequestTimeout, 'Request timed out.')
-                )
+            return gsp.timeout_error('Request timed out.')
         except ConnectionResetError:
-            return gsp.GameServicePackage(
-                gsp.PackageType().GameServiceError,
-                gsp.ErrorMessage(gsp.ErrorType().RequestTimeout, 'Server not found.')
-            )
+            return gsp.timeout_error('Server not found.')
 
     def connect(self):
         '''
@@ -105,6 +100,18 @@ class GameServiceConnection:
         if self._update_cycle_thread.is_alive():
             raise threading.ThreadError
 
+    def is_connected(self):
+        '''
+        Returns *True* if the connection status is *Connected*.
+        '''
+        return self.connection_status == ConnectionStatus().Connected
+
+    def is_waiting(self):
+        '''
+        Returns *True* if the connection status is *WaitingForServer*.
+        '''
+        return self.connection_status == ConnectionStatus().WaitingForServer
+
     def _try_connect(self):
         t_0 = time.time()
         self.connection_status = ConnectionStatus().WaitingForServer
@@ -112,15 +119,13 @@ class GameServiceConnection:
         while time.time()-t_0 < self.connection_timeout and \
           not self.connection_status == ConnectionStatus().Disconnected:
             t_1 = time.time()
-            response = self._send_and_recv(
-                gsp.GameServicePackage(gsp.PackageType().GetSharedGameStateRequest)
-            )
-            if response.header.package_type == gsp.PackageType().GameServiceResponse:
+            response = self._send_and_recv(gsp.game_state_request())
+            if response.is_response():
                 self.shared_game_state = response.body
                 self.connection_status = ConnectionStatus().Connected
                 return # Connection successful, leave _try_connect()
-            elif response.header.package_type == gsp.PackageType().GameServiceError:
-                pass#print(response.body.message)
+            #elif response.is_error():
+            #    print(response.body.message)
             dt = time.time()-t_1
             time.sleep(max(self.update_cycle_interval-dt, 0))
         # if this point is reached connection was unsuccessful
@@ -128,16 +133,20 @@ class GameServiceConnection:
 
     def _update_cycle(self):
         self._try_connect()
+        latency_timer = 0
         while not self.connection_status == ConnectionStatus().Disconnected:
             t_0 = time.time()
             response = self._send_and_recv(
-                gsp.GameServicePackage(gsp.PackageType().GetGameStateUpdateRequest)
+                gsp.game_state_update_request(self.shared_game_state.time_order)
             )
-            if response.header.package_type == gsp.PackageType().GameServiceResponse:
-                self.shared_game_state = response.body
+            if response.is_response():
+                self.shared_game_state += response.body
             else:
-                if response.header.package_type == gsp.PackageType().GameServiceError:
-                    pass#print(response.body.message)
+                #if response.is_error():
+                #    print(response.body.message)
                 self._try_connect()
             dt = time.time()-t_0
+            if not latency_timer % 60:
+                self.latency = dt*1000
+            latency_timer += 1
             time.sleep(max(self.update_cycle_interval-dt, 0))

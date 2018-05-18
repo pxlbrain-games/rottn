@@ -41,7 +41,7 @@ class ServerListLayer(cocos.layer.Layer):
         super().__init__()
         self.add(
             cocos.text.Label(
-                'Server List',
+                text='Server List',
                 position=(650, 850),
                 font_name='Arial',
                 font_size=48,
@@ -70,38 +70,36 @@ class ConnectionTextLayer(cocos.layer.Layer):
     def __init__(self, position, connection):
         super().__init__()
         self.add(cocos.text.Label(
-            'Waiting for Server ...',
+            text='Waiting for Server ...',
             font_name='Arial',
             font_size=16,
             anchor_x='left',
             anchor_y='top',
             position=position
-            ), name=str(gameServiceConnection.ConnectionStatus().WaitingForServer))
+        ), name='status')
         self.add(cocos.text.Label(
-            'Connected',
+            text='',
             font_name='Arial',
             font_size=16,
             anchor_x='left',
             anchor_y='top',
-            position=position
-            ), name=str(gameServiceConnection.ConnectionStatus().Connected))
-        self.add(cocos.text.Label(
-            'Disconnected',
-            font_name='Arial',
-            font_size=16,
-            anchor_x='left',
-            anchor_y='top',
-            position=position
-            ), name=str(gameServiceConnection.ConnectionStatus().Disconnected))
-        for child in self.get_children():
-            child.visible = False
+            position=(position[0]+250, position[1])
+        ), name='latency')
         self.connection = connection
         self.schedule(self.update_text)
 
     def update_text(self, dt):
-        for child in self.get_children():
-            child.visible = False
-        self.get(str(self.connection.connection_status)).visible = True
+        if self.connection.is_connected():
+            self.get('latency').visible = True
+            self.get('latency').element.text = \
+                'Latency: ' + str(int(self.connection.latency)) + ' ms'
+            self.get('status').element.text = 'Connected'
+        else:
+            self.get('latency').visible = False
+            if self.connection.is_waiting():
+                self.get('status').element.text = 'Waiting for server ...'
+            else:
+                self.get('status').element.text = 'Disconnected'
 
 class ConnectionListEntryNode(cocos.text.Label):
 
@@ -144,7 +142,7 @@ class ConnectionListLayer(cocos.layer.Layer):
         super().__init__()
         self.add(
             cocos.text.Label(
-                'Connection List',
+                text='Connection List',
                 position=(1300, 850),
                 font_name='Arial',
                 font_size=48,
