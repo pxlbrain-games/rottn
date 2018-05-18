@@ -19,7 +19,7 @@ Enum class with the following values:
 - *GetSharedGameStateRequest*: As client request the full shared game state from the server.
     body = None
 - *GetGameStateUpdateRequest*: As client request all polled game state updates.
-    body = None
+    body = *SharedGameStateUpdate*
 - *PostPlayerActionRequest*: As client post a player action to the *GameService*.
     body = *PlayerAction*
 - *GameServiceResponse*: As server respond to a client request.
@@ -150,6 +150,7 @@ game_state_update_request(time_order:int)
 ```
 
 Returns a *GameServicePackage* with package type *GetGameStateUpdateRequest*.
+Enter the *time_order* attribute of the client's last known *SharedGameState*.
 
 <h2 id="bossfight.core.gameServiceProtocol.response">response</h2>
 
