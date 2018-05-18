@@ -21,7 +21,7 @@ class PackageType:
     - *GetSharedGameStateRequest*: As client request the full shared game state from the server.
         body = None
     - *GetGameStateUpdateRequest*: As client request all polled game state updates.
-        body = None
+        body = *SharedGameStateUpdate*
     - *PostPlayerActionRequest*: As client post a player action to the *GameService*.
         body = *PlayerAction*
     - *GameServiceResponse*: As server respond to a client request.
@@ -141,7 +141,7 @@ class GameServicePackage:
         Returns *True* if the package is of package type *GetGameStateUpdateRequest*.
         '''
         return self.header.package_type == PackageType().GetGameStateUpdateRequest
-    
+
     def is_state_request(self):
         '''
         Returns *True* if the package is of package type *GetSharedGameStateRequest*.
@@ -209,6 +209,7 @@ def game_state_request():
 def game_state_update_request(time_order: int):
     '''
     Returns a *GameServicePackage* with package type *GetGameStateUpdateRequest*.
+    Enter the *time_order* attribute of the client's last known *SharedGameState*.
     '''
     return GameServicePackage(
         package_type=PackageType().GetGameStateUpdateRequest,
