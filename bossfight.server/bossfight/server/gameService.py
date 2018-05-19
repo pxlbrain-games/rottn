@@ -18,8 +18,8 @@ class GameService(socketserver.ThreadingUDPServer):
     Call *serve_forever*() in a seperate thread for the server to start handling requests from
     *GameServiceConnection*s. Call *shutdown*() to stop it.
 
-    *shared_game_state* and *player_action_queue* should be passed to a *GameLoop* that will
-    simulate the game and produe state updates.
+    *game_loop* is the servers *GameLoop* object, which simulates the game logic and updates
+    the *shared_game_state*.
     '''
 
     def __init__(self, ip_address: str, port: int):
