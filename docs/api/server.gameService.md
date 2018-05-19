@@ -18,7 +18,7 @@ Threading UDP server that manages clients and processes requests.
 Call *serve_forever*() in a seperate thread for the server to start handling requests from
 *GameServiceConnection*s. Call *shutdown*() to stop it.
 
-*game_loop* is the servers *GameLoop* object, which simulates the game logic and updates
+*game_loop* is the server's *GameLoop* object, which simulates the game logic and updates
 the *shared_game_state*.
 
 <h3 id="bossfight.server.gameService.GameService.start">start</h3>
@@ -27,8 +27,17 @@ the *shared_game_state*.
 GameService.start(self)
 ```
 
-Runs the server in a dedicated Thread. Does nothing if server is already runing.
+Runs the server in a dedicated Thread and starts the game loop.
+Does nothing if server is already running.
 Must be called for the server to handle requests and is terminated by *shutdown()*
+
+<h3 id="bossfight.server.gameService.GameService.shutdown">shutdown</h3>
+
+```python
+GameService.shutdown(self)
+```
+
+Stops the server's request handling and pauses the game loop.
 
 <h3 id="bossfight.server.gameService.GameService.get_ip_address">get_ip_address</h3>
 
