@@ -11,10 +11,12 @@ defined in it's update cycle, as long as the *game_status* is not *Paused*.
 <h2 id="bossfight.server.gameLoop.GameLoop">GameLoop</h2>
 
 ```python
-GameLoop(self, shared_game_state:bossfight.core.sharedGameData.SharedGameState)
+GameLoop(self, shared_game_state:bossfight.core.sharedGameData.SharedGameState, player_action_queue:list)
 ```
 
 Class that can update a shared game state by running a game logic simulation thread.
+It must be passed a *SharedGameState* and a list of *PlayerAction*s from the
+*GameService* object which owns the GameLoop.
 
 Currently it only simulates a sine signal in the shared game state attribute *test_pos*.
 

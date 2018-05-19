@@ -21,7 +21,6 @@ To shutdown the server, write a line containing `shutdown` to the processes
 
 import sys
 from bossfight.server.gameService import GameService
-from bossfight.server.gameLoop import GameLoop
 
 if len(sys.argv) == 1:
     SERVER = GameService('localhost', 0)
@@ -34,14 +33,10 @@ print(SERVER.get_ip_address())
 print(SERVER.get_port())
 sys.stdout.close()
 
-LOOP = GameLoop(SERVER.shared_game_state)
-
-LOOP.start()
 SERVER.start()
 
 SHUTDOWN = False
 while not SHUTDOWN:
     if sys.stdin.readline().__contains__('shutdown'):
         SERVER.shutdown()
-        LOOP.pause()
         SHUTDOWN = True

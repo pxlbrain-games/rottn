@@ -10,6 +10,10 @@ import time
 import bossfight.core.sharedGameData as sharedGameData
 import bossfight.core.gameServiceProtocol as gsp
 
+REQUEST_TIMEOUT = 0.5
+CONNECTION_TIMEOUT = 5.0
+_BUFFER_SIZE = 1024
+
 class ConnectionStatus:
     '''
     Enum class with the following values:
@@ -34,29 +38,17 @@ class GameServiceConnection:
     port as an int. Check the *connection_status* attribute to get the status of the Connection as
     a *ConnectionStatus()* attribute.
 
-    A running *GameServiceConnection* will request an update of *sharedGameState* from the server
+    A running *GameServiceConnection* will request an update of *shared_game_state* from the server
     every *update_cycle_interval* seconds.
-    *sharedGameState* is a *sharedGameData.SharedGameState* object.
     '''
-
-    @property
-    def request_timeout(self):
-        return self._client_socket.timeout
-
-    @request_timeout.setter
-    def request_timeout(self, value: float):
-        self._client_socket.settimeout(value)
-
     def __init__(self, server_address, closed=False):
         self.shared_game_state = sharedGameData.SharedGameState()
         self.server_address = server_address
         self._client_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-        self.request_timeout = 0.5
-        self.connection_timeout = 5.0
+        self._client_socket.settimeout(REQUEST_TIMEOUT)
         self.latency = 0
-        self._buffer_size = 1024
+        self._polled_player_actions = []
         self.update_cycle_interval = 0.03
-        self._polled_actions = {}
         if not closed:
             self._update_cycle_thread = threading.Thread(target=self._update_cycle)
             self.connection_status = ConnectionStatus().WaitingForServer
@@ -70,12 +62,11 @@ class GameServiceConnection:
         self._client_socket.close()
 
     def _send_and_recv(self, package: gsp.GameServicePackage):
-
         # Send package to server ...
         self._client_socket.sendto(package.to_datagram(), self.server_address)
-        # ... and return response if possible, otherwise return GameServiceError package
+        # ... and get response if possible, otherwise create GameServiceError package
         try:
-            return gsp.GameServicePackage.from_datagram(self._client_socket.recv(self._buffer_size))
+            return gsp.GameServicePackage.from_datagram(self._client_socket.recv(_BUFFER_SIZE))
         except socket.timeout:
             return gsp.timeout_error('Request timed out.')
         except ConnectionResetError:
@@ -97,7 +88,7 @@ class GameServiceConnection:
         '''
         t_0 = time.time()
         # Force update cycle to end
-        while self._update_cycle_thread.is_alive() and time.time()-t_0 < self.request_timeout:
+        while self._update_cycle_thread.is_alive() and time.time()-t_0 < REQUEST_TIMEOUT:
             self.connection_status = ConnectionStatus().Disconnected
         if self._update_cycle_thread.is_alive():
             raise threading.ThreadError
@@ -114,22 +105,17 @@ class GameServiceConnection:
         '''
         return self.connection_status == ConnectionStatus().WaitingForServer
 
-    def poll_player_action(self, player_action: sharedGameData.PlayerAction):
+    def post_player_action(self, player_action: sharedGameData.PlayerAction):
         '''
-        Sends the *PlayerAction* object to the server. ---> Not fully implemented yet! <---
+        Sends the *PlayerAction* object to the server.
         '''
-        ### Implement polling!
-        thread = threading.Thread(
-            target=self._send_and_recv,
-            args=(gsp.post_action_request(player_action))
-        )
-        thread.start()
+        self._polled_player_actions.append(player_action)
 
     def _try_connect(self):
         t_0 = time.time()
         self.connection_status = ConnectionStatus().WaitingForServer
         # Try to successfully get the shared game state for connection_timeout seconds
-        while time.time()-t_0 < self.connection_timeout and \
+        while time.time()-t_0 < CONNECTION_TIMEOUT and \
           not self.connection_status == ConnectionStatus().Disconnected:
             t_1 = time.time()
             response = self._send_and_recv(gsp.game_state_request())
@@ -149,6 +135,15 @@ class GameServiceConnection:
         latency_timer = 0
         while not self.connection_status == ConnectionStatus().Disconnected:
             t_0 = time.time()
+            # Post actions first
+            actions_to_post = self._polled_player_actions[:5] # Get first 5 actions in queue
+            for action in actions_to_post:
+                response = self._send_and_recv(
+                    gsp.post_action_request(action)
+                )
+                if response.is_response():
+                    self._polled_player_actions.remove(action)
+            # Then get game state update
             response = self._send_and_recv(
                 gsp.game_state_update_request(self.shared_game_state.time_order)
             )

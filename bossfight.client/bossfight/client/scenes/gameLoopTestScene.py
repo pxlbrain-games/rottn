@@ -6,6 +6,7 @@ import pyglet
 #from cocos.director import director
 import bossfight.client.serverManager as serverManager
 import bossfight.client.gameServiceConnection as gameServiceConnection
+from bossfight.core.sharedGameData import PlayerAction, ActionType
 
 class GameLoopTestScene(cocos.scene.Scene):
     def __init__(self):
@@ -30,7 +31,7 @@ class GameLoopTestScene(cocos.scene.Scene):
 
 class FireballLayer(cocos.layer.Layer):
 
-    #is_event_handler = True
+    is_event_handler = True
 
     def __init__(self):
         super().__init__()
@@ -49,3 +50,13 @@ class FireballLayer(cocos.layer.Layer):
             self.fireball.position[0],
             540 + self.parent.connection.shared_game_state.test_pos*400
         )
+
+    def on_mouse_press(self, x, y, buttons, modifiers):
+        if self.parent.connection.shared_game_state.is_paused():
+            self.parent.connection.post_player_action(PlayerAction(
+                action_type=ActionType().ResumeGame
+            ))
+        else:
+            self.parent.connection.post_player_action(PlayerAction(
+                action_type=ActionType().PauseGame
+            ))

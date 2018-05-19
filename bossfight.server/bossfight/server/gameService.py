@@ -9,6 +9,7 @@ import threading
 from umsgpack import InsufficientDataException
 import bossfight.core.sharedGameData as sharedGameData
 import bossfight.core.gameServiceProtocol as gsp
+from bossfight.server.gameLoop import GameLoop
 
 class GameService(socketserver.ThreadingUDPServer):
     '''
@@ -16,11 +17,16 @@ class GameService(socketserver.ThreadingUDPServer):
 
     Call *serve_forever*() in a seperate thread for the server to start handling requests from
     *GameServiceConnection*s. Call *shutdown*() to stop it.
+
+    *shared_game_state* and *player_action_queue* should be passed to a *GameLoop* that will
+    simulate the game and produe state updates.
     '''
 
     def __init__(self, ip_address: str, port: int):
         super().__init__((ip_address, port), _GameServiceRequestHandler)
         self.shared_game_state = sharedGameData.SharedGameState()
+        self.player_action_queue = []
+        self.game_loop = GameLoop(self.shared_game_state, self.player_action_queue)
         self._server_thread = threading.Thread()
 
     def start(self):
@@ -30,7 +36,12 @@ class GameService(socketserver.ThreadingUDPServer):
         '''
         if not self._server_thread.is_alive():
             self._server_thread = threading.Thread(target=self.serve_forever)
+            self.game_loop.start()
             self._server_thread.start()
+    
+    def shutdown(self):
+        super().shutdown()
+        self.game_loop.pause()
 
     def get_ip_address(self):
         '''
@@ -57,12 +68,23 @@ class _GameServiceRequestHandler(socketserver.BaseRequestHandler):
 
         # Handle request and assign response here
         if request.is_update_request():
+            # respond by sending an update representing the whole state for now.
+            # Proper updating still needs to be implemented.
             update = sharedGameData.SharedGameStateUpdate(
                 time_order=self.server.shared_game_state.time_order,
                 game_status=self.server.shared_game_state.game_status,
                 test_pos=self.server.shared_game_state.test_pos
             )
             response = gsp.response(update)
+        elif request.is_post_action_request():
+            if request.body.action_type == sharedGameData.ActionType().PauseGame:
+                self.server.game_loop.pause()
+            elif request.body.action_type == sharedGameData.ActionType().ResumeGame:
+                self.server.game_loop.start()
+            else:                
+                # add the player action to the queue
+                self.server.player_action_queue.append(request.body)
+            response = gsp.response(None)
         elif request.is_state_request():
             # respond by sending back the shared game state
             response = gsp.response(self.server.shared_game_state)

@@ -18,6 +18,16 @@ Enum class with the values:
 - *Paused*
 - *Active*
 
+<h2 id="bossfight.core.sharedGameData.ActionType">ActionType</h2>
+
+```python
+ActionType(self, /, *args, **kwargs)
+```
+
+Enum class with the values:
+- *PauseGame*
+- *ResumeGame*
+
 <h2 id="bossfight.core.sharedGameData.SharedGameState">SharedGameState</h2>
 
 ```python
@@ -57,7 +67,7 @@ also heavier update (meaning it will contain more data).
 <h2 id="bossfight.core.sharedGameData.PlayerAction">PlayerAction</h2>
 
 ```python
-PlayerAction(self, /, *args, **kwargs)
+PlayerAction(self, action_type=1, action_data={})
 ```
 
 An update the player sends to the server about the actions of it's character.

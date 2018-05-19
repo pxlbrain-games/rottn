@@ -29,9 +29,8 @@ with the specified *server_address* as a tuple containing the IP-adress as a str
 port as an int. Check the *connection_status* attribute to get the status of the Connection as
 a *ConnectionStatus()* attribute.
 
-A running *GameServiceConnection* will request an update of *sharedGameState* from the server
+A running *GameServiceConnection* will request an update of *shared_game_state* from the server
 every *update_cycle_interval* seconds.
-*sharedGameState* is a *sharedGameData.SharedGameState* object.
 
 <h3 id="bossfight.client.gameServiceConnection.GameServiceConnection.connect">connect</h3>
 
@@ -66,4 +65,12 @@ GameServiceConnection.is_waiting(self)
 ```
 
 Returns *True* if the connection status is *WaitingForServer*.
+
+<h3 id="bossfight.client.gameServiceConnection.GameServiceConnection.post_player_action">post_player_action</h3>
+
+```python
+GameServiceConnection.post_player_action(self, player_action:bossfight.core.sharedGameData.PlayerAction)
+```
+
+Sends the *PlayerAction* object to the server.
 

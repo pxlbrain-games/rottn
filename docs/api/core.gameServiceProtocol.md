@@ -108,6 +108,14 @@ GameServicePackage.is_state_request(self)
 
 Returns *True* if the package is of package type *GetSharedGameStateRequest*.
 
+<h3 id="bossfight.core.gameServiceProtocol.GameServicePackage.is_post_action_request">is_post_action_request</h3>
+
+```python
+GameServicePackage.is_post_action_request(self)
+```
+
+Returns *True* if the package is of package type *PostPlayerActionRequest*.
+
 <h2 id="bossfight.core.gameServiceProtocol.timeout_error">timeout_error</h2>
 
 ```python
@@ -151,6 +159,15 @@ game_state_update_request(time_order:int)
 
 Returns a *GameServicePackage* with package type *GetGameStateUpdateRequest*.
 Enter the *time_order* attribute of the client's last known *SharedGameState*.
+
+<h2 id="bossfight.core.gameServiceProtocol.post_action_request">post_action_request</h2>
+
+```python
+post_action_request(player_action:bossfight.core.sharedGameData.PlayerAction)
+```
+
+Returns a *GameServicePackage* with package type *PostPlayerActionRequest* with
+the given *PlayerAction* object as it's body.
 
 <h2 id="bossfight.core.gameServiceProtocol.response">response</h2>
 

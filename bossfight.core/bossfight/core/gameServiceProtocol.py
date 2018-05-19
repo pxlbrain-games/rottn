@@ -148,6 +148,12 @@ class GameServicePackage:
         '''
         return self.header.package_type == PackageType().GetSharedGameStateRequest
 
+    def is_post_action_request(self):
+        '''
+        Returns *True* if the package is of package type *PostPlayerActionRequest*.
+        '''
+        return self.header.package_type == PackageType().PostPlayerActionRequest
+
     '''
     Override object members
     '''
