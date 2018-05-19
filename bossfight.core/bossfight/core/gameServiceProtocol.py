@@ -7,7 +7,7 @@ of a package.
 '''
 
 import sys
-from bossfight.core.sharedGameData import SharedGameState, SharedGameStateUpdate
+from bossfight.core.sharedGameData import SharedGameState, SharedGameStateUpdate, PlayerAction
 # SharedGameState is not used explicitely, but it needs to be findable
 # via 'getattr()' in 'GameServicePackage.from_datagram()'!
 from bossfight.core.mixins import Sendable
@@ -216,6 +216,16 @@ def game_state_update_request(time_order: int):
         body=SharedGameStateUpdate(
             time_order=time_order
         )
+    )
+
+def post_action_request(player_action: PlayerAction):
+    '''
+    Returns a *GameServicePackage* with package type *PostPlayerActionRequest* with
+    the given *PlayerAction* object as it's body.
+    '''
+    return GameServicePackage(
+        package_type=PackageType().PostPlayerActionRequest,
+        body=player_action
     )
 
 def response(body: Sendable):

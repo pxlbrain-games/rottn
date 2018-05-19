@@ -56,6 +56,7 @@ class GameServiceConnection:
         self.latency = 0
         self._buffer_size = 1024
         self.update_cycle_interval = 0.03
+        self._polled_actions = {}
         if not closed:
             self._update_cycle_thread = threading.Thread(target=self._update_cycle)
             self.connection_status = ConnectionStatus().WaitingForServer
@@ -112,6 +113,17 @@ class GameServiceConnection:
         Returns *True* if the connection status is *WaitingForServer*.
         '''
         return self.connection_status == ConnectionStatus().WaitingForServer
+
+    def poll_player_action(self, player_action: sharedGameData.PlayerAction):
+        '''
+        Sends the *PlayerAction* object to the server. ---> Not fully implemented yet! <---
+        '''
+        ### Implement polling!
+        thread = threading.Thread(
+            target=self._send_and_recv,
+            args=(gsp.post_action_request(player_action))
+        )
+        thread.start()
 
     def _try_connect(self):
         t_0 = time.time()

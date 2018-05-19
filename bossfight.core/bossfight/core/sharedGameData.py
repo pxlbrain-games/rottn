@@ -20,6 +20,19 @@ class GameStatus:
     def Active(self):
         return 2
 
+class ActionType:
+    '''
+    Enum class with the values:
+    - *PauseGame*
+    - *ResumeGame*
+    '''
+    @property
+    def PauseGame(self):
+        return 1
+    @property
+    def ResumeGame(self):
+        return 2
+
 class SharedGameState(Sendable):
     '''
     Contains game state information that is required to be known both by the server and the client.
@@ -99,4 +112,6 @@ class PlayerAction(Sendable):
     *PlayerAction*s to the server. The server will validate a client's *PlayerAction* and
     respond with an *OutOfSync* error, if it doesn't add up with the server-side game state.
     '''
-    pass
+    def __init__(self, action_type=ActionType().PauseGame, action_data={}):
+        self.action_type = action_type
+        self.action_data = action_data

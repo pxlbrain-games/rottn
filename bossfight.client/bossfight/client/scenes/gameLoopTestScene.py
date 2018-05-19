@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import cocos
-from pyglet.window import mouse
+#from pyglet.window import mouse
 import pyglet
-from cocos.director import director
+#from cocos.director import director
 import bossfight.client.serverManager as serverManager
 import bossfight.client.gameServiceConnection as gameServiceConnection
 
@@ -27,7 +27,6 @@ class GameLoopTestScene(cocos.scene.Scene):
             child.kill()
         self.connection.disconnect()
         serverManager.shutdown(self.server_process)
-
 
 class FireballLayer(cocos.layer.Layer):
 
