@@ -5,7 +5,7 @@ A module that helps with running and maintaining bossfight.server processes.
 
 import threading
 import subprocess
-import netifaces
+import ifaddr
 import bossfight.client.config as config
 
 _RUNNING_PROCESSES = {}
@@ -32,11 +32,10 @@ def get_available_ip_addresses():
     Keep in mind that `127.0.0.1` is only suitable for local servers.
     '''
     addresses = []
-    for interface in netifaces.interfaces():
-        if netifaces.AF_INET in netifaces.ifaddresses(interface):
-            for link in netifaces.ifaddresses(interface)[netifaces.AF_INET]:
-                addresses.append(link['addr'])
-    addresses.reverse()
+    for adapter in ifaddr.get_adapters():
+        for ip in adapter.ips:
+            if ip.is_IPv4 and ip.ip[:3] in ['192', '127']:
+                addresses.append(ip.ip)
     return addresses
 
 def run_server(ip_address='localhost', port=0):

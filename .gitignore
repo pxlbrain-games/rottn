@@ -85,7 +85,9 @@ celerybeat-schedule
 
 # virtualenv
 .venv
+.pypyvenv
 venv/
+pypyvenv/
 ENV/
 
 # vscode

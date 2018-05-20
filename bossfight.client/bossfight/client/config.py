@@ -19,9 +19,15 @@ _DEFAULT_CONFIG = {
     'local_server_exec': [sys.executable, '-m', 'bossfight.server']
 }
 
-CONFIG_PATH = os.path.join(
-    appdirs.AppDirs(appname='bossfight', appauthor='ePyCom').user_config_dir,
-    'client_config.json'
+if 'pypy3.exe' in sys.executable:
+    CONFIG_PATH = os.path.join(
+        appdirs.AppDirs(appname='bossfight', appauthor='ePyCom').user_config_dir,
+        'client_config_pypy.json'
+    )
+else:
+    CONFIG_PATH = os.path.join(
+        appdirs.AppDirs(appname='bossfight', appauthor='ePyCom').user_config_dir,
+        'client_config.json'
     )
 _CURRENT_CONFIG = {}
 
