@@ -2,6 +2,10 @@
 '''
 This module mainly contains the *GameServiceConnection* class, which represents a connection to a
 running GameService (meaning a game server). Use this to manage your server connections.
+
+**Note: If you want to connect to a server in another local network you must use the proper IPv4
+address of that network, and not the local IP address of the server. Also the port on port on
+which the *GameService* serves has to be properly forwarded within that network.**
 '''
 
 import socket

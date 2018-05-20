@@ -2,6 +2,11 @@
 '''
 This module defines the *GameService* class, a server that can handle requests from
 a client's *GameServiceConnection* object.
+
+**Note: The IP address you bind the GameService to is a local IP address from the
+192.168.x.x address space. If you want computers outside your local network to be
+able to connect to your game server, you will have to forward the port from the local
+address your server is bound to to your external IPv4 address!**
 '''
 
 import socketserver
