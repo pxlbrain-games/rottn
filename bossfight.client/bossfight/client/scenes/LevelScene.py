@@ -52,9 +52,15 @@ class LevelLayer(cocos.layer.ScrollableLayer):
         self.fireball.velocity = (0, 0)
         self.keys_pressed = []
         self.fireball.do(cocos.actions.Move())
-        self.schedule(self.update_fireball)
+        try:
+            self.joystick = pyglet.input.get_joysticks()[0]
+            self.joystick.push_handlers(self)
+            self.joystick.open()
+            self.schedule(self.update_fireball)
+        except:
+            self.schedule(self.update_fireball_nojs)
 
-    def update_fireball(self, dt):
+    def update_fireball_nojs(self, dt):
         velocity = cocos.euclid.Vector2(0, 0)
         if 'UP' in self.keys_pressed and 'DOWN' not in self.keys_pressed:
             velocity += (0, 1)
@@ -63,6 +69,28 @@ class LevelLayer(cocos.layer.ScrollableLayer):
         if 'RIGHT' in self.keys_pressed and 'LEFT' not in self.keys_pressed:
             velocity += (1, 0)
         if 'LEFT' in self.keys_pressed and 'RIGHT' not in self.keys_pressed:
+            velocity -= (1, 0)
+        velocity.normalize()
+        velocity *= 300
+        self.fireball.velocity = velocity.xy
+        self.parent.set_focus(
+            self.fireball.position[0],
+            self.fireball.position[1]
+        )
+
+    def update_fireball(self, dt):
+        velocity = cocos.euclid.Vector2(0, 0)
+        if ('UP' in self.keys_pressed and 'DOWN' not in self.keys_pressed) or \
+          self.joystick.y < - 0.5:
+            velocity += (0, 1)
+        if ('DOWN' in self.keys_pressed and 'UP' not in self.keys_pressed) or \
+          self.joystick.y > 0.5:
+            velocity -= (0, 1)
+        if ('RIGHT' in self.keys_pressed and 'LEFT' not in self.keys_pressed) or \
+          self.joystick.x > 0.5:
+            velocity += (1, 0)
+        if ('LEFT' in self.keys_pressed and 'RIGHT' not in self.keys_pressed) or \
+          self.joystick.x < -0.5:
             velocity -= (1, 0)
         velocity.normalize()
         velocity *= 300
