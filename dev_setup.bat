@@ -25,10 +25,10 @@ ECHO Installing Dependencies ...
 ECHO ##################################
 IF %pypy%==n %~dp0venv\Scripts\python.exe -m pip install --upgrade pip
 IF %pypy%==n %~dp0venv\Scripts\python.exe -m pip install --upgrade setuptools
-IF %pypy%==n %~dp0venv\Scripts\python.exe -m pip install -r %~dp0requirements.txt
+IF %pypy%==n %~dp0venv\Scripts\python.exe -m pip install -r %~dp0dev-requirements.txt
 IF %pypy%==n %~dp0pypyvenv\Scripts\pypy3.exe -m pip install --upgrade pip
 IF %pypy%==n %~dp0pypyvenv\Scripts\pypy3.exe -m pip install --upgrade setuptools
-IF %pypy%==n %~dp0pypyvenv\Scripts\pypy3.exe -m pip install -r %~dp0requirements_pypy.txt
+IF %pypy%==n %~dp0pypyvenv\Scripts\pypy3.exe -m pip install -r %~dp0dev-requirements.txt
 ECHO ##################################
 ECHO Dev Setup completed.
 ECHO Use .\venv environment for testing

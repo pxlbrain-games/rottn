@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import cocos
-#from pyglet.window import mouse
 import pyglet
-#from cocos.director import director
 import bossfight.client.serverManager as serverManager
 import bossfight.client.gameServiceConnection as gameServiceConnection
 from bossfight.core.sharedGameData import PlayerAction, ActionType

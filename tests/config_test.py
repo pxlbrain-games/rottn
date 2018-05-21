@@ -7,7 +7,7 @@ import bossfight.client.config as config
 class Testconfig:
 
     def test_config_persistence(self, tmpdir, monkeypatch):
-        config.CONFIG_PATH = os.path.join(tmpdir, 'test_config.json')
+        config.CONFIG_PATH = os.path.join(str(tmpdir), 'test_config.json')
         config.revert_to_default()
         config.save()
         assert config.get.__dict__ == config._DEFAULT_CONFIG

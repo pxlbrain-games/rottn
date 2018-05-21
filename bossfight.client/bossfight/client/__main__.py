@@ -10,10 +10,12 @@ director.init(
     caption='BossFight',
     fullscreen=False,
     width=1920,
-    height=1080
+    height=1080,
+    vsync=False
 )
 pyglet.resource.path = ['resources/spritesheets']
 pyglet.resource.reindex()
+#director.
 director.window.set_fullscreen(
     fullscreen=config.get.screen_mode['fullscreen'],
     width=config.get.screen_mode['width'],

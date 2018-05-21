@@ -1,4 +1,7 @@
 @ECHO off
+ECHO Make sure CPython venv exists.
+ECHO Doc generation doesn't work with PyPy.
+PAUSE
 ECHO ##################################
 ECHO Generating Markdown files ...
 ECHO ##################################
