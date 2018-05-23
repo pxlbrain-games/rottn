@@ -90,7 +90,7 @@ class _GameServiceRequestHandler(socketserver.BaseRequestHandler):
                 self.server.game_loop.pause()
             elif request.body.action_type == sharedGameData.ActionType().ResumeGame:
                 self.server.game_loop.start()
-            else:                
+            else:
                 # add the player action to the queue
                 self.server.player_action_queue.append(request.body)
             response = gsp.response(None)

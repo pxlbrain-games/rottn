@@ -192,6 +192,7 @@ class ConnectionListLayer(cocos.layer.Layer):
                             else:
                                 child.connection.connect()
                         else:
+                            child.connection.disconnect()
                             self.parent.connections.remove(child.connection)
                     upper_end -= 140
 
