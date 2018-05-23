@@ -31,7 +31,7 @@ else:
     )
 _CURRENT_CONFIG = {}
 
-get = type('Config', tuple([object]), _CURRENT_CONFIG)()
+get = type('Config', (object,), _CURRENT_CONFIG)()
 get.__dict__ = _CURRENT_CONFIG
 
 def get_default():
