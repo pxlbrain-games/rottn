@@ -7,10 +7,9 @@ of a package.
 '''
 
 import sys
-from bossfight.core.sharedGameData import SharedGameState, SharedGameStateUpdate, PlayerAction
+from bossfight.core.sharedGameData import Sendable, SharedGameState, SharedGameStateUpdate, PlayerAction
 # SharedGameState is not used explicitely, but it needs to be findable
 # via 'getattr()' in 'GameServicePackage.from_datagram()'!
-from bossfight.core.mixins import Sendable
 
 # Unique 4-byte token to mark the end of the header of a GameServicePackage
 _HEADER_END_TOKEN = bytes.fromhex('b5968459')

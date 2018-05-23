@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
 '''
-Provides mixins for cocos layers that grant access to player controls
+Defines CocosNodes for UI elements and provides useful mixins for user interaction.
 '''
-
-class Avatar:
-    '''
-    Mixin that makes a CocosNode a controllable character.
-    '''
-    pass
 
 class Clickable:
     '''
