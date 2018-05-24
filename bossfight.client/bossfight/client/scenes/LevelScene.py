@@ -15,6 +15,8 @@ class LevelScene(cocos.scene.Scene):
     Base class for alls kinds of ingame levels. It provides access to
     the level coordinate space, let's you add ingame objects like
     characters to the level, manages controls and HUD etc.
+
+    Note: Currently this class implements a *Scene* that contains test content.
     '''
 
     def __init__(self):
@@ -36,15 +38,13 @@ class LevelLayer(cocos.layer.ScrollableLayer):
         super().__init__()
         ### floor for testing!
         self.iso_map = create_iso_map(
-            dimensions=(40, 30),
-            origin=(-1000, -700)
+            dimensions=(15, 20),
+            origin=(-1000, 0)
         )
         self.add(self.iso_map)
         image = pyglet.resource.image('fireball.png')
         image_seq = pyglet.image.ImageGrid(image, 1, 4)
-        self.fireball = playerControls.ControllableNode(
-            position=(100, 100)
-        )
+        self.fireball = playerControls.ControllableNode()
         self.fireball.add(cocos.sprite.Sprite(
             image=image_seq.get_animation(0.1),
             scale=3.0
@@ -67,8 +67,8 @@ def create_iso_map(dimensions, origin):
             batch.add(cocos.sprite.Sprite(
                 image=image_grid[random.randint(0, 31)],
                 position=(
-                    origin[0] + column*128 + (0 if row%2 == 0 else 1)*64,
-                    origin[1] + row*32
+                    origin[0] + column*64 + row*64,
+                    origin[1] - column*32 + row*32
                 ),
                 scale=2.0
             ))

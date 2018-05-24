@@ -48,7 +48,7 @@ class MainMenuLayer(cocos.menu.Menu):
 
     def on_test_level(self):
         director.push(LevelScene())
-    
+
     def on_test_loop(self):
         director.push(GameLoopTestScene())
 

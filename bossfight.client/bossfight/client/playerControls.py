@@ -13,6 +13,9 @@ BASE_SPEED = 300
 class ControllableNode(cocos.cocosnode.CocosNode):
     '''
     A *CocosNode* that can be controlled by the player.
+    Controllable Nodes automatically react to Controller or Mouse & Keyboard input.
+    If you use multiple inheritance, inherit from *ControllableNode* before any third party
+    (and thus possibly non-cooperative) base classes. (This class **is** cooperative btw.)
     '''
 
     def __init__(self, position=(0, 0), joystick=None, mouse_and_keyboard=True, speed=BASE_SPEED):
