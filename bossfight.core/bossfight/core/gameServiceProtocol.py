@@ -7,7 +7,7 @@ of a package.
 '''
 
 import sys
-from bossfight.core.sharedGameData import Sendable, SharedGameState, SharedGameStateUpdate, PlayerAction
+from bossfight.core.sharedGameData import Sendable, SharedGameState, SharedGameStateUpdate, ClientActivity
 # SharedGameState is not used explicitely, but it needs to be findable
 # via 'getattr()' in 'GameServicePackage.from_datagram()'!
 
@@ -21,8 +21,8 @@ class PackageType:
         body = None
     - *GetGameStateUpdateRequest*: As client request all polled game state updates.
         body = *SharedGameStateUpdate*
-    - *PostPlayerActionRequest*: As client post a player action to the *GameService*.
-        body = *PlayerAction*
+    - *PostClientActivityRequest*: As client post results of a client-side process to the *GameService*.
+        body = *ClientActivity*
     - *GameServiceResponse*: As server respond to a client request.
         body = request-dependent
     - *GameServiceError*: As server report an error to the client.
@@ -35,7 +35,7 @@ class PackageType:
     def GetGameStateUpdateRequest(self):
         return 2
     @property
-    def PostPlayerActionRequest(self):
+    def PostClientActivityRequest(self):
         return 3
     @property
     def GameServiceResponse(self):
@@ -92,7 +92,7 @@ class GameServicePackage:
     '''
     Contains *header* and *body* as attributes. The header contains information about the the
     package type and body. The body is some object of a core class like *ErrorMessage*,
-    *SharedGameState*, *SharedGameStateUpdate* or *PlayerAction*.
+    *SharedGameState*, *SharedGameStateUpdate* or *ClientActivity*.
     '''
     def __init__(self, package_type: PackageType, body: Sendable = None):
         self.header = _GameServicePackageHeader(package_type, body.__class__.__name__)
@@ -147,11 +147,11 @@ class GameServicePackage:
         '''
         return self.header.package_type == PackageType().GetSharedGameStateRequest
 
-    def is_post_action_request(self):
+    def is_post_activity_request(self):
         '''
-        Returns *True* if the package is of package type *PostPlayerActionRequest*.
+        Returns *True* if the package is of package type *PostClientActivityRequest*.
         '''
-        return self.header.package_type == PackageType().PostPlayerActionRequest
+        return self.header.package_type == PackageType().PostClientActivityRequest
 
     '''
     Override object members
@@ -223,14 +223,14 @@ def game_state_update_request(time_order: int):
         )
     )
 
-def post_action_request(player_action: PlayerAction):
+def post_activity_request(client_activity: ClientActivity):
     '''
-    Returns a *GameServicePackage* with package type *PostPlayerActionRequest* with
-    the given *PlayerAction* object as it's body.
+    Returns a *GameServicePackage* with package type *PostClientActivityRequest* with
+    the given *ClientActivity* object as it's body.
     '''
     return GameServicePackage(
-        package_type=PackageType().PostPlayerActionRequest,
-        body=player_action
+        package_type=PackageType().PostClientActivityRequest,
+        body=client_activity
     )
 
 def response(body: Sendable):

@@ -30,8 +30,8 @@ class GameService(socketserver.ThreadingUDPServer):
     def __init__(self, ip_address: str, port: int):
         super().__init__((ip_address, port), _GameServiceRequestHandler)
         self.shared_game_state = sharedGameData.SharedGameState()
-        self.player_action_queue = []
-        self.game_loop = GameLoop(self.shared_game_state, self.player_action_queue)
+        self.client_activity_queue = []
+        self.game_loop = GameLoop(self.shared_game_state, self.client_activity_queue)
         self._server_thread = threading.Thread()
 
     def start(self):
@@ -85,14 +85,14 @@ class _GameServiceRequestHandler(socketserver.BaseRequestHandler):
                 test_pos=self.server.shared_game_state.test_pos
             )
             response = gsp.response(update)
-        elif request.is_post_action_request():
-            if request.body.action_type == sharedGameData.ActionType().PauseGame:
+        elif request.is_post_activity_request():
+            if request.body.activity_type == sharedGameData.ActivityType().PauseGame:
                 self.server.game_loop.pause()
-            elif request.body.action_type == sharedGameData.ActionType().ResumeGame:
+            elif request.body.activity_type == sharedGameData.ActivityType().ResumeGame:
                 self.server.game_loop.start()
             else:
                 # add the player action to the queue
-                self.server.player_action_queue.append(request.body)
+                self.server.client_activity_queue.append(request.body)
             response = gsp.response(None)
         elif request.is_state_request():
             # respond by sending back the shared game state

@@ -46,7 +46,7 @@ class GameStatus:
     def Active(self):
         return 2
 
-class ActionType:
+class ActivityType:
     '''
     Enum class with the values:
     - *PauseGame*
@@ -58,6 +58,12 @@ class ActionType:
     @property
     def ResumeGame(self):
         return 2
+    @property
+    def JoinServer(self):
+        return 3
+    @property
+    def MovePlayer(self):
+        return 4
 
 class SharedGameState(Sendable):
     '''
@@ -70,6 +76,7 @@ class SharedGameState(Sendable):
     def __init__(self, time_order=0, game_status=GameStatus().Paused):
         self.game_status = game_status
         self.time_order = time_order
+        self.players = {}
 
         ### ONLY FOR TESTING PURPOSES
         self.test_pos = 0
@@ -131,13 +138,41 @@ class SharedGameStateUpdate(Sendable):
     def __gt__(self, other):
         return self.time_order > other.time_order
 
-class PlayerAction(Sendable):
+class ClientActivity(Sendable):
     '''
-    An update the player sends to the server about the actions of it's character.
-    Any collision events involving the player character are processed client-side and sent as
-    *PlayerAction*s to the server. The server will validate a client's *PlayerAction* and
-    respond with an *OutOfSync* error, if it doesn't add up with the server-side game state.
+    An update the client sends to the server about client-side processes like player movement and
+    collisions. The server will validate *ClientActivity* samples and respond with an *OutOfSync*
+    error, if they contradict the server-side game state.
+
+    *activity_data* is a *dict* object, that contains all necessary information to process the
+    activity server-side (a player's *id*, *position* and *velocity* for example).
     '''
-    def __init__(self, action_type=ActionType().PauseGame, action_data={}):
-        self.action_type = action_type
-        self.action_data = action_data
+    def __init__(self, activity_type=ActivityType().PauseGame, activity_data={}):
+        self.activity_type = activity_type
+        self.activity_data = activity_data
+
+def join_server_activity(player_name: str):
+    '''
+    Returns a *ClientActivity* that joins a player with name *player_name* to the game.
+    '''
+    return ClientActivity(
+        activity_type=ActivityType().JoinServer,
+        activity_data={'name': player_name}
+    )
+
+def toggle_pause_activity(shared_game_state: SharedGameState):
+    '''
+    Returns a *ClientActivity* that either pauses or resumes the server's game loop, depending
+    on the *game_status* of the given *SharedGameState*.
+    '''
+    if shared_game_state.is_paused():
+        activity_type = ActivityType().ResumeGame
+    else:
+        activity_type = ActivityType().PauseGame
+    return ClientActivity(
+        activity_type=activity_type,
+        activity_data={}
+    )
+
+def move_player_activity():
+    pass

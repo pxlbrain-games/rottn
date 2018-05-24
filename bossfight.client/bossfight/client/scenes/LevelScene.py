@@ -7,8 +7,8 @@ import pyglet
 #from cocos.director import director
 import bossfight.client.playerControls as playerControls
 #import bossfight.client.serverManager as serverManager
-#import bossfight.client.gameServiceConnection as gameServiceConnection
-#from bossfight.core.sharedGameData import PlayerAction, ActionType
+import bossfight.client.gameServiceConnection as gameServiceConnection
+from bossfight.core.sharedGameData import ClientActivity, ActivityType
 
 class LevelScene(cocos.scene.Scene):
     '''
@@ -19,15 +19,15 @@ class LevelScene(cocos.scene.Scene):
     Note: Currently this class implements a *Scene* that contains test content.
     '''
 
-    def __init__(self):
+    def __init__(self, server_address=None):
         super().__init__()
+        if server_address is not None:
+            self.connection = gameServiceConnection.GameServiceConnection(server_address)
         self.scrolling_manager = cocos.layer.ScrollingManager(
             viewport=cocos.rect.Rect(0, 0, 1920, 1080)
         )
         self.add(self.scrolling_manager)
-        self.scrolling_manager.add(
-            LevelLayer()
-        )
+        self.scrolling_manager.add(LevelLayer())
 
 class LevelLayer(cocos.layer.ScrollableLayer):
     '''
@@ -51,11 +51,17 @@ class LevelLayer(cocos.layer.ScrollableLayer):
         ))
         self.add(self.fireball)
         self.schedule(self.update_focus)
+        self.schedule_interval(self.post_move_activity, 0.03)
 
     def update_focus(self, dt):
         self.parent.set_focus(
             self.fireball.position[0],
             self.fireball.position[1]
+        )
+    
+    def post_move_activity(self, dt):
+        self.parent.connection.post_client_activity(
+            ClientActivity()
         )
 
 def create_iso_map(dimensions, origin):

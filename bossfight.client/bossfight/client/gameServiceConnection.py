@@ -51,7 +51,7 @@ class GameServiceConnection:
         self._client_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         self._client_socket.settimeout(REQUEST_TIMEOUT)
         self.latency = 0
-        self._polled_player_actions = []
+        self._polled_client_activities = []
         self.update_cycle_interval = 0.03
         if not closed:
             self._update_cycle_thread = threading.Thread(target=self._update_cycle)
@@ -109,11 +109,11 @@ class GameServiceConnection:
         '''
         return self.connection_status == ConnectionStatus().WaitingForServer
 
-    def post_player_action(self, player_action: sharedGameData.PlayerAction):
+    def post_client_activity(self, client_activity: sharedGameData.ClientActivity):
         '''
-        Sends the *PlayerAction* object to the server.
+        Sends the *ClientActivity* object to the server.
         '''
-        self._polled_player_actions.append(player_action)
+        self._polled_client_activities.append(client_activity)
 
     def _try_connect(self):
         t_0 = time.time()
@@ -139,14 +139,14 @@ class GameServiceConnection:
         latency_timer = 0
         while not self.connection_status == ConnectionStatus().Disconnected:
             t_0 = time.time()
-            # Post actions first
-            actions_to_post = self._polled_player_actions[:5] # Get first 5 actions in queue
-            for action in actions_to_post:
+            # Post activities first
+            activities_to_post = self._polled_client_activities[:5] # First 5 activities in queue
+            for activity in activities_to_post:
                 response = self._send_and_recv(
-                    gsp.post_action_request(action)
+                    gsp.post_activity_request(activity)
                 )
                 if response.is_response():
-                    self._polled_player_actions.remove(action)
+                    self._polled_client_activities.remove(activity)
             # Then get game state update
             response = self._send_and_recv(
                 gsp.game_state_update_request(self.shared_game_state.time_order)

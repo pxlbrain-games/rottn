@@ -8,19 +8,19 @@ defined in it's update cycle, as long as the *game_status* is not *Paused*.
 import threading
 import time
 import math
-from bossfight.core.sharedGameData import GameStatus, SharedGameState, ActionType, PlayerAction
+from bossfight.core.sharedGameData import GameStatus, SharedGameState, ActivityType, ClientActivity
 
 class GameLoop:
     '''
     Class that can update a shared game state by running a game logic simulation thread.
-    It must be passed a *SharedGameState* and a list of *PlayerAction*s from the
-    *GameService* object which owns the GameLoop.
+    It must be passed a *SharedGameState* and a list of *ClientActivity*s from the
+    *GameService* object which owns the *GameLoop*.
 
     Currently it only simulates a sine signal in the shared game state attribute *test_pos*.
     '''
-    def __init__(self, shared_game_state: SharedGameState, player_action_queue: list):
+    def __init__(self, shared_game_state: SharedGameState, client_activity_queue: list):
         self.shared_game_state = shared_game_state
-        self.player_action_queue = player_action_queue
+        self.client_activity_queue = client_activity_queue
         self._game_loop_thread = threading.Thread()
         self.update_cycle_interval = 0.03
 
@@ -45,11 +45,11 @@ class GameLoop:
         dt = self.update_cycle_interval
         while not self.shared_game_state.is_paused():
             t = time.time()
-            # Handle player actions first
-            actions_to_handle = self.player_action_queue[:5] # Get first 5 actions in queue
-            for action in actions_to_handle:
-                self._handle_action(action)
-                del self.player_action_queue[0] # Should be safe, otherwise use *remove(action)*
+            # Handle client activities first
+            activities_to_handle = self.client_activity_queue[:5] # Get first 5 activitys in queue
+            for activity in activities_to_handle:
+                self._handle_activity(activity)
+                del self.client_activity_queue[0] # Should be safe, otherwise use *remove(activity)*
             ### SIMULATING A SINE FOR TESTING
             self.shared_game_state.test_pos += math.cos(2.5*t)*max(self.update_cycle_interval, dt)
             # It is important that the game loop manages time ordering
@@ -57,9 +57,9 @@ class GameLoop:
             dt = time.time() - t
             time.sleep(max(self.update_cycle_interval-dt, 0))
 
-    def _handle_action(self, action: PlayerAction):
+    def _handle_activity(self, activity: ClientActivity):
         pass
-        #if action.action_type == ActionType().PauseGame:
+        #if activity.activity_type == ActivityType().PauseGame:
         #    self.pause()
-        #elif action.action_type == ActionType().ResumeGame:
+        #elif activity.activity_type == ActivityType().ResumeGame:
         #    self.start()

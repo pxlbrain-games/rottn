@@ -6,7 +6,7 @@ from pyglet.window import NoSuchScreenModeException
 import bossfight.client.config as config
 from bossfight.client.scenes.gameLoopTestScene import GameLoopTestScene
 from bossfight.client.scenes.serverTestScene import ServerTestScene
-from bossfight.client.scenes.LevelScene import LevelScene
+from bossfight.client.scenes.levelScene import LevelScene
 
 class MainMenuScene(cocos.scene.Scene):
     def __init__(self):

@@ -34,7 +34,8 @@ def get_available_ip_addresses():
     addresses = []
     for adapter in ifaddr.get_adapters():
         for ip in adapter.ips:
-            if ip.is_IPv4 and ip.ip[:3] in ['192', '127']:
+            if ip.is_IPv4 and ip.ip[:3] in ['10.', '172', '192', '127']:
+                # only local IPv4 addresses
                 addresses.append(ip.ip)
     return addresses
 
