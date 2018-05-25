@@ -46,7 +46,7 @@ class ControllableNode(cocos.cocosnode.CocosNode):
     def _update_movement(self, dt):
         velocity = cocos.euclid.Vector2(0, 0)
         if self.joystick is None or \
-          self.joystick.x*self.joystick.x + self.joystick.y*self.joystick.y < 0.1 and \
+          self.joystick.x*self.joystick.x + self.joystick.y*self.joystick.y < 0.05 and \
           self.keyboard is not None:
             if self.keyboard[key.UP]:
                 velocity += (0, 1)
@@ -59,6 +59,7 @@ class ControllableNode(cocos.cocosnode.CocosNode):
             velocity.normalize()
         else:
             velocity += (self.joystick.x, -self.joystick.y)
+            velocity *= velocity.magnitude_squared()
             if velocity.magnitude_squared() > 1.0:
                 # This can never be True on physical analog sticks,
                 # but should still be checked, as the driver theoretically allows this.

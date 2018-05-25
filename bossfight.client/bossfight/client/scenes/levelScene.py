@@ -32,6 +32,7 @@ class LevelScene(cocos.scene.Scene):
         self.add(scrolling_manager)
         self.level_data = LevelData(server_address, scrolling_manager)
         scrolling_manager.add(LevelLayer(self.level_data))
+        self.add(HUDLayer(self.level_data))
         self.level_data.connection.connect()
         for name in local_player_names:
             self.level_data.connection.post_client_activity(
@@ -77,6 +78,49 @@ class LevelLayer(cocos.layer.ScrollableLayer):
         self.level_data.connection.post_client_activity(
             move_player_activity()
         )
+
+class HUDLayer(cocos.layer.Layer):
+
+    def __init__(self, level_data: LevelData):
+        super().__init__()
+        self.level_data = level_data
+        ip = level_data.connection.server_address[0]
+        port = str(level_data.connection.server_address[1])
+        connection_text = 'Server Address: ' + ip + ':' + port
+        connection_label = cocos.text.Label(
+            text=connection_text,
+            position=(1920, 1080),
+            font_name='Arial',
+            font_size=24,
+            anchor_x='right',
+            anchor_y='top'
+        )
+        self.add(connection_label)
+        self.connection_status_texts = [
+            'Connected',
+            'Waiting for Server ...',
+            'Disconnnected'
+        ]
+        self.connection_status_label = cocos.text.Label(
+            text=self.connection_status_texts[
+                level_data.connection.connection_status-1
+            ] + ' - ' + \
+            'Latency: ' + str(int(level_data.connection.latency)) + ' ms',
+            position=(1920, 1050),
+            font_name='Arial',
+            font_size=24,
+            anchor_x='right',
+            anchor_y='top'
+        )
+        self.add(self.connection_status_label)
+        self.schedule(self.update_text)
+
+    def update_text(self, dt):
+        self.connection_status_label.element.text = \
+            self.connection_status_texts[
+                self.level_data.connection.connection_status-1
+            ] + ' - ' + \
+            'Latency: ' + str(int(self.level_data.connection.latency)) + ' ms'
 
 def create_iso_map(dimensions, origin):
     image = pyglet.resource.image('iso_floor_tiles.png')
