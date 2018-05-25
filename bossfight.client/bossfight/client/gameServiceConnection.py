@@ -125,7 +125,8 @@ class GameServiceConnection:
             response = self._send_and_recv(gsp.game_state_request())
             if response.is_response():
                 self.shared_game_state = response.body
-                self.connection_status = ConnectionStatus().Connected
+                if not self.connection_status == ConnectionStatus().Disconnected:
+                    self.connection_status = ConnectionStatus().Connected
                 return # Connection successful, leave _try_connect()
             #elif response.is_error():
             #    print(response.body.message)

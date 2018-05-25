@@ -58,7 +58,7 @@ class ControllableNode(cocos.cocosnode.CocosNode):
                 velocity -= (1, 0)
             velocity.normalize()
         else:
-            velocity += (self.joystick.x, self.joystick.y)
+            velocity += (self.joystick.x, -self.joystick.y)
             if velocity.magnitude_squared() > 1.0:
                 # This can never be True on physical analog sticks,
                 # but should still be checked, as the driver theoretically allows this.

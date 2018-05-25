@@ -8,7 +8,12 @@ import pyglet
 import bossfight.client.playerControls as playerControls
 #import bossfight.client.serverManager as serverManager
 import bossfight.client.gameServiceConnection as gameServiceConnection
-from bossfight.core.sharedGameData import ClientActivity, ActivityType
+from bossfight.core.sharedGameData import join_server_activity, move_player_activity
+
+class LevelData:
+    def __init__(self, server_address, scrolling_manager):
+        self.connection = gameServiceConnection.GameServiceConnection(server_address, closed=True)
+        self.scrolling_manager = scrolling_manager
 
 class LevelScene(cocos.scene.Scene):
     '''
@@ -19,23 +24,32 @@ class LevelScene(cocos.scene.Scene):
     Note: Currently this class implements a *Scene* that contains test content.
     '''
 
-    def __init__(self, server_address=None):
+    def __init__(self, server_address, local_player_names):
         super().__init__()
-        if server_address is not None:
-            self.connection = gameServiceConnection.GameServiceConnection(server_address)
-        self.scrolling_manager = cocos.layer.ScrollingManager(
-            viewport=cocos.rect.Rect(0, 0, 1920, 1080)
+        scrolling_manager = cocos.layer.ScrollingManager(
+            viewport=cocos.rect.Rect(0, 90, 1920, 900)
         )
-        self.add(self.scrolling_manager)
-        self.scrolling_manager.add(LevelLayer())
+        self.add(scrolling_manager)
+        self.level_data = LevelData(server_address, scrolling_manager)
+        scrolling_manager.add(LevelLayer(self.level_data))
+        self.level_data.connection.connect()
+        for name in local_player_names:
+            self.level_data.connection.post_client_activity(
+                join_server_activity(name)
+            )
+
+    def on_exit(self):
+        self.level_data.connection.disconnect()
+        super().on_exit()
 
 class LevelLayer(cocos.layer.ScrollableLayer):
     '''
     Layer that contains the actual level itself and everything in it.
     '''
 
-    def __init__(self):
+    def __init__(self, level_data: LevelData):
         super().__init__()
+        self.level_data = level_data
         ### floor for testing!
         self.iso_map = create_iso_map(
             dimensions=(15, 20),
@@ -51,17 +65,17 @@ class LevelLayer(cocos.layer.ScrollableLayer):
         ))
         self.add(self.fireball)
         self.schedule(self.update_focus)
-        self.schedule_interval(self.post_move_activity, 0.03)
+        #self.schedule_interval(self.post_move_activity, 0.03)
 
     def update_focus(self, dt):
-        self.parent.set_focus(
+        self.level_data.scrolling_manager.set_focus(
             self.fireball.position[0],
             self.fireball.position[1]
         )
-    
+
     def post_move_activity(self, dt):
-        self.parent.connection.post_client_activity(
-            ClientActivity()
+        self.level_data.connection.post_client_activity(
+            move_player_activity()
         )
 
 def create_iso_map(dimensions, origin):

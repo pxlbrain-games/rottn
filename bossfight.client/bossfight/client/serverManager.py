@@ -73,6 +73,12 @@ def get_port(pid):
     '''
     return _RUNNING_PROCESSES[pid]['port']
 
+def get_server_address(pid):
+    '''
+    Returns the server address as a tuple containing IP address and port.
+    '''
+    return (get_ip_address(pid), get_port(pid))
+
 def shutdown(pid):
     '''
     Terminates the server process with process ID *pid*.

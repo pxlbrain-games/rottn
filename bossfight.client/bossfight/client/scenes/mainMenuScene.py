@@ -4,6 +4,7 @@ import cocos
 from cocos.director import director
 from pyglet.window import NoSuchScreenModeException
 import bossfight.client.config as config
+import bossfight.client.serverManager as serverManager
 from bossfight.client.scenes.gameLoopTestScene import GameLoopTestScene
 from bossfight.client.scenes.serverTestScene import ServerTestScene
 from bossfight.client.scenes.levelScene import LevelScene
@@ -12,6 +13,9 @@ class MainMenuScene(cocos.scene.Scene):
     def __init__(self):
         super().__init__()
         self.open_main_menu()
+
+    def open_test_level_menu(self):
+        self.add(TestLevelMenuLayer())
 
     def open_options_menu(self):
         self.add(OptionsMenuLayer())
@@ -47,7 +51,8 @@ class MainMenuLayer(cocos.menu.Menu):
         )
 
     def on_test_level(self):
-        director.push(LevelScene())
+        self.parent.open_test_level_menu()
+        self.kill()
 
     def on_test_loop(self):
         director.push(GameLoopTestScene())
@@ -124,6 +129,56 @@ class OptionsMenuLayer(cocos.menu.Menu):
             config.load()
             self.parent.open_options_menu()
             self.kill()
+
+    def on_back(self):
+        config.load()
+        self.parent.open_main_menu()
+        self.kill()
+
+    def on_quit(self):
+        self.on_back()
+
+class TestLevelMenuLayer(cocos.menu.Menu):
+    def __init__(self):
+        super().__init__(title='Options')
+        self.font_title.update({
+            'font_size': 64,
+            'bold': True
+        })
+        self.font_item.update({
+            'font_size': 32
+        })
+        self.font_item_selected.update(self.font_item)
+        self.font_item_selected.update({
+            'color': (255, 255, 255, 255)
+        })
+        self.player_name = 'Bob Host'
+        menu_items = [
+            cocos.menu.EntryMenuItem(
+                label='Player Name: ',
+                callback_func=self.on_player_name,
+                value=self.player_name,
+                max_length=15
+            ),
+            cocos.menu.MenuItem('Start on new Server', self.on_start_new_server),
+            cocos.menu.MenuItem('Back', self.on_back)
+        ]
+        self.create_menu(
+            items=menu_items,
+            selected_effect=cocos.menu.zoom_in(),
+            unselected_effect=cocos.menu.zoom_out()
+        )
+
+    def on_player_name(self, new_value):
+        self.player_name = new_value
+
+    def on_start_new_server(self):
+        pid = serverManager.run_server()
+        self.on_back()
+        director.push(LevelScene(
+            server_address=serverManager.get_server_address(pid),
+            local_player_names=[self.player_name]
+        ))
 
     def on_back(self):
         config.load()

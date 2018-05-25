@@ -11,7 +11,7 @@ class TestGameServicePackage:
 
     def test_game_service_package_instantiation(self):
         assert self.game_service_package.body is None
-        other_game_service_package = GameServicePackage(PackageType().PostPlayerActionRequest)
+        other_game_service_package = GameServicePackage(PackageType().PostClientActivityRequest)
         assert self.game_service_package != other_game_service_package
         other_game_service_package.header.package_type = PackageType().GetSharedGameStateRequest
         assert self.game_service_package == other_game_service_package

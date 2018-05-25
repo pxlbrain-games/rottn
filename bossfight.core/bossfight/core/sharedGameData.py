@@ -76,7 +76,7 @@ class SharedGameState(Sendable):
     def __init__(self, time_order=0, game_status=GameStatus().Paused):
         self.game_status = game_status
         self.time_order = time_order
-        self.players = {}
+        self.players = []
 
         ### ONLY FOR TESTING PURPOSES
         self.test_pos = 0
@@ -127,6 +127,11 @@ class SharedGameStateUpdate(Sendable):
 
     # Adding to a SharedGameState should update and return the state
     def __radd__(self, other):
+        if type(other) is int:
+            # This is so that sum() works on lists of updates, because
+            # sum will always begin by adding the first element of the
+            # list to 0.
+            return self
         if self.time_order > other.time_order:
             other.__dict__.update(self.__dict__)
         return other

@@ -16,6 +16,8 @@ import bossfight.core.sharedGameData as sharedGameData
 import bossfight.core.gameServiceProtocol as gsp
 from bossfight.server.gameLoop import GameLoop
 
+UPDATE_CACHE_SIZE = 100
+
 class GameService(socketserver.ThreadingUDPServer):
     '''
     Threading UDP server that manages clients and processes requests.
@@ -31,7 +33,9 @@ class GameService(socketserver.ThreadingUDPServer):
         super().__init__((ip_address, port), _GameServiceRequestHandler)
         self.shared_game_state = sharedGameData.SharedGameState()
         self.client_activity_queue = []
-        self.game_loop = GameLoop(self.shared_game_state, self.client_activity_queue)
+        self._state_update_cache = []
+        self._player_counter = 0
+        self.game_loop = GameLoop(self)
         self._server_thread = threading.Thread()
 
     def start(self):
@@ -64,6 +68,11 @@ class GameService(socketserver.ThreadingUDPServer):
         '''
         return self.socket.getsockname()[1]
 
+    def cache_state_update(self, state_update: sharedGameData.SharedGameStateUpdate):
+        self._state_update_cache.append(state_update)
+        if len(self._state_update_cache) > UPDATE_CACHE_SIZE:
+            self._state_update_cache = self._state_update_cache[1:]
+
 class _GameServiceRequestHandler(socketserver.BaseRequestHandler):
     def handle(self):
         # Read out request
@@ -86,12 +95,34 @@ class _GameServiceRequestHandler(socketserver.BaseRequestHandler):
             )
             response = gsp.response(update)
         elif request.is_post_activity_request():
+            # Pausing or Resuming the game and joining a server must be possible outside
+            # of the game loop:
             if request.body.activity_type == sharedGameData.ActivityType().PauseGame:
                 self.server.game_loop.pause()
+                self.server.shared_game_state.time_order += 1
+                self.server.cache_state_update(sharedGameData.SharedGameStateUpdate(
+                    time_order=self.server.shared_game_state.time_order,
+                    game_status=sharedGameData.GameStatus().Paused
+                ))
             elif request.body.activity_type == sharedGameData.ActivityType().ResumeGame:
+                self.server.shared_game_state.time_order += 1
+                self.server.cache_state_update(sharedGameData.SharedGameStateUpdate(
+                    time_order=self.server.shared_game_state.time_order,
+                    game_status=sharedGameData.GameStatus().Active
+                ))
                 self.server.game_loop.start()
+            elif request.body.activity_type == sharedGameData.ActivityType().JoinServer:
+                # A player dict is added to the game state. The id is unique for the
+                # server session.
+                self.server.shared_game_state.players.append({
+                    'id': self.server._player_counter,
+                    'name': request.body.activity_data['name'],
+                    'position': (0, 0),
+                    'velocity': (0, 0)
+                })
+                self.server._player_counter += 1
             else:
-                # add the player action to the queue
+                # Any other kind of activity: add to the queue for the game loop
                 self.server.client_activity_queue.append(request.body)
             response = gsp.response(None)
         elif request.is_state_request():
