@@ -20,8 +20,8 @@ class PackageType:
     - *GetSharedGameStateRequest*: As client request the full shared game state from the server.
         body = None
     - *GetGameStateUpdateRequest*: As client request all polled game state updates.
-        body = *SharedGameStateUpdate*
-    - *PostClientActivityRequest*: As client post results of a client-side process to the *GameService*.
+        body = *SharedGameStateUpdate* (purely for time-ordering)
+    - *PostClientActivityRequest*: As client post client-side activity to the *GameService*.
         body = *ClientActivity*
     - *GameServiceResponse*: As server respond to a client request.
         body = request-dependent

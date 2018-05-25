@@ -76,7 +76,7 @@ class SharedGameState(Sendable):
     def __init__(self, time_order=0, game_status=GameStatus().Paused):
         self.game_status = game_status
         self.time_order = time_order
-        self.players = []
+        self.players = {}
 
         ### ONLY FOR TESTING PURPOSES
         self.test_pos = 0
