@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+'''
+This is going to be the module containing the base level classes and components.
+'''
 
 import random
 import cocos

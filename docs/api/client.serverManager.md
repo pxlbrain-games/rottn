@@ -47,6 +47,14 @@ get_port(pid)
 
 Returns the the port of the server running under ther process ID *pid*.
 
+<h2 id="bossfight.client.serverManager.get_server_address">get_server_address</h2>
+
+```python
+get_server_address(pid)
+```
+
+Returns the server address as a tuple containing IP address and port.
+
 <h2 id="bossfight.client.serverManager.shutdown">shutdown</h2>
 
 ```python

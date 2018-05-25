@@ -19,9 +19,9 @@ Enum class with the following values:
 - *GetSharedGameStateRequest*: As client request the full shared game state from the server.
     body = None
 - *GetGameStateUpdateRequest*: As client request all polled game state updates.
-    body = *SharedGameStateUpdate*
-- *PostPlayerActionRequest*: As client post a player action to the *GameService*.
-    body = *PlayerAction*
+    body = *SharedGameStateUpdate* (purely for time-ordering)
+- *PostClientActivityRequest*: As client post client-side activity to the *GameService*.
+    body = *ClientActivity*
 - *GameServiceResponse*: As server respond to a client request.
     body = request-dependent
 - *GameServiceError*: As server report an error to the client.
@@ -52,12 +52,12 @@ The sendable type *ErrorMessage* is used for the body of *GameServicePackage*s w
 <h2 id="bossfight.core.gameServiceProtocol.GameServicePackage">GameServicePackage</h2>
 
 ```python
-GameServicePackage(self, package_type:bossfight.core.gameServiceProtocol.PackageType, body:bossfight.core.mixins.Sendable=None)
+GameServicePackage(self, package_type:bossfight.core.gameServiceProtocol.PackageType, body:bossfight.core.sharedGameData.Sendable=None)
 ```
 
 Contains *header* and *body* as attributes. The header contains information about the the
 package type and body. The body is some object of a core class like *ErrorMessage*,
-*SharedGameState*, *SharedGameStateUpdate* or *PlayerAction*.
+*SharedGameState*, *SharedGameStateUpdate* or *ClientActivity*.
 
 <h3 id="bossfight.core.gameServiceProtocol.GameServicePackage.from_datagram">from_datagram</h3>
 
@@ -108,13 +108,13 @@ GameServicePackage.is_state_request(self)
 
 Returns *True* if the package is of package type *GetSharedGameStateRequest*.
 
-<h3 id="bossfight.core.gameServiceProtocol.GameServicePackage.is_post_action_request">is_post_action_request</h3>
+<h3 id="bossfight.core.gameServiceProtocol.GameServicePackage.is_post_activity_request">is_post_activity_request</h3>
 
 ```python
-GameServicePackage.is_post_action_request(self)
+GameServicePackage.is_post_activity_request(self)
 ```
 
-Returns *True* if the package is of package type *PostPlayerActionRequest*.
+Returns *True* if the package is of package type *PostClientActivityRequest*.
 
 <h2 id="bossfight.core.gameServiceProtocol.timeout_error">timeout_error</h2>
 
@@ -160,19 +160,19 @@ game_state_update_request(time_order:int)
 Returns a *GameServicePackage* with package type *GetGameStateUpdateRequest*.
 Enter the *time_order* attribute of the client's last known *SharedGameState*.
 
-<h2 id="bossfight.core.gameServiceProtocol.post_action_request">post_action_request</h2>
+<h2 id="bossfight.core.gameServiceProtocol.post_activity_request">post_activity_request</h2>
 
 ```python
-post_action_request(player_action:bossfight.core.sharedGameData.PlayerAction)
+post_activity_request(client_activity:bossfight.core.sharedGameData.ClientActivity)
 ```
 
-Returns a *GameServicePackage* with package type *PostPlayerActionRequest* with
-the given *PlayerAction* object as it's body.
+Returns a *GameServicePackage* with package type *PostClientActivityRequest* with
+the given *ClientActivity* object as it's body.
 
 <h2 id="bossfight.core.gameServiceProtocol.response">response</h2>
 
 ```python
-response(body:bossfight.core.mixins.Sendable)
+response(body:bossfight.core.sharedGameData.Sendable)
 ```
 
 Returns a *GameServicePackage* with package type *GameServiceResponse*.

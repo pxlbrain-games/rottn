@@ -70,11 +70,11 @@ GameServiceConnection.is_waiting(self)
 
 Returns *True* if the connection status is *WaitingForServer*.
 
-<h3 id="bossfight.client.gameServiceConnection.GameServiceConnection.post_player_action">post_player_action</h3>
+<h3 id="bossfight.client.gameServiceConnection.GameServiceConnection.post_client_activity">post_client_activity</h3>
 
 ```python
-GameServiceConnection.post_player_action(self, player_action:bossfight.core.sharedGameData.PlayerAction)
+GameServiceConnection.post_client_activity(self, client_activity:bossfight.core.sharedGameData.ClientActivity)
 ```
 
-Sends the *PlayerAction* object to the server.
+Sends the *ClientActivity* object to the server.
 

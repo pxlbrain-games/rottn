@@ -9,10 +9,12 @@ ECHO ##################################
 .\venv\Scripts\pydocmd.exe simple bossfight.server+ bossfight.server.gameLoop++ > .\docs\api\server.gameLoop.md
 .\venv\Scripts\pydocmd.exe simple bossfight.core+ bossfight.core.gameServiceProtocol++ > .\docs\api\core.gameServiceProtocol.md
 .\venv\Scripts\pydocmd.exe simple bossfight.core+ bossfight.core.sharedGameData++ > .\docs\api\core.sharedGameData.md
-.\venv\Scripts\pydocmd.exe simple bossfight.core+ bossfight.core.mixins++ > .\docs\api\core.mixins.md
 .\venv\Scripts\pydocmd.exe simple bossfight.client+ bossfight.client.gameServiceConnection++ > .\docs\api\client.gameServiceConnection.md
 .\venv\Scripts\pydocmd.exe simple bossfight.client+ bossfight.client.serverManager++ > .\docs\api\client.serverManager.md
 .\venv\Scripts\pydocmd.exe simple bossfight.client+ bossfight.client.config++ > .\docs\api\client.config.md
+.\venv\Scripts\pydocmd.exe simple bossfight.client+ bossfight.client.playerControls++ > .\docs\api\client.playerControls.md
+.\venv\Scripts\pydocmd.exe simple bossfight.client+ bossfight.client.ui++ > .\docs\api\client.ui.md
+.\venv\Scripts\pydocmd.exe simple bossfight.client.scenes+ bossfight.client.scenes.levelScene++ > .\docs\api\client.scenes.levelScene.md
 ECHO ##################################
 ECHO Doc generation completed.
 ECHO Remember: If you add a new module

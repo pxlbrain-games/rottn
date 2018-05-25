@@ -8,6 +8,33 @@ This module contains classes for game objects that are relevant for both client 
 Client as well as server are supposed to define subclasses of the classes in this module,
 that extend those types with data and functionality, that is client-/server-specific.
 
+<h2 id="bossfight.core.sharedGameData.Sendable">Sendable</h2>
+
+```python
+Sendable(self, /, *args, **kwargs)
+```
+
+Mixin for classes that are supposed to be sendable as part of a server request or response.
+Sendables can only have basic Python types as attributes and their constructor needs
+to be callable without passing any arguments.
+
+<h3 id="bossfight.core.sharedGameData.Sendable.from_bytes">from_bytes</h3>
+
+```python
+Sendable.from_bytes(bytepack:bytes)
+```
+
+Returns a copy of the object that was packed into byte format.
+
+<h3 id="bossfight.core.sharedGameData.Sendable.to_bytes">to_bytes</h3>
+
+```python
+Sendable.to_bytes(self)
+```
+
+Packs and return a small a binary representation of self.
+
+
 <h2 id="bossfight.core.sharedGameData.GameStatus">GameStatus</h2>
 
 ```python
@@ -18,10 +45,10 @@ Enum class with the values:
 - *Paused*
 - *Active*
 
-<h2 id="bossfight.core.sharedGameData.ActionType">ActionType</h2>
+<h2 id="bossfight.core.sharedGameData.ActivityType">ActivityType</h2>
 
 ```python
-ActionType(self, /, *args, **kwargs)
+ActivityType(self, /, *args, **kwargs)
 ```
 
 Enum class with the values:
@@ -64,14 +91,33 @@ Use the *+* operator to add *SharedGameStateUpdate*s together or to add them to 
 Adding up available updates will always result in an equally or more current but
 also heavier update (meaning it will contain more data).
 
-<h2 id="bossfight.core.sharedGameData.PlayerAction">PlayerAction</h2>
+<h2 id="bossfight.core.sharedGameData.ClientActivity">ClientActivity</h2>
 
 ```python
-PlayerAction(self, action_type=1, action_data={})
+ClientActivity(self, activity_type=1, activity_data={})
 ```
 
-An update the player sends to the server about the actions of it's character.
-Any collision events involving the player character are processed client-side and sent as
-*PlayerAction*s to the server. The server will validate a client's *PlayerAction* and
-respond with an *OutOfSync* error, if it doesn't add up with the server-side game state.
+An update the client sends to the server about client-side processes like player movement and
+collisions. The server will validate *ClientActivity* samples and respond with an *OutOfSync*
+error, if they contradict the server-side game state.
+
+*activity_data* is a *dict* object, that contains all necessary information to process the
+activity server-side (a player's *id*, *position* and *velocity* for example).
+
+<h2 id="bossfight.core.sharedGameData.join_server_activity">join_server_activity</h2>
+
+```python
+join_server_activity(player_name:str)
+```
+
+Returns a *ClientActivity* that joins a player with name *player_name* to the game.
+
+<h2 id="bossfight.core.sharedGameData.toggle_pause_activity">toggle_pause_activity</h2>
+
+```python
+toggle_pause_activity(shared_game_state:bossfight.core.sharedGameData.SharedGameState)
+```
+
+Returns a *ClientActivity* that either pauses or resumes the server's game loop, depending
+on the *game_status* of the given *SharedGameState*.
 
