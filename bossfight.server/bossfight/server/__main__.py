@@ -20,14 +20,32 @@ To shutdown the server, write a line containing `shutdown` to the processes
 '''
 
 import sys
-from bossfight.server.gameService import GameService
+import pygase.shared
+import pygase.server
+from bossfight.core import SHARED_GAME_STATE
+from bossfight.server.game_loop import BFGameLoop
 
 if len(sys.argv) == 1:
-    SERVER = GameService('localhost', 0)
+    SERVER = pygase.server.Server(
+        ip_address='localhost',
+        port=0,
+        game_loop_class=BFGameLoop,
+        game_state=SHARED_GAME_STATE
+    )
 elif len(sys.argv) == 2:
-    SERVER = GameService(sys.argv[1], 0)
+    SERVER = pygase.server.Server(
+        ip_address=sys.argv[1],
+        port=0,
+        game_loop_class=BFGameLoop,
+        game_state=SHARED_GAME_STATE
+    )
 else:
-    SERVER = GameService(sys.argv[1], int(sys.argv[2]))
+    SERVER = pygase.server.Server(
+        ip_address=sys.argv[1],
+        port=int(sys.argv[2]),
+        game_loop_class=BFGameLoop,
+        game_state=SHARED_GAME_STATE
+    )
 
 print(SERVER.get_ip_address())
 print(SERVER.get_port())

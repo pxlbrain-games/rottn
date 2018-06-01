@@ -5,14 +5,11 @@ PAUSE
 ECHO ##################################
 ECHO Generating Markdown files ...
 ECHO ##################################
-.\venv\Scripts\pydocmd.exe simple bossfight.server+ bossfight.server.gameService++ > .\docs\api\server.gameService.md
-.\venv\Scripts\pydocmd.exe simple bossfight.server+ bossfight.server.gameLoop++ > .\docs\api\server.gameLoop.md
-.\venv\Scripts\pydocmd.exe simple bossfight.core+ bossfight.core.gameServiceProtocol++ > .\docs\api\core.gameServiceProtocol.md
-.\venv\Scripts\pydocmd.exe simple bossfight.core+ bossfight.core.sharedGameData++ > .\docs\api\core.sharedGameData.md
-.\venv\Scripts\pydocmd.exe simple bossfight.client+ bossfight.client.gameServiceConnection++ > .\docs\api\client.gameServiceConnection.md
-.\venv\Scripts\pydocmd.exe simple bossfight.client+ bossfight.client.serverManager++ > .\docs\api\client.serverManager.md
+.\venv\Scripts\pydocmd.exe simple bossfight.server+ bossfight.server.game_loop++ > .\docs\api\server.game_loop.md
+.\venv\Scripts\pydocmd.exe simple bossfight.core+ bossfight.core.activities++ > .\docs\api\core.activities.md
+.\venv\Scripts\pydocmd.exe simple bossfight.client+ bossfight.client.server_manager++ > .\docs\api\client.server_manager.md
 .\venv\Scripts\pydocmd.exe simple bossfight.client+ bossfight.client.config++ > .\docs\api\client.config.md
-.\venv\Scripts\pydocmd.exe simple bossfight.client+ bossfight.client.playerControls++ > .\docs\api\client.playerControls.md
+.\venv\Scripts\pydocmd.exe simple bossfight.client+ bossfight.client.player_controls++ > .\docs\api\client.player_controls.md
 .\venv\Scripts\pydocmd.exe simple bossfight.client+ bossfight.client.ui++ > .\docs\api\client.ui.md
 .\venv\Scripts\pydocmd.exe simple bossfight.client.scenes+ bossfight.client.scenes.levelScene++ > .\docs\api\client.scenes.levelScene.md
 ECHO ##################################

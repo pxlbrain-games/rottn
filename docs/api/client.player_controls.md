@@ -1,12 +1,12 @@
 <h1 id="bossfight.client">bossfight.client</h1>
 
 
-<h1 id="bossfight.client.playerControls">bossfight.client.playerControls</h1>
+<h1 id="bossfight.client.player_controls">bossfight.client.player_controls</h1>
 
 
 Defines the controls for the player character.
 
-<h2 id="bossfight.client.playerControls.ControllableNode">ControllableNode</h2>
+<h2 id="bossfight.client.player_controls.ControllableNode">ControllableNode</h2>
 
 ```python
 ControllableNode(self, position=(0, 0), joystick=None, mouse_and_keyboard=True, speed=300)

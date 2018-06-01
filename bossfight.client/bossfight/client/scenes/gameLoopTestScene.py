@@ -2,22 +2,22 @@
 
 import cocos
 import pyglet
-import bossfight.client.serverManager as serverManager
-import bossfight.client.gameServiceConnection as gameServiceConnection
-from bossfight.core.sharedGameData import toggle_pause_activity
+import pygase.shared
+import pygase.client
+import bossfight.client.server_manager as server_manager
 
 class GameLoopTestScene(cocos.scene.Scene):
     def __init__(self):
         super().__init__()
         self.add(FireballLayer())
-        if not serverManager.get_running_processes():
-            self.server_process = serverManager.run_server()
+        if not server_manager.get_running_processes():
+            self.server_process = server_manager.run_server()
         else:
-            self.server_process = serverManager.get_running_processes()[0]
-        self.connection = gameServiceConnection.GameServiceConnection(
+            self.server_process = server_manager.get_running_processes()[0]
+        self.connection = pygase.client.Connection(
             server_address=(
-                serverManager.get_ip_address(self.server_process),
-                serverManager.get_port(self.server_process)
+                server_manager.get_ip_address(self.server_process),
+                server_manager.get_port(self.server_process)
             )
         )
 
@@ -25,7 +25,7 @@ class GameLoopTestScene(cocos.scene.Scene):
         for child in self.get_children():
             child.kill()
         self.connection.disconnect()
-        serverManager.shutdown(self.server_process)
+        server_manager.shutdown(self.server_process)
 
 class FireballLayer(cocos.layer.Layer):
 
@@ -46,10 +46,10 @@ class FireballLayer(cocos.layer.Layer):
     def update_position(self, dt):
         self.fireball.position = (
             self.fireball.position[0],
-            540 + self.parent.connection.shared_game_state.test_pos*400
+            540 + self.parent.connection.game_state.test_pos*400
         )
 
     def on_mouse_press(self, x, y, buttons, modifiers):
         self.parent.connection.post_client_activity(
-            toggle_pause_activity(self.parent.connection.shared_game_state)
+            pygase.shared.toggle_pause_activity(self.parent.connection.game_state)
         )

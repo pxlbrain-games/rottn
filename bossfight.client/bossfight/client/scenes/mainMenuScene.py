@@ -4,7 +4,7 @@ import cocos
 from cocos.director import director
 from pyglet.window import NoSuchScreenModeException
 import bossfight.client.config as config
-import bossfight.client.serverManager as serverManager
+import bossfight.client.server_manager as server_manager
 from bossfight.client.scenes.gameLoopTestScene import GameLoopTestScene
 from bossfight.client.scenes.serverTestScene import ServerTestScene
 from bossfight.client.scenes.levelScene import LevelScene
@@ -173,10 +173,10 @@ class TestLevelMenuLayer(cocos.menu.Menu):
         self.player_name = new_value
 
     def on_start_new_server(self):
-        pid = serverManager.run_server()
+        pid = server_manager.run_server()
         self.on_back()
         director.push(LevelScene(
-            server_address=serverManager.get_server_address(pid),
+            server_address=server_manager.get_server_address(pid),
             local_player_names=[self.player_name]
         ))
 

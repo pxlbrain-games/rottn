@@ -4,7 +4,7 @@ import pyglet.resource
 from cocos.director import director
 from bossfight.client.scenes.mainMenuScene import MainMenuScene
 import bossfight.client.config as config
-import bossfight.client.serverManager as serverManager
+import bossfight.client.server_manager as server_manager
 
 director.init(
     caption='BossFight',
@@ -24,4 +24,4 @@ director.window.set_fullscreen(
 director.show_FPS = True
 director.run(MainMenuScene())
 
-serverManager.clean_up()
+server_manager.clean_up()

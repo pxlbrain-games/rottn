@@ -5,17 +5,15 @@ This is going to be the module containing the base level classes and components.
 
 import random
 import cocos
-#from pyglet.window import mouse
 import pyglet
-#from cocos.director import director
-import bossfight.client.playerControls as playerControls
-#import bossfight.client.serverManager as serverManager
-import bossfight.client.gameServiceConnection as gameServiceConnection
-from bossfight.core.sharedGameData import join_server_activity, move_player_activity
+import pygase.shared
+import pygase.client
+import bossfight.client.player_controls as player_controls
+import bossfight.core.activities as activities
 
 class LevelData:
     def __init__(self, server_address, scrolling_manager):
-        self.connection = gameServiceConnection.GameServiceConnection(server_address, closed=True)
+        self.connection = pygase.client.Connection(server_address, closed=True)
         self.scrolling_manager = scrolling_manager
 
 class LevelScene(cocos.scene.Scene):
@@ -39,7 +37,7 @@ class LevelScene(cocos.scene.Scene):
         self.level_data.connection.connect()
         for name in local_player_names:
             self.level_data.connection.post_client_activity(
-                join_server_activity(name)
+                pygase.shared.join_server_activity(name)
             )
 
     def on_exit(self):
@@ -62,7 +60,7 @@ class LevelLayer(cocos.layer.ScrollableLayer):
         self.add(self.iso_map)
         image = pyglet.resource.image('fireball.png')
         image_seq = pyglet.image.ImageGrid(image, 1, 4)
-        self.fireball = playerControls.ControllableNode()
+        self.fireball = player_controls.ControllableNode()
         self.fireball.add(cocos.sprite.Sprite(
             image=image_seq.get_animation(0.1),
             scale=3.0
@@ -79,7 +77,7 @@ class LevelLayer(cocos.layer.ScrollableLayer):
 
     def post_move_activity(self, dt):
         self.level_data.connection.post_client_activity(
-            move_player_activity()
+            activities.move_player_activity()
         )
 
 class HUDLayer(cocos.layer.Layer):

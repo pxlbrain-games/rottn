@@ -3,8 +3,8 @@
 import cocos
 from pyglet.window import mouse
 from cocos.director import director
-import bossfight.client.serverManager as serverManager
-import bossfight.client.gameServiceConnection as gameServiceConnection
+import pygase.client
+import bossfight.client.server_manager as server_manager
 
 class ServerListEntryNode(cocos.text.Label):
 
@@ -31,7 +31,7 @@ class ServerListEntryNode(cocos.text.Label):
         self.schedule(self.update)
 
     def update(self, dt):
-        if not self.pid in serverManager.get_running_processes():
+        if not self.pid in server_manager.get_running_processes():
             self.kill()
             for entry in self.parent.get_children():
                 if entry.__class__ == ServerListEntryNode and \
@@ -54,10 +54,10 @@ class ServerListLayer(cocos.layer.Layer):
                 anchor_y='bottom'
             )
         )
-        for pid in serverManager.get_running_processes():
+        for pid in server_manager.get_running_processes():
             self.add_entry(
-                ip_address=serverManager.get_ip_address(pid),
-                port=serverManager.get_port(pid),
+                ip_address=server_manager.get_ip_address(pid),
+                port=server_manager.get_port(pid),
                 pid=pid
             )
 
@@ -78,7 +78,7 @@ class ServerListLayer(cocos.layer.Layer):
             for child in self.get_children():
                 if child.__class__ == ServerListEntryNode:
                     if upper_end > y > upper_end - 120:
-                        serverManager.shutdown(child.pid)
+                        server_manager.shutdown(child.pid)
                     upper_end -= 140
 
 class ConnectionTextLayer(cocos.layer.Layer):
@@ -210,7 +210,7 @@ class ServerTestMenuLayer(cocos.menu.Menu):
         self.font_item_selected.update({
             'color': (255, 255, 255, 255)
         })
-        self.server_ip_addresses = serverManager.get_available_ip_addresses()
+        self.server_ip_addresses = server_manager.get_available_ip_addresses()
         self.selected_server_ip_idx = 0
         self.selected_connection_address = (self.server_ip_addresses[0], 9999)
         menu_items = [
@@ -256,11 +256,11 @@ class ServerTestMenuLayer(cocos.menu.Menu):
         self.selected_server_ip_idx = selected_ip_idx
 
     def on_create_server(self):
-        pid = serverManager.run_server(
+        pid = server_manager.run_server(
             self.server_ip_addresses[self.selected_server_ip_idx]
         )
-        ip_address = serverManager.get_ip_address(pid)
-        port = serverManager.get_port(pid)
+        ip_address = server_manager.get_ip_address(pid)
+        port = server_manager.get_port(pid)
         self.parent.get('server_list').add_entry(
             ip_address,
             port,
@@ -283,7 +283,7 @@ class ServerTestMenuLayer(cocos.menu.Menu):
             pass
 
     def on_open_connection(self):
-        connection = gameServiceConnection.GameServiceConnection(self.selected_connection_address)
+        connection = pygase.client.Connection(self.selected_connection_address)
         self.parent.connections.append(connection)
         self.parent.get('connection_list').add_entry(
             ip_address=self.selected_connection_address[0],
@@ -292,7 +292,7 @@ class ServerTestMenuLayer(cocos.menu.Menu):
         )
 
     def on_shutdown_all(self):
-        serverManager.clean_up()
+        server_manager.clean_up()
 
     def on_back(self):
         self.parent.end()
