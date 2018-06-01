@@ -35,8 +35,6 @@ sys.stdout.close()
 
 SERVER.start()
 
-SHUTDOWN = False
-while not SHUTDOWN:
-    if sys.stdin.readline().__contains__('shutdown'):
-        SERVER.shutdown()
-        SHUTDOWN = True
+while not sys.stdin.readline().__contains__('shutdown'):
+    pass
+SERVER.shutdown()
