@@ -15,6 +15,7 @@ class LevelData:
     def __init__(self, server_address, scrolling_manager):
         self.connection = pygase.client.Connection(server_address, closed=True)
         self.scrolling_manager = scrolling_manager
+        self.local_players = {}
 
 class LevelScene(cocos.scene.Scene):
     '''
@@ -39,6 +40,11 @@ class LevelScene(cocos.scene.Scene):
             self.level_data.connection.post_client_activity(
                 pygase.shared.join_server_activity(name)
             )
+        while len(self.level_data.local_players) < len(local_player_names):
+            for player_id, player in self.level_data.connection.game_state.players.copy().items():
+                if player_id not in self.level_data.local_players \
+                  and player['name'] in local_player_names:
+                    self.level_data.local_players[player_id] = player['name']
 
     def on_exit(self):
         self.level_data.connection.disconnect()
@@ -58,27 +64,68 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             origin=(-1000, 0)
         )
         self.add(self.iso_map)
-        image = pyglet.resource.image('fireball.png')
-        image_seq = pyglet.image.ImageGrid(image, 1, 4)
-        self.fireball = player_controls.ControllableNode()
-        self.fireball.add(cocos.sprite.Sprite(
-            image=image_seq.get_animation(0.1),
-            scale=3.0
-        ))
-        self.add(self.fireball)
+        self.player_nodes = {}
         self.schedule(self.update_focus)
-        #self.schedule_interval(self.post_move_activity, 0.03)
+        self.schedule_interval(self.update_player_nodes, 0.03)
+        self.schedule_interval(self.post_move_activity, 0.03)
 
     def update_focus(self, dt):
-        self.level_data.scrolling_manager.set_focus(
-            self.fireball.position[0],
-            self.fireball.position[1]
-        )
+        try:
+            focus_node = [node for player_id, node in self.player_nodes.items() \
+                if player_id in self.level_data.local_players][0]
+            self.level_data.scrolling_manager.set_focus(
+                focus_node.position[0],
+                focus_node.position[1]
+            )
+        except IndexError:
+            pass
+
+    def update_player_nodes(self, dt):
+        for player_id, player in self.level_data.connection.game_state.players.copy().items():
+            if player_id not in self.player_nodes:
+                if player_id in self.level_data.local_players:
+                    self.player_nodes[player_id] = player_controls.ControllableNode()
+                    self.player_nodes[player_id].add(PlayerNode(player['name']))
+                    self.add(self.player_nodes[player_id])
+                else:
+                    self.player_nodes[player_id] = PlayerNode(player['name'])
+                    self.player_nodes[player_id].do(cocos.actions.Move())
+                    self.add(self.player_nodes[player_id])
+            self.player_nodes[player_id].position = player['position']
+            if player_id not in self.level_data.local_players:
+                self.player_nodes[player_id].velocity = player['velocity']
+
 
     def post_move_activity(self, dt):
-        self.level_data.connection.post_client_activity(
-            activities.move_player_activity()
+        for player_id in self.level_data.local_players:
+            self.level_data.connection.post_client_activity(
+                activities.move_player_activity(
+                    player_id=player_id,
+                    position=self.player_nodes[player_id].position,
+                    velocity=self.player_nodes[player_id].velocity,
+                    time_order=self.level_data.connection.game_state.time_order
+                )
+            )
+
+class PlayerNode(cocos.cocosnode.CocosNode):
+    def __init__(self, name):
+        super().__init__()
+        self.name_label = cocos.text.Label(
+            text=name,
+            position=(0, 90),
+            font_name='Arial',
+            font_size=24,
+            anchor_x='center',
+            anchor_y='center'
         )
+        image = pyglet.resource.image('fireball.png')
+        image_seq = pyglet.image.ImageGrid(image, 1, 4)
+        self.fireball = cocos.sprite.Sprite(
+            image=image_seq.get_animation(0.1),
+            scale=3.0
+        )
+        self.add(self.name_label),
+        self.add(self.fireball)
 
 class HUDLayer(cocos.layer.Layer):
 
@@ -114,7 +161,16 @@ class HUDLayer(cocos.layer.Layer):
             anchor_y='top'
         )
         self.add(self.connection_status_label)
-        self.schedule(self.update_text)
+        self.player_list_label = cocos.text.Label(
+            text='',
+            position=(0, 1080),
+            font_name='Arial',
+            font_size=24,
+            anchor_x='left',
+            anchor_y='top'
+        )
+        self.add(self.player_list_label)
+        self.schedule_interval(self.update_text, 0.5)
 
     def update_text(self, dt):
         self.connection_status_label.element.text = \
@@ -122,6 +178,13 @@ class HUDLayer(cocos.layer.Layer):
                 self.level_data.connection.connection_status-1
             ] + ' - ' + \
             'Latency: ' + str(int(self.level_data.connection.latency)) + ' ms'
+        player_list_text = ''
+        for player_id, player in self.level_data.connection.game_state.players.copy().items():
+            player_list_text += player['name']
+            if player_id in self.level_data.local_players:
+                player_list_text += ' (local)'
+            player_list_text += ', '
+        self.player_list_label.element.text = player_list_text[:-2]
 
 def create_iso_map(dimensions, origin):
     image = pyglet.resource.image('iso_floor_tiles.png')

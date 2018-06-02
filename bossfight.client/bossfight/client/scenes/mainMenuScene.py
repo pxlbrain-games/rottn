@@ -153,6 +153,10 @@ class TestLevelMenuLayer(cocos.menu.Menu):
             'color': (255, 255, 255, 255)
         })
         self.player_name = 'Bob Host'
+        self.selected_connection_address = (
+            server_manager.get_available_ip_addresses()[0],
+            9999
+        )
         menu_items = [
             cocos.menu.EntryMenuItem(
                 label='Player Name: ',
@@ -161,6 +165,19 @@ class TestLevelMenuLayer(cocos.menu.Menu):
                 max_length=15
             ),
             cocos.menu.MenuItem('Start on new Server', self.on_start_new_server),
+            cocos.menu.EntryMenuItem(
+                label='IP: ',
+                callback_func=self.on_join_ip_address,
+                value=self.selected_connection_address[0],
+                max_length=16
+            ),
+            cocos.menu.EntryMenuItem(
+                label='Port: ',
+                callback_func=self.on_join_port,
+                value=str(self.selected_connection_address[1]),
+                max_length=5
+            ),
+            cocos.menu.MenuItem('Join Server', self.on_join_server),
             cocos.menu.MenuItem('Back', self.on_back)
         ]
         self.create_menu(
@@ -177,6 +194,28 @@ class TestLevelMenuLayer(cocos.menu.Menu):
         self.on_back()
         director.push(LevelScene(
             server_address=server_manager.get_server_address(pid),
+            local_player_names=[self.player_name]
+        ))
+
+    def on_join_ip_address(self, new_value):
+        self.selected_connection_address = (
+            new_value,
+            self.selected_connection_address[1]
+        )
+
+    def on_join_port(self, new_value):
+        try:
+            self.selected_connection_address = (
+                self.selected_connection_address[0],
+                int(new_value)
+            )
+        except ValueError:
+            pass
+    
+    def on_join_server(self):
+        self.on_back()
+        director.push(LevelScene(
+            server_address=self.selected_connection_address,
             local_player_names=[self.player_name]
         ))
 

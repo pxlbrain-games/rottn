@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import math
-#import pygase.shared
+import pygase.shared
 import pygase.server
 
 class BFGameLoop(pygase.server.GameLoop):
@@ -17,11 +17,20 @@ class BFGameLoop(pygase.server.GameLoop):
         update.players[player_id]['position'] = (0, 0)
         update.players[player_id]['velocity'] = (0, 0)
 
-    def handle_activity(self, activity, update, dt):
+    def handle_activity(self, activity: pygase.shared.ClientActivity, update, dt):
         '''
         Handling of custom BossFight client activities, like player movement or actions.
         '''
-        pass
+        if activity.activity_type == pygase.shared.ActivityType.MovePlayer:
+            player_id = activity.activity_data['player_id']
+            position = activity.activity_data['position']
+            velocity = activity.activity_data['velocity']
+            update.players = {
+                player_id: {
+                    'position': position,
+                    'velocity': velocity
+                }
+            }
 
     def update_game_state(self, update, dt):
         '''
