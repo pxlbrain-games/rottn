@@ -66,8 +66,8 @@ class LevelLayer(cocos.layer.ScrollableLayer):
         self.add(self.iso_map)
         self.player_nodes = {}
         self.schedule(self.update_focus)
-        self.schedule_interval(self.update_player_nodes, 0.03)
-        self.schedule_interval(self.post_move_activity, 0.03)
+        self.schedule(self.update_player_nodes)
+        self.schedule_interval(self.post_move_activity, 0.02)
 
     def update_focus(self, dt):
         try:
@@ -90,11 +90,15 @@ class LevelLayer(cocos.layer.ScrollableLayer):
                 else:
                     self.player_nodes[player_id] = PlayerNode(player['name'])
                     self.player_nodes[player_id].do(cocos.actions.Move())
+                    self.player_nodes[player_id].velocity = (0, 0)
                     self.add(self.player_nodes[player_id])
-            self.player_nodes[player_id].position = player['position']
+            player_node = self.player_nodes[player_id]
             if player_id not in self.level_data.local_players:
-                self.player_nodes[player_id].velocity = player['velocity']
-
+                vx = 0.02*(player['position'][0] - player_node.position[0])/dt
+                vy = 0.02*(player['position'][1] - player_node.position[1])/dt
+                ax = (player['velocity'][0] - player_node.velocity[0] + vx)/dt
+                ay = (player['velocity'][1] - player_node.velocity[1] + vy)/dt
+                self.player_nodes[player_id].acceleration = (ax, ay)
 
     def post_move_activity(self, dt):
         for player_id in self.level_data.local_players:

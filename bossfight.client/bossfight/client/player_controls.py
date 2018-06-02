@@ -30,7 +30,7 @@ class ControllableNode(cocos.cocosnode.CocosNode):
         if self.joystick is not None:
             self.joystick.push_handlers(self)
             try:
-                self.joystick.open()
+                self.joystick.open(window=director.window)
             except OSError:
                 pass # Controller was already openend
         if mouse_and_keyboard:
