@@ -155,7 +155,7 @@ class TestLevelMenuLayer(cocos.menu.Menu):
         self.player_name = 'Bob Host'
         self.selected_connection_address = (
             server_manager.get_available_ip_addresses()[0],
-            9999
+            0
         )
         menu_items = [
             cocos.menu.EntryMenuItem(
@@ -164,19 +164,19 @@ class TestLevelMenuLayer(cocos.menu.Menu):
                 value=self.player_name,
                 max_length=15
             ),
-            cocos.menu.MenuItem('Start on new Server', self.on_start_new_server),
             cocos.menu.EntryMenuItem(
                 label='IP: ',
-                callback_func=self.on_join_ip_address,
+                callback_func=self.on_selected_ip_address,
                 value=self.selected_connection_address[0],
                 max_length=16
             ),
             cocos.menu.EntryMenuItem(
                 label='Port: ',
-                callback_func=self.on_join_port,
+                callback_func=self.on_selected_port,
                 value=str(self.selected_connection_address[1]),
                 max_length=5
             ),
+            cocos.menu.MenuItem('Start on new Server', self.on_start_new_server),
             cocos.menu.MenuItem('Join Server', self.on_join_server),
             cocos.menu.MenuItem('Back', self.on_back)
         ]
@@ -190,20 +190,23 @@ class TestLevelMenuLayer(cocos.menu.Menu):
         self.player_name = new_value
 
     def on_start_new_server(self):
-        pid = server_manager.run_server()
+        pid = server_manager.run_server(
+            ip_address=self.selected_connection_address[0],
+            port=self.selected_connection_address[1]
+        )
         self.on_back()
         director.push(LevelScene(
             server_address=server_manager.get_server_address(pid),
             local_player_names=[self.player_name]
         ))
 
-    def on_join_ip_address(self, new_value):
+    def on_selected_ip_address(self, new_value):
         self.selected_connection_address = (
             new_value,
             self.selected_connection_address[1]
         )
 
-    def on_join_port(self, new_value):
+    def on_selected_port(self, new_value):
         try:
             self.selected_connection_address = (
                 self.selected_connection_address[0],
@@ -211,7 +214,7 @@ class TestLevelMenuLayer(cocos.menu.Menu):
             )
         except ValueError:
             pass
-    
+
     def on_join_server(self):
         self.on_back()
         director.push(LevelScene(

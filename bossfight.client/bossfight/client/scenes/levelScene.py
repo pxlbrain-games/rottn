@@ -4,6 +4,7 @@ This is going to be the module containing the base level classes and components.
 '''
 
 import random
+import time
 import cocos
 import pyglet
 import pygase.shared
@@ -36,17 +37,30 @@ class LevelScene(cocos.scene.Scene):
         scrolling_manager.add(LevelLayer(self.level_data))
         self.add(HUDLayer(self.level_data))
         self.level_data.connection.connect()
+        join_ids = []
         for name in local_player_names:
-            self.level_data.connection.post_client_activity(
-                pygase.shared.join_server_activity(name)
-            )
+            join_activity = pygase.shared.join_server_activity(name)
+            join_ids.append(join_activity.activity_data['join_id'])
+            self.level_data.connection.post_client_activity(join_activity)
+        t_0 = time.time()
         while len(self.level_data.local_players) < len(local_player_names):
-            for player_id, player in self.level_data.connection.game_state.players.copy().items():
+            if time.time() - t_0 > 5.0:
+                #self.level_data.local_players[0] = 'Problem'
+                break
+            for player_id, player in self.level_data.connection.game_state.iter('players'):
                 if player_id not in self.level_data.local_players \
-                  and player['name'] in local_player_names:
+                  and player['join_id'] in join_ids:
                     self.level_data.local_players[player_id] = player['name']
 
     def on_exit(self):
+        for player_id in self.level_data.local_players:
+            self.level_data.connection.post_client_activity(
+                pygase.shared.leave_server_activity(player_id)
+            )
+        t_0 = time.time()
+        while self.level_data.connection._polled_client_activities:
+            if time.time() - t_0 > 5.0:
+                break
         self.level_data.connection.disconnect()
         super().on_exit()
 
@@ -66,7 +80,7 @@ class LevelLayer(cocos.layer.ScrollableLayer):
         self.add(self.iso_map)
         self.player_nodes = {}
         self.schedule(self.update_focus)
-        self.schedule(self.update_player_nodes)
+        self.schedule_interval(self.update_player_nodes, 0.02)
         self.schedule_interval(self.post_move_activity, 0.02)
 
     def update_focus(self, dt):
@@ -81,8 +95,12 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             pass
 
     def update_player_nodes(self, dt):
-        for player_id, player in self.level_data.connection.game_state.players.copy().items():
-            if player_id not in self.player_nodes:
+        if len(self.player_nodes) < len(self.level_data.connection.game_state.players):
+            players_to_add = {
+                p_id: p for (p_id, p) in self.level_data.connection.game_state.iter('players') \
+                if p_id not in self.player_nodes
+            }
+            for player_id, player in players_to_add.items():
                 if player_id in self.level_data.local_players:
                     self.player_nodes[player_id] = player_controls.ControllableNode()
                     self.player_nodes[player_id].add(PlayerNode(player['name']))
@@ -92,13 +110,26 @@ class LevelLayer(cocos.layer.ScrollableLayer):
                     self.player_nodes[player_id].do(cocos.actions.Move())
                     self.player_nodes[player_id].velocity = (0, 0)
                     self.add(self.player_nodes[player_id])
-            player_node = self.player_nodes[player_id]
-            if player_id not in self.level_data.local_players:
-                vx = 0.02*(player['position'][0] - player_node.position[0])/dt
-                vy = 0.02*(player['position'][1] - player_node.position[1])/dt
-                ax = (player['velocity'][0] - player_node.velocity[0] + vx)/dt
-                ay = (player['velocity'][1] - player_node.velocity[1] + vy)/dt
-                self.player_nodes[player_id].acceleration = (ax, ay)
+        elif len(self.player_nodes) > len(self.level_data.connection.game_state.players):
+            players_to_remove = {
+                p_id: p_node for (p_id, p_node) in self.player_nodes.items() \
+                if p_id not in self.level_data.connection.game_state.players
+            }
+            for player_id, player_node in players_to_remove.items():
+                player_node.kill()
+                del self.player_nodes[player_id]
+        # Update movement on all nodes from external players.
+        nodes_to_update = {
+            p_id: p_node for (p_id, p_node) in self.player_nodes.items() \
+            if p_id not in self.level_data.local_players
+        }
+        for player_id, player_node in nodes_to_update.items():
+            player = self.level_data.connection.game_state.players[player_id]
+            vx = (player['position'][0] - player_node.position[0])/dt
+            vy = (player['position'][1] - player_node.position[1])/dt
+            ax = (player['velocity'][0] - player_node.velocity[0] + 0.05*vx)/dt
+            ay = (player['velocity'][1] - player_node.velocity[1] + 0.05*vy)/dt
+            player_node.acceleration = (ax, ay)
 
     def post_move_activity(self, dt):
         for player_id in self.level_data.local_players:
