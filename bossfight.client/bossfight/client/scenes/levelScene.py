@@ -6,6 +6,7 @@ This is going to be the module containing the base level classes and components.
 import random
 import time
 import cocos
+from cocos.director import director
 import pyglet
 import pygase.shared
 import pygase.client
@@ -33,6 +34,7 @@ class LevelScene(cocos.scene.Scene):
             viewport=cocos.rect.Rect(0, 90, 1920, 900)
         )
         self.add(scrolling_manager)
+        director.window.set_exclusive_mouse(True)
         self.level_data = LevelData(server_address, scrolling_manager)
         scrolling_manager.add(LevelLayer(self.level_data))
         self.add(HUDLayer(self.level_data))
@@ -53,6 +55,7 @@ class LevelScene(cocos.scene.Scene):
                     self.level_data.local_players[player_id] = player['name']
 
     def on_exit(self):
+        director.window.set_exclusive_mouse(False)
         for player_id in self.level_data.local_players:
             self.level_data.connection.post_client_activity(
                 pygase.shared.leave_server_activity(player_id)
@@ -157,6 +160,7 @@ class PlayerNode(cocos.cocosnode.CocosNode):
         image_seq = pyglet.image.ImageGrid(image, 1, 4)
         self.fireball = cocos.sprite.Sprite(
             image=image_seq.get_animation(0.1),
+            position=(0, 45),
             scale=3.0
         )
         self.add(self.name_label),
