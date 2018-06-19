@@ -26,9 +26,13 @@ class ControllableNode(cocos.cocosnode.CocosNode):
         self.position = position
         self.direction = cocos.euclid.Vector2(0, 0) + direction
         self.direction.normalize()
-        image = pyglet.resource.image('arrow_icon.png')
-        self.line = cocos.sprite.Sprite(image, scale=0.08, opacity=100)
-        self.add(self.line)
+        self.arrow = cocos.sprite.Sprite(
+            image=pyglet.resource.image('arrow_icon.png'),
+            scale=0.08,
+            opacity=100
+        )
+        #self.arrow.scale_y = 0.5
+        self.add(self.arrow)
         self.joystick = joystick
         if joystick is None:
             try:
@@ -55,18 +59,26 @@ class ControllableNode(cocos.cocosnode.CocosNode):
     def on_mouse_motion(self, x, y, dx, dy):
         turn = cocos.euclid.Matrix3.new_rotate(-0.01*dx)
         self.direction = turn*self.direction
-        self.line.rotation += 0.01*dx*RAD_TO_DEG
+        self.arrow.rotation += 0.01*dx*RAD_TO_DEG
+        #old_rot = self.arrow.rotation
+        #self.arrow = cocos.sprite.Sprite(
+        #    image=pyglet.resource.image('arrow_icon.png'),
+        #    scale=0.08,
+        #    opacity=100,
+        #    rotation=old_rot + 0.01*dx*RAD_TO_DEG
+        #)
+        #self.arrow.scale_y = 0.5
 
     def _update_movement(self, dt):
         new_joy_direction = cocos.euclid.Vector2(self.joystick.rx, -self.joystick.ry)
         if self.joystick is not None and new_joy_direction.magnitude_squared() > 0.1:
             new_joy_direction.normalize()
-            angle = math.acos(min(self.direction.dot(new_joy_direction), 1.0))*RAD_TO_DEG
-            # THE SIGN NEEDS SOME THINKING ...
-            sign = 1 if self.direction.x < new_joy_direction.x and self.direction.y > new_joy_direction.y \
-                or self.direction.x > new_joy_direction.x and self.direction.y < new_joy_direction.y else -1
-            self.line.rotation += sign*angle
-            self.direction = new_joy_direction
+            try:
+                angle = (math.atan2(new_joy_direction.y, -new_joy_direction.x) - math.atan2(self.direction.y, -self.direction.x))*RAD_TO_DEG
+                self.arrow.rotation += angle
+                self.direction = new_joy_direction
+            except ValueError:
+                pass
         velocity = cocos.euclid.Vector2(0, 0)
         if self.joystick is None or \
           self.joystick.x*self.joystick.x + self.joystick.y*self.joystick.y < 0.05 and \
