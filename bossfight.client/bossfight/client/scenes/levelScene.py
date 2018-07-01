@@ -39,33 +39,40 @@ class LevelScene(cocos.scene.Scene):
         scrolling_manager.add(LevelLayer(self.level_data))
         self.add(HUDLayer(self.level_data))
         self.level_data.connection.connect()
-        join_ids = []
-        for name in local_player_names:
-            join_activity = pygase.shared.join_server_activity(name)
-            join_ids.append(join_activity.activity_data['join_id'])
+        join_activities = [pygase.shared.join_server_activity(name) for name in local_player_names]
+        self.join_local_players(join_activities)
+
+    def join_local_players(self, join_activities: list, retries = 3):
+        for join_activity in join_activities:
             self.level_data.connection.post_client_activity(join_activity)
         t_0 = time.time()
-        while len(self.level_data.local_players) < len(local_player_names):
-            if time.time() - t_0 > 5.0:
-                #self.level_data.local_players[0] = 'Problem'
-                break
+        while len(self.level_data.local_players) < len(join_activities):
             for player_id, player in self.level_data.connection.game_state.iter('players'):
                 if player_id not in self.level_data.local_players \
-                  and player['join_id'] in join_ids:
+                  and player['join_id'] in [a.activity_data['join_id'] for a in join_activities]:
                     self.level_data.local_players[player_id] = player['name']
+            if time.time() - t_0 > 1.0 and retries > 0:
+                self.join_local_players(join_activities, retries-1)
 
     def on_exit(self):
+        # LEAVING THE TEST LEVEL FREEZES THE HOST PROCESS
+        # REASON IS A TYPEERROR EXCEPTION IN LINE 119
         director.window.set_exclusive_mouse(False)
+        self.remove_local_players_from_server()
+        self.level_data.connection.disconnect()
+        super().on_exit()
+
+    def remove_local_players_from_server(self, retries=3):
         for player_id in self.level_data.local_players:
             self.level_data.connection.post_client_activity(
                 pygase.shared.leave_server_activity(player_id)
             )
         t_0 = time.time()
-        while self.level_data.connection._polled_client_activities:
-            if time.time() - t_0 > 5.0:
-                break
-        self.level_data.connection.disconnect()
-        super().on_exit()
+        while self.level_data.connection._polled_client_activities and time.time()-t_0 < 1.0:
+            pass
+        if not set(self.level_data.local_players.keys())\
+          .isdisjoint(set(self.level_data.connection.game_state.players.keys())):
+            self.remove_local_players_from_server(retries-1)
 
 class LevelLayer(cocos.layer.ScrollableLayer):
     '''
@@ -130,8 +137,8 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             player = self.level_data.connection.game_state.players[player_id]
             vx = (player['position'][0] - player_node.position[0])/dt
             vy = (player['position'][1] - player_node.position[1])/dt
-            ax = (player['velocity'][0] - player_node.velocity[0] + 0.05*vx)/dt
-            ay = (player['velocity'][1] - player_node.velocity[1] + 0.05*vy)/dt
+            ax = (player['velocity'][0] - player_node.velocity[0] + 0.08*vx)/dt
+            ay = (player['velocity'][1] - player_node.velocity[1] + 0.08*vy)/dt
             player_node.acceleration = (ax, ay)
 
     def post_move_activity(self, dt):

@@ -31,7 +31,6 @@ class ControllableNode(cocos.cocosnode.CocosNode):
             scale=0.08,
             opacity=100
         )
-        #self.arrow.scale_y = 0.5
         self.add(self.arrow)
         self.joystick = joystick
         if joystick is None:
@@ -60,14 +59,6 @@ class ControllableNode(cocos.cocosnode.CocosNode):
         turn = cocos.euclid.Matrix3.new_rotate(-0.01*dx)
         self.direction = turn*self.direction
         self.arrow.rotation += 0.01*dx*RAD_TO_DEG
-        #old_rot = self.arrow.rotation
-        #self.arrow = cocos.sprite.Sprite(
-        #    image=pyglet.resource.image('arrow_icon.png'),
-        #    scale=0.08,
-        #    opacity=100,
-        #    rotation=old_rot + 0.01*dx*RAD_TO_DEG
-        #)
-        #self.arrow.scale_y = 0.5
 
     def _update_movement(self, dt):
         new_joy_direction = cocos.euclid.Vector2(self.joystick.rx, -self.joystick.ry)
