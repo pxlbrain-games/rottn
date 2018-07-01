@@ -13,9 +13,8 @@ director.init(
     height=1080,
     vsync=False
 )
-pyglet.resource.path = ['resources/spritesheets']
+pyglet.resource.path = ['resources/spritesheets', 'resources/spritesheets/isometric_hero']
 pyglet.resource.reindex()
-#director.
 director.window.set_fullscreen(
     fullscreen=config.get.screen_mode['fullscreen'],
     width=config.get.screen_mode['width'],

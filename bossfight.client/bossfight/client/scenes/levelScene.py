@@ -173,6 +173,14 @@ class PlayerNode(cocos.cocosnode.CocosNode):
         self.add(self.name_label),
         self.add(self.fireball)
 
+# This is meant to replace the Fireball sprite
+# and has to load the "/isometric_hero" spritesheets,
+# deal with animations and animations states etc.
+class AnimatedCharacter(cocos.sprite.Sprite):
+    def __init__(self):
+        #super().__init__()
+        pass
+
 class HUDLayer(cocos.layer.Layer):
 
     def __init__(self, level_data: LevelData):

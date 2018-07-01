@@ -21,7 +21,10 @@ class ControllableNode(cocos.cocosnode.CocosNode):
     (and thus possibly non-cooperative) base classes. (This class **is** cooperative btw.)
     '''
 
-    def __init__(self, position=(0, 0), direction=(0, 1), joystick=None, mouse_and_keyboard=True, speed=BASE_SPEED):
+    def __init__(
+        self, position=(0, 0), direction=(0, 1), 
+        joystick=None, mouse_and_keyboard=True, speed=BASE_SPEED
+    ):
         super().__init__()
         self.position = position
         self.direction = cocos.euclid.Vector2(0, 0) + direction
