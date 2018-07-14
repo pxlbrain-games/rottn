@@ -64,8 +64,10 @@ class ControllableNode(cocos.cocosnode.CocosNode):
         self.arrow.rotation += 0.01*dx*RAD_TO_DEG
 
     def _update_movement(self, dt):
-        new_joy_direction = cocos.euclid.Vector2(self.joystick.rx, -self.joystick.ry)
-        if self.joystick is not None and new_joy_direction.magnitude_squared() > 0.1:
+        new_joy_direction = \
+            cocos.euclid.Vector2(self.joystick.rx, -self.joystick.ry) if self.joystick is not None \
+            else None
+        if new_joy_direction is not None and new_joy_direction.magnitude_squared() > 0.1:
             new_joy_direction.normalize()
             try:
                 angle = (math.atan2(new_joy_direction.y, -new_joy_direction.x) - math.atan2(self.direction.y, -self.direction.x))*RAD_TO_DEG

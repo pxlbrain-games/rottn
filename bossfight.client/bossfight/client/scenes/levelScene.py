@@ -163,23 +163,39 @@ class PlayerNode(cocos.cocosnode.CocosNode):
             anchor_x='center',
             anchor_y='center'
         )
-        image = pyglet.resource.image('fireball.png')
-        image_seq = pyglet.image.ImageGrid(image, 1, 4)
-        self.fireball = cocos.sprite.Sprite(
-            image=image_seq.get_animation(0.1),
-            position=(0, 45),
-            scale=3.0
-        )
         self.add(self.name_label),
-        self.add(self.fireball)
+        self.add(AnimatedCharacter())
+
+class AnimationState(pygase.shared.TypeClass):
+    Idle = 1
+    Running = 2
+    Blocking = 3
 
 # This is meant to replace the Fireball sprite
 # and has to load the "/isometric_hero" spritesheets,
 # deal with animations and animations states etc.
-class AnimatedCharacter(cocos.sprite.Sprite):
+class AnimatedCharacter(cocos.batch.BatchableNode):
     def __init__(self):
-        #super().__init__()
-        pass
+        super().__init__()
+        '''
+        spritesheet-schema:
+        rows - 1: left, 2: left-up, 3: up, 4: right-up, 
+           5: right, 6: right-down, 7: down, 8: left-down
+        columns - 1-4: idle, 5-12: run, 13-16: hit, 17-18: block
+            19-24: fall, 25-28: cast, 29-32: shoot
+        '''
+        self.sprites = {}
+        
+        clothes_spritesheet = pyglet.image.ImageGrid(
+            pyglet.resource.image('clothes.png'), 8, 32
+        )
+        idle_anim = create_animation(clothes_spritesheet, 0, 0, 3, 0.3)
+        self.idle_sprite = cocos.sprite.Sprite(
+            image=idle_anim,
+            position=(0, 45),
+            scale=2.5
+        )
+        self.add(self.idle_sprite)
 
 class HUDLayer(cocos.layer.Layer):
 
@@ -255,3 +271,9 @@ def create_iso_map(dimensions, origin):
                 scale=2.0
             ))
     return batch
+
+def create_animation(image_grid, row, start, end, duration=0.1):
+    frames = []
+    for i in range(start, end):
+        frames.append(pyglet.image.AnimationFrame(image_grid[i+row*32], duration))
+    return pyglet.image.Animation(frames)
