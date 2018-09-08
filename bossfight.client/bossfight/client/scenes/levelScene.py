@@ -120,8 +120,6 @@ class LevelLayer(cocos.layer.ScrollableLayer):
                     self.add(self.player_nodes[player_id])
                 else:
                     self.player_nodes[player_id] = PlayerNode(player['name'])
-                    #self.player_nodes[player_id].do(cocos.actions.Move())
-                    #self.player_nodes[player_id].velocity = (0, 0)
                     self.add(self.player_nodes[player_id])
         elif len(self.player_nodes) > len(self.level_data.connection.game_state.players):
             players_to_remove = {
@@ -154,6 +152,11 @@ class LevelLayer(cocos.layer.ScrollableLayer):
                     time_order=self.level_data.connection.game_state.time_order
                 )
             )
+
+class TestEnemyNode(cocos.cocosnode.CocosNode):
+    def __init__(self):
+        super().__init__()
+        # This is going to be a fireball type thingy that can hurt the player by touch
 
 class PlayerNode(cocos.cocosnode.CocosNode):
     def __init__(self, name, moving_parent = None):
@@ -191,9 +194,6 @@ class DirectionState(pygase.shared.TypeClass):
     Down = 2
     LeftDown = 1
 
-# This is meant to replace the Fireball sprite
-# and has to load the "/isometric_hero" spritesheets,
-# deal with animations and animations states etc.
 class AnimatedCharacter(cocos.batch.BatchableNode):
     def __init__(self, moving_parent):
         super().__init__()
