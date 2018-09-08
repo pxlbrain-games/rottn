@@ -5,6 +5,7 @@ This is going to be the module containing the base level classes and components.
 
 import random
 import time
+import math
 import cocos
 from cocos.director import director
 import pyglet
@@ -113,12 +114,14 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             for player_id, player in players_to_add.items():
                 if player_id in self.level_data.local_players:
                     self.player_nodes[player_id] = player_controls.ControllableNode()
-                    self.player_nodes[player_id].add(PlayerNode(player['name']))
+                    self.player_nodes[player_id].add(
+                        PlayerNode(player['name'], self.player_nodes[player_id])
+                    )
                     self.add(self.player_nodes[player_id])
                 else:
                     self.player_nodes[player_id] = PlayerNode(player['name'])
-                    self.player_nodes[player_id].do(cocos.actions.Move())
-                    self.player_nodes[player_id].velocity = (0, 0)
+                    #self.player_nodes[player_id].do(cocos.actions.Move())
+                    #self.player_nodes[player_id].velocity = (0, 0)
                     self.add(self.player_nodes[player_id])
         elif len(self.player_nodes) > len(self.level_data.connection.game_state.players):
             players_to_remove = {
@@ -153,49 +156,115 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             )
 
 class PlayerNode(cocos.cocosnode.CocosNode):
-    def __init__(self, name):
+    def __init__(self, name, moving_parent = None):
         super().__init__()
         self.name_label = cocos.text.Label(
             text=name,
-            position=(0, 90),
+            position=(0, 110),
             font_name='Arial',
             font_size=24,
             anchor_x='center',
             anchor_y='center'
         )
-        self.add(self.name_label),
-        self.add(AnimatedCharacter())
+        self.add(self.name_label)
+        if moving_parent is not None:
+            animated_character = AnimatedCharacter(moving_parent)
+        else:
+            self.velocity = (0, 0)
+            self.do(cocos.actions.Move())
+            animated_character = AnimatedCharacter(self)
+        self.animated_character = animated_character
+        self.add(self.animated_character)
 
 class AnimationState(pygase.shared.TypeClass):
     Idle = 1
     Running = 2
     Blocking = 3
 
+class DirectionState(pygase.shared.TypeClass):
+    Left = 8
+    LeftUp = 7
+    Up = 6
+    RightUp = 5
+    Right = 4
+    RightDown = 3
+    Down = 2
+    LeftDown = 1
+
 # This is meant to replace the Fireball sprite
 # and has to load the "/isometric_hero" spritesheets,
 # deal with animations and animations states etc.
 class AnimatedCharacter(cocos.batch.BatchableNode):
-    def __init__(self):
+    def __init__(self, moving_parent):
         super().__init__()
         '''
         spritesheet-schema:
-        rows - 1: left, 2: left-up, 3: up, 4: right-up, 
-           5: right, 6: right-down, 7: down, 8: left-down
+        rows - 1: left-down, 2: down, 3: right-down, 4: right,
+            5: right-up, 6: up, 7: left-up, 8: left
         columns - 1-4: idle, 5-12: run, 13-16: hit, 17-18: block
             19-24: fall, 25-28: cast, 29-32: shoot
         '''
-        self.sprites = {}
+        self.sprites = dict()
+        self.animation_state = AnimationState.Idle
+        self.direction = DirectionState.Up
+        self.moving_parent = moving_parent
         
         clothes_spritesheet = pyglet.image.ImageGrid(
             pyglet.resource.image('clothes.png'), 8, 32
         )
-        idle_anim = create_animation(clothes_spritesheet, 0, 0, 3, 0.3)
-        self.idle_sprite = cocos.sprite.Sprite(
-            image=idle_anim,
-            position=(0, 45),
-            scale=2.5
-        )
-        self.add(self.idle_sprite)
+        idle_anims = [
+            create_animation(clothes_spritesheet, i, 0, 3, 0.2) for i in range(0,8)
+        ]
+        idle_sprites = {
+            i: cocos.sprite.Sprite(image=idle_anims[i-1], position=(0, 75), scale=2.5) \
+            for i in range(1,9)
+        }
+        running_anims =[
+            create_animation(clothes_spritesheet, i, 4, 11, 0.1) for i in range(0,8)
+        ]
+        running_sprites = {
+            i: cocos.sprite.Sprite(image=running_anims[i-1], position=(0, 75), scale=2.5) \
+            for i in range(1,9)
+        }
+        self.sprites[AnimationState.Idle] = idle_sprites
+        for direction, sprite in self.sprites[AnimationState.Idle].items():
+            self.add(sprite)
+            if direction != self.direction:
+                sprite.visible = False
+        self.sprites[AnimationState.Running] = running_sprites
+        for sprite in self.sprites[AnimationState.Running].values():
+            self.add(sprite)
+            sprite.visible = False
+        self.schedule(self.update_direction)
+        self.schedule(self.update_animation_state)
+
+    def update_direction(self, dt):
+        # This should always be direction, but direction of other players is not
+        # part of the game state and player movement client activity yet.
+        v = self.moving_parent.direction.xy \
+            if self.moving_parent.__class__ == player_controls.ControllableNode \
+            else self.moving_parent.velocity
+        if v != (0, 0):
+            new_direction = int((math.atan2(v[1], v[0])*4/math.pi + 7/2) + 1)
+            if new_direction == 0:
+                new_direction = 8
+            if new_direction != self.direction:
+                self.sprites[self.animation_state][self.direction].visible = False
+                self.sprites[self.animation_state][new_direction].visible = True
+                self.direction = new_direction
+
+    def update_animation_state(self, dt):
+        v_squared = cocos.euclid.Vector2(
+            self.moving_parent.velocity[0], self.moving_parent.velocity[1]
+        ).magnitude_squared()
+        if v_squared > 0.1 and self.animation_state == AnimationState.Idle:
+            self.sprites[self.animation_state][self.direction].visible = False
+            self.sprites[AnimationState.Running][self.direction].visible = True
+            self.animation_state = AnimationState.Running
+        elif v_squared < 0.1 and self.animation_state == AnimationState.Running:
+            self.sprites[self.animation_state][self.direction].visible = False
+            self.sprites[AnimationState.Idle][self.direction].visible = True
+            self.animation_state = AnimationState.Idle
 
 class HUDLayer(cocos.layer.Layer):
 

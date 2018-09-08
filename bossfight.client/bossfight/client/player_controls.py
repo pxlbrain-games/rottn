@@ -11,7 +11,7 @@ from pyglet.window import key
 
 BASE_SPEED = 300
 
-RAD_TO_DEG = 180/cocos.euclid.math.pi
+RAD_TO_DEG = 180/math.pi
 
 class ControllableNode(cocos.cocosnode.CocosNode):
     '''
