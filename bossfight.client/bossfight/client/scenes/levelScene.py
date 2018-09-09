@@ -163,7 +163,7 @@ class PlayerNode(cocos.cocosnode.CocosNode):
         super().__init__()
         self.name_label = cocos.text.Label(
             text=name,
-            position=(0, 110),
+            position=(0, 120),
             font_name='Arial',
             font_size=24,
             anchor_x='center',
@@ -179,6 +179,10 @@ class PlayerNode(cocos.cocosnode.CocosNode):
         self.animated_character = animated_character
         self.add(self.animated_character)
 
+# When refactoring, make those proper enums and get rid of
+# typeclasses alltogether. Make typeclasses proper subclasses
+# in pygase.
+
 class AnimationState(pygase.shared.TypeClass):
     Idle = 1
     Running = 2
@@ -193,6 +197,10 @@ class DirectionState(pygase.shared.TypeClass):
     RightDown = 3
     Down = 2
     LeftDown = 1
+
+class CharacterPart(pygase.shared.TypeClass):
+    Body = 1
+    Head = 2
 
 class AnimatedCharacter(cocos.batch.BatchableNode):
     def __init__(self, moving_parent):
@@ -210,31 +218,31 @@ class AnimatedCharacter(cocos.batch.BatchableNode):
         self.moving_parent = moving_parent
         
         clothes_spritesheet = pyglet.image.ImageGrid(
-            pyglet.resource.image('clothes.png'), 8, 32
+            pyglet.resource.image('steel_armor.png'), 8, 32
         )
-        idle_anims = [
-            create_animation(clothes_spritesheet, i, 0, 3, 0.2) for i in range(0,8)
-        ]
+        head_spritesheet = pyglet.image.ImageGrid(
+            pyglet.resource.image('male_head3.png'), 8, 32
+        )
         idle_sprites = {
-            i: cocos.sprite.Sprite(image=idle_anims[i-1], position=(0, 75), scale=2.5) \
-            for i in range(1,9)
+            CharacterPart.Body: create_animated_sprites(clothes_spritesheet, 0, 3, 0.2),
+            CharacterPart.Head: create_animated_sprites(head_spritesheet, 0, 3, 0.2)
         }
-        running_anims =[
-            create_animation(clothes_spritesheet, i, 4, 11, 0.11) for i in range(0,8)
-        ]
         running_sprites = {
-            i: cocos.sprite.Sprite(image=running_anims[i-1], position=(0, 75), scale=2.5) \
-            for i in range(1,9)
+            CharacterPart.Body: create_animated_sprites(clothes_spritesheet, 4, 11, 0.09),
+            CharacterPart.Head: create_animated_sprites(head_spritesheet, 4, 11, 0.09)
         }
         self.sprites[AnimationState.Idle] = idle_sprites
-        for direction, sprite in self.sprites[AnimationState.Idle].items():
-            self.add(sprite)
-            if direction != self.direction:
-                sprite.visible = False
+        parts = {CharacterPart.Body, CharacterPart.Head}
+        for character_part in parts:
+            for direction, sprite in self.sprites[AnimationState.Idle][character_part].items():
+                self.add(sprite)
+                if direction != self.direction:
+                    sprite.visible = False
         self.sprites[AnimationState.Running] = running_sprites
-        for sprite in self.sprites[AnimationState.Running].values():
-            self.add(sprite)
-            sprite.visible = False
+        for character_part in parts:
+            for sprite in self.sprites[AnimationState.Running][character_part].values():
+                self.add(sprite)
+                sprite.visible = False
         self.schedule(self.update_direction)
         self.schedule(self.update_animation_state)
 
@@ -249,21 +257,26 @@ class AnimatedCharacter(cocos.batch.BatchableNode):
             if new_direction == 0:
                 new_direction = 8
             if new_direction != self.direction:
-                self.sprites[self.animation_state][self.direction].visible = False
-                self.sprites[self.animation_state][new_direction].visible = True
+                parts = {CharacterPart.Body, CharacterPart.Head}
+                for part in parts:
+                    self.sprites[self.animation_state][part][self.direction].visible = False
+                    self.sprites[self.animation_state][part][new_direction].visible = True
                 self.direction = new_direction
 
     def update_animation_state(self, dt):
         v_squared = cocos.euclid.Vector2(
             self.moving_parent.velocity[0], self.moving_parent.velocity[1]
         ).magnitude_squared()
+        parts = {CharacterPart.Body, CharacterPart.Head}
         if v_squared > 0.1 and self.animation_state == AnimationState.Idle:
-            self.sprites[self.animation_state][self.direction].visible = False
-            self.sprites[AnimationState.Running][self.direction].visible = True
+            for part in parts:
+                self.sprites[self.animation_state][part][self.direction].visible = False
+                self.sprites[AnimationState.Running][part][self.direction].visible = True
             self.animation_state = AnimationState.Running
         elif v_squared < 0.1 and self.animation_state == AnimationState.Running:
-            self.sprites[self.animation_state][self.direction].visible = False
-            self.sprites[AnimationState.Idle][self.direction].visible = True
+            for part in parts:
+                self.sprites[self.animation_state][part][self.direction].visible = False
+                self.sprites[AnimationState.Idle][part][self.direction].visible = True
             self.animation_state = AnimationState.Idle
 
 class HUDLayer(cocos.layer.Layer):
@@ -341,8 +354,20 @@ def create_iso_map(dimensions, origin):
             ))
     return batch
 
+### These are just helper functions for the isometric_hero spritesheet:
+
 def create_animation(image_grid, row, start, end, duration=0.1):
     frames = []
     for i in range(start, end):
         frames.append(pyglet.image.AnimationFrame(image_grid[i+row*32], duration))
     return pyglet.image.Animation(frames)
+
+def create_animated_sprites(spritesheet, start, end, duration=0.1):
+    animations = [
+        create_animation(spritesheet, i, start, end, duration) for i in range(0,8)
+    ]
+    sprites = {
+        i: cocos.sprite.Sprite(image=animations[i-1], position=(0, 75), scale=2.5) \
+        for i in range(1,9)
+    }
+    return sprites
