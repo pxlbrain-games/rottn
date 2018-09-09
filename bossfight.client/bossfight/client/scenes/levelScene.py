@@ -220,7 +220,7 @@ class AnimatedCharacter(cocos.batch.BatchableNode):
             for i in range(1,9)
         }
         running_anims =[
-            create_animation(clothes_spritesheet, i, 4, 11, 0.1) for i in range(0,8)
+            create_animation(clothes_spritesheet, i, 4, 11, 0.11) for i in range(0,8)
         ]
         running_sprites = {
             i: cocos.sprite.Sprite(image=running_anims[i-1], position=(0, 75), scale=2.5) \
