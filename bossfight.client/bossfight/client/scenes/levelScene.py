@@ -89,6 +89,9 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             origin=(-1000, 0)
         )
         self.add(self.iso_map)
+        self.test_enemy = TestEnemyNode()
+        self.test_enemy.position = (200, -100)
+        self.add(self.test_enemy)
         self.player_nodes = {}
         self.schedule(self.update_focus)
         self.schedule_interval(self.update_player_nodes, 0.02)
@@ -156,6 +159,16 @@ class LevelLayer(cocos.layer.ScrollableLayer):
 class TestEnemyNode(cocos.cocosnode.CocosNode):
     def __init__(self):
         super().__init__()
+        fireball_spritesheet = pyglet.image.ImageGrid(
+            pyglet.resource.image('fireball.png'), 1, 4
+        )
+        fireball_animation = pyglet.image.Animation.from_image_sequence(fireball_spritesheet, 0.1)
+        self.sprite = cocos.sprite.Sprite(
+            image=fireball_animation,
+            position=(0, 50),
+            scale=2.5
+        )
+        self.add(self.sprite)
         # This is going to be a fireball type thingy that can hurt the player by touch
 
 class PlayerNode(cocos.cocosnode.CocosNode):
@@ -216,7 +229,7 @@ class AnimatedCharacter(cocos.batch.BatchableNode):
         self.animation_state = AnimationState.Idle
         self.direction = DirectionState.Up
         self.moving_parent = moving_parent
-        
+
         clothes_spritesheet = pyglet.image.ImageGrid(
             pyglet.resource.image('steel_armor.png'), 8, 32
         )

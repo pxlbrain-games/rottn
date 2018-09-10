@@ -29,12 +29,12 @@ class ControllableNode(cocos.cocosnode.CocosNode):
         self.position = position
         self.direction = cocos.euclid.Vector2(0, 0) + direction
         self.direction.normalize()
-        self.arrow = cocos.sprite.Sprite(
+        '''self.arrow = cocos.sprite.Sprite(
             image=pyglet.resource.image('arrow_icon.png'),
             scale=0.08,
             opacity=100
         )
-        self.add(self.arrow)
+        self.add(self.arrow)'''
         self.joystick = joystick
         if joystick is None:
             try:
@@ -61,7 +61,7 @@ class ControllableNode(cocos.cocosnode.CocosNode):
     def on_mouse_motion(self, x, y, dx, dy):
         turn = cocos.euclid.Matrix3.new_rotate(-0.01*dx)
         self.direction = turn*self.direction
-        self.arrow.rotation += 0.01*dx*RAD_TO_DEG
+        #self.arrow.rotation += 0.01*dx*RAD_TO_DEG
 
     def _update_movement(self, dt):
         new_joy_direction = \
@@ -71,7 +71,7 @@ class ControllableNode(cocos.cocosnode.CocosNode):
             new_joy_direction.normalize()
             try:
                 angle = (math.atan2(new_joy_direction.y, -new_joy_direction.x) - math.atan2(self.direction.y, -self.direction.x))*RAD_TO_DEG
-                self.arrow.rotation += angle
+                #self.arrow.rotation += angle
                 self.direction = new_joy_direction
             except ValueError:
                 pass
