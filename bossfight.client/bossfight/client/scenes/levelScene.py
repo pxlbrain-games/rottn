@@ -146,7 +146,7 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             player_node.acceleration = (ax, ay)
 
     def post_move_activity(self, dt):
-        for player_id in self.level_data.local_players:
+        for player_id in (self.level_data.local_players and self.player_nodes.keys()):
             self.level_data.connection.post_client_activity(
                 activities.move_player_activity(
                     player_id=player_id,
@@ -159,6 +159,7 @@ class LevelLayer(cocos.layer.ScrollableLayer):
 class TestEnemyNode(cocos.cocosnode.CocosNode):
     def __init__(self):
         super().__init__()
+        '''
         fireball_spritesheet = pyglet.image.ImageGrid(
             pyglet.resource.image('fireball.png'), 1, 4
         )
@@ -169,7 +170,16 @@ class TestEnemyNode(cocos.cocosnode.CocosNode):
             scale=2.5
         )
         self.add(self.sprite)
-        # This is going to be a fireball type thingy that can hurt the player by touch
+        '''
+        self.animated_character = AnimatedCharacter(
+            moving_parent=self,
+            body_spritesheet='steel_armor.png',
+            head_spritesheet='male_head3.png',
+            scale=2.8
+        )
+        self.velocity = (0, 0)
+        self.add(self.animated_character)
+        self.do(cocos.actions.Move())
 
 class PlayerNode(cocos.cocosnode.CocosNode):
     def __init__(self, name, moving_parent = None):
@@ -216,7 +226,7 @@ class CharacterPart(pygase.shared.TypeClass):
     Head = 2
 
 class AnimatedCharacter(cocos.batch.BatchableNode):
-    def __init__(self, moving_parent):
+    def __init__(self, moving_parent, body_spritesheet='clothes.png', head_spritesheet='male_head1.png', scale=2.5):
         super().__init__()
         '''
         spritesheet-schema:
@@ -231,18 +241,18 @@ class AnimatedCharacter(cocos.batch.BatchableNode):
         self.moving_parent = moving_parent
 
         clothes_spritesheet = pyglet.image.ImageGrid(
-            pyglet.resource.image('steel_armor.png'), 8, 32
+            pyglet.resource.image(body_spritesheet), 8, 32
         )
         head_spritesheet = pyglet.image.ImageGrid(
-            pyglet.resource.image('male_head3.png'), 8, 32
+            pyglet.resource.image(head_spritesheet), 8, 32
         )
         idle_sprites = {
-            CharacterPart.Body: create_animated_sprites(clothes_spritesheet, 0, 3, 0.2),
-            CharacterPart.Head: create_animated_sprites(head_spritesheet, 0, 3, 0.2)
+            CharacterPart.Body: create_animated_sprites(clothes_spritesheet, 0, 3, 0.2, scale),
+            CharacterPart.Head: create_animated_sprites(head_spritesheet, 0, 3, 0.2, scale)
         }
         running_sprites = {
-            CharacterPart.Body: create_animated_sprites(clothes_spritesheet, 4, 11, 0.09),
-            CharacterPart.Head: create_animated_sprites(head_spritesheet, 4, 11, 0.09)
+            CharacterPart.Body: create_animated_sprites(clothes_spritesheet, 4, 11, 0.09, scale),
+            CharacterPart.Head: create_animated_sprites(head_spritesheet, 4, 11, 0.09, scale)
         }
         self.sprites[AnimationState.Idle] = idle_sprites
         parts = {CharacterPart.Body, CharacterPart.Head}
@@ -375,12 +385,12 @@ def create_animation(image_grid, row, start, end, duration=0.1):
         frames.append(pyglet.image.AnimationFrame(image_grid[i+row*32], duration))
     return pyglet.image.Animation(frames)
 
-def create_animated_sprites(spritesheet, start, end, duration=0.1):
+def create_animated_sprites(spritesheet, start, end, duration=0.1, scale=1):
     animations = [
         create_animation(spritesheet, i, start, end, duration) for i in range(0,8)
     ]
     sprites = {
-        i: cocos.sprite.Sprite(image=animations[i-1], position=(0, 75), scale=2.5) \
+        i: cocos.sprite.Sprite(image=animations[i-1], position=(0, 75), scale=scale) \
         for i in range(1,9)
     }
     return sprites
