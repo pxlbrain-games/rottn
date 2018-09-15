@@ -16,6 +16,7 @@ class BFGameLoop(pygase.server.GameLoop):
         '''
         update.players[player_id]['position'] = (0, 0)
         update.players[player_id]['velocity'] = (0, 0)
+        update.players[player_id]['direction'] = (0, 1)
 
     def handle_activity(self, activity: pygase.shared.ClientActivity, update, dt):
         '''

@@ -21,9 +21,7 @@ class ControllableNode(cocos.cocosnode.CocosNode):
     (and thus possibly non-cooperative) base classes. (This class **is** cooperative btw.)
     '''
 
-    def __init__(
-        self, position=(0, 0), direction=(0, 1), 
-        joystick=None, mouse_and_keyboard=True, speed=BASE_SPEED
+    def __init__(self, position=(0, 0), direction=(0, 1), joystick=None, mouse_and_keyboard=True, speed=BASE_SPEED
     ):
         super().__init__()
         self.position = position
@@ -70,7 +68,7 @@ class ControllableNode(cocos.cocosnode.CocosNode):
         if new_joy_direction is not None and new_joy_direction.magnitude_squared() > 0.1:
             new_joy_direction.normalize()
             try:
-                angle = (math.atan2(new_joy_direction.y, -new_joy_direction.x) - math.atan2(self.direction.y, -self.direction.x))*RAD_TO_DEG
+                #angle = (math.atan2(new_joy_direction.y, -new_joy_direction.x) - math.atan2(self.direction.y, -self.direction.x))*RAD_TO_DEG
                 #self.arrow.rotation += angle
                 self.direction = new_joy_direction
             except ValueError:

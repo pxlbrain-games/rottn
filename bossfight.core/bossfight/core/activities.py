@@ -6,7 +6,7 @@ and handling of BossFight client activities.
 
 import pygase.shared 
 
-def move_player_activity(player_id, position, velocity, time_order):
+def move_player_activity(player_id, position, velocity, direction, time_order):
     '''
     Todo: Creates a ClientActivity for player movement.
     '''
@@ -16,6 +16,7 @@ def move_player_activity(player_id, position, velocity, time_order):
             'player_id': player_id,
             'position': position,
             'velocity': velocity,
+            'direction': direction,
             'time_order': time_order
         }
     )

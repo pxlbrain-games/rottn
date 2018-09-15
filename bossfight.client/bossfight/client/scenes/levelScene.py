@@ -144,6 +144,8 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             ax = (player['velocity'][0] - player_node.velocity[0] + 0.08*vx)/dt
             ay = (player['velocity'][1] - player_node.velocity[1] + 0.08*vy)/dt
             player_node.acceleration = (ax, ay)
+            player_node.direction.x = player['direction'][0]
+            player_node.direction.y = player['direction'][1]
 
     def post_move_activity(self, dt):
         for player_id in (self.level_data.local_players and self.player_nodes.keys()):
@@ -152,6 +154,7 @@ class LevelLayer(cocos.layer.ScrollableLayer):
                     player_id=player_id,
                     position=self.player_nodes[player_id].position,
                     velocity=self.player_nodes[player_id].velocity,
+                    direction=self.player_nodes[player_id].direction.xy,
                     time_order=self.level_data.connection.game_state.time_order
                 )
             )
@@ -169,7 +172,7 @@ class TestEnemyNode(cocos.cocosnode.CocosNode):
             position=(0, 50),
             scale=2.5
         )
-        self.add(self.sprite)
+        self.add(self.sprite) Vector2
         '''
         self.animated_character = AnimatedCharacter(
             moving_parent=self,
@@ -178,6 +181,7 @@ class TestEnemyNode(cocos.cocosnode.CocosNode):
             scale=2.8
         )
         self.velocity = (0, 0)
+        self.direction = cocos.euclid.Vector2(-1, 0)
         self.add(self.animated_character)
         self.do(cocos.actions.Move())
 
@@ -197,6 +201,7 @@ class PlayerNode(cocos.cocosnode.CocosNode):
             animated_character = AnimatedCharacter(moving_parent)
         else:
             self.velocity = (0, 0)
+            self.direction = cocos.euclid.Vector2(0, 1)
             self.do(cocos.actions.Move())
             animated_character = AnimatedCharacter(self)
         self.animated_character = animated_character
@@ -237,7 +242,7 @@ class AnimatedCharacter(cocos.batch.BatchableNode):
         '''
         self.sprites = dict()
         self.animation_state = AnimationState.Idle
-        self.direction = DirectionState.Up
+        self.direction_state = DirectionState.Up
         self.moving_parent = moving_parent
 
         clothes_spritesheet = pyglet.image.ImageGrid(
@@ -257,9 +262,9 @@ class AnimatedCharacter(cocos.batch.BatchableNode):
         self.sprites[AnimationState.Idle] = idle_sprites
         parts = {CharacterPart.Body, CharacterPart.Head}
         for character_part in parts:
-            for direction, sprite in self.sprites[AnimationState.Idle][character_part].items():
+            for direction_state, sprite in self.sprites[AnimationState.Idle][character_part].items():
                 self.add(sprite)
-                if direction != self.direction:
+                if direction_state != self.direction_state:
                     sprite.visible = False
         self.sprites[AnimationState.Running] = running_sprites
         for character_part in parts:
@@ -272,34 +277,34 @@ class AnimatedCharacter(cocos.batch.BatchableNode):
     def update_direction(self, dt):
         # This should always be direction, but direction of other players is not
         # part of the game state and player movement client activity yet.
-        v = self.moving_parent.direction.xy \
-            if self.moving_parent.__class__ == player_controls.ControllableNode \
-            else self.moving_parent.velocity
-        if v != (0, 0):
-            new_direction = int((math.atan2(v[1], v[0])*4/math.pi + 7/2) + 1)
-            if new_direction == 0:
-                new_direction = 8
-            if new_direction != self.direction:
+        direction = self.moving_parent.direction.xy #\
+        #    if self.moving_parent.__class__ == player_controls.ControllableNode \
+        #    else self.moving_parent.velocity
+        if direction != (0, 0):
+            new_direction_state = int((math.atan2(direction[1], direction[0])*4/math.pi + 7/2) + 1)
+            if new_direction_state == 0:
+                new_direction_state = 8
+            if new_direction_state != self.direction_state:
                 parts = {CharacterPart.Body, CharacterPart.Head}
                 for part in parts:
-                    self.sprites[self.animation_state][part][self.direction].visible = False
-                    self.sprites[self.animation_state][part][new_direction].visible = True
-                self.direction = new_direction
+                    self.sprites[self.animation_state][part][self.direction_state].visible = False
+                    self.sprites[self.animation_state][part][new_direction_state].visible = True
+                self.direction_state = new_direction_state
 
     def update_animation_state(self, dt):
         v_squared = cocos.euclid.Vector2(
             self.moving_parent.velocity[0], self.moving_parent.velocity[1]
         ).magnitude_squared()
         parts = {CharacterPart.Body, CharacterPart.Head}
-        if v_squared > 0.1 and self.animation_state == AnimationState.Idle:
+        if v_squared > 10 and self.animation_state == AnimationState.Idle:
             for part in parts:
-                self.sprites[self.animation_state][part][self.direction].visible = False
-                self.sprites[AnimationState.Running][part][self.direction].visible = True
+                self.sprites[self.animation_state][part][self.direction_state].visible = False
+                self.sprites[AnimationState.Running][part][self.direction_state].visible = True
             self.animation_state = AnimationState.Running
-        elif v_squared < 0.1 and self.animation_state == AnimationState.Running:
+        elif v_squared < 10 and self.animation_state == AnimationState.Running:
             for part in parts:
-                self.sprites[self.animation_state][part][self.direction].visible = False
-                self.sprites[AnimationState.Idle][part][self.direction].visible = True
+                self.sprites[self.animation_state][part][self.direction_state].visible = False
+                self.sprites[AnimationState.Idle][part][self.direction_state].visible = True
             self.animation_state = AnimationState.Idle
 
 class HUDLayer(cocos.layer.Layer):
