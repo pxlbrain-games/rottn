@@ -26,10 +26,12 @@ class BFGameLoop(pygase.server.GameLoop):
             player_id = activity.activity_data['player_id']
             position = activity.activity_data['position']
             velocity = activity.activity_data['velocity']
+            direction = activity.activity_data['direction']
             update.players = {
                 player_id: {
                     'position': position,
-                    'velocity': velocity
+                    'velocity': velocity,
+                    'direction': direction
                 }
             }
 
