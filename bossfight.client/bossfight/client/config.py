@@ -10,6 +10,9 @@ import os
 import json
 import appdirs
 
+# Default client configuration is a small window.
+# The command line to start the server only works with the venv
+# and this should be changed to a "proper" .exe later on.
 _DEFAULT_CONFIG = {
     'screen_mode': {
         'width': 854,
@@ -19,6 +22,9 @@ _DEFAULT_CONFIG = {
     'local_server_exec': [sys.executable, '-m', 'bossfight.server']
 }
 
+# Keep different config files for regular python and experimental PyPy version.
+# The "company" name 'ePyCom' is just for fun right now, it stands for:
+# "ePyCom Python Company" (or "epic Python Company", whichever you prefer)
 if 'pypy3.exe' in sys.executable:
     CONFIG_PATH = os.path.join(
         appdirs.AppDirs(appname='bossfight', appauthor='ePyCom').user_config_dir,
