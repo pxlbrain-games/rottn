@@ -38,9 +38,9 @@ class LocalPlayerNode(PlayerNode, player_controls.ControllableNode):
     def __init__(self, player_id, name, position=(0, 0)):
         super().__init__(player_id, name, position)
 
-class TestEnemyNode(cocos.cocosnode.CocosNode):
+class TestEnemyNode(character_bases.NonPlayerCharacter, cocos.cocosnode.CocosNode):
     def __init__(self):
-        super().__init__()
+        super().__init__(0, 'Test Enemy')
         '''
         fireball_spritesheet = pyglet.image.ImageGrid(
             pyglet.resource.image('fireball.png'), 1, 4
@@ -59,7 +59,5 @@ class TestEnemyNode(cocos.cocosnode.CocosNode):
             head_spritesheet='male_head3.png',
             scale=2.8
         )
-        self.velocity = (0, 0)
-        self.direction = cocos.euclid.Vector2(-1, 0)
         self.add(self.animated_character)
         self.do(cocos.actions.Move())

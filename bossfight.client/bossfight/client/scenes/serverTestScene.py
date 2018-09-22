@@ -18,12 +18,12 @@ class ServerListEntryNode(cocos.text.Label):
                    + 'IP Address: ' + server_address[0] + ':' + str(server_address[1])
         super().__init__(
             text=entry_text,
-            position=(init_position[0], init_position[1]-entry_number*140),
+            position=(init_position[0], init_position[1]-entry_number*145),
             width=600,
             height=120,
             multiline=True,
             font_name='Arial',
-            font_size=32,
+            font_size=27,
             anchor_x='left',
             anchor_y='top'
         )
@@ -126,18 +126,18 @@ class ConnectionListEntryNode(cocos.text.Label):
                    + 'IP Address: ' + server_address[0] + ':' + str(server_address[1])
         super().__init__(
             text=entry_text,
-            position=(init_position[0], init_position[1]-entry_number*140),
+            position=(init_position[0], init_position[1]-entry_number*160),
             width=600,
             height=120,
             multiline=True,
             font_name='Arial',
-            font_size=32,
+            font_size=27,
             anchor_x='left',
             anchor_y='top'
         )
         ConnectionListEntryNode.entry_counter += 1
         self.add(ConnectionTextLayer(
-            position=(0, -95),
+            position=(0, -100),
             connection=connection
         ), name='text_layer')
         self.connection = connection

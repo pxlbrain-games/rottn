@@ -33,4 +33,3 @@ class NonPlayerCharacter(Character):
     def __init__(self, npc_id, name, position=(0, 0)):
         super().__init__(name, position)
         self.npc_id = npc_id
-

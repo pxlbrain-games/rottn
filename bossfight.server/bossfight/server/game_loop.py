@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import math
 import pygase.shared
 import pygase.server
 
@@ -39,6 +38,4 @@ class BFGameLoop(pygase.server.GameLoop):
         '''
         BossFight game state update. Simulates enemies and game world objects.
         '''
-        # only test functionality for now
-        update.test_t = self.server.game_state.test_t + dt
-        update.test_pos = math.sin(2.5*update.test_t)
+        
