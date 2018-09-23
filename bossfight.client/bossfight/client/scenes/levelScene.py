@@ -5,14 +5,11 @@ This is going to be the module containing the base level classes and components.
 
 import random
 import time
-import math
 import cocos
 from cocos.director import director
 import pyglet
 import pygase.shared
 import pygase.client
-import bossfight.client.player_controls as player_controls
-import bossfight.core.activities as activities
 import bossfight.client.characters.character_nodes as character_nodes
 
 class LevelData:
