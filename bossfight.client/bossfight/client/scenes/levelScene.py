@@ -44,7 +44,7 @@ class LevelScene(cocos.scene.Scene):
         join_activities = [pygase.shared.join_server_activity(name) for name in local_player_names]
         self.join_local_players(join_activities)
 
-    def join_local_players(self, join_activities: list, retries = 3):
+    def join_local_players(self, join_activities: list, retries=3):
         for join_activity in join_activities:
             self.level_data.connection.post_client_activity(join_activity)
         t_0 = time.time()
@@ -58,7 +58,7 @@ class LevelScene(cocos.scene.Scene):
 
     def on_exit(self):
         # LEAVING THE TEST LEVEL FREEZES THE HOST PROCESS
-        # REASON IS A TYPEERROR EXCEPTION IN LINE 119
+        # REASON IS A TYPEERROR EXCEPTION IN LINE 128
         director.window.set_exclusive_mouse(False)
         self.remove_local_players_from_server()
         self.level_data.connection.disconnect()
@@ -151,16 +151,13 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             player_node.direction = player['direction']
 
     def post_move_activity(self, dt):
-        for player_id in (self.level_data.local_players and self.player_nodes.keys()):
-            self.level_data.connection.post_client_activity(
-                activities.move_player_activity(
-                    player_id=player_id,
-                    position=self.player_nodes[player_id].position,
-                    velocity=self.player_nodes[player_id].velocity,
-                    direction=self.player_nodes[player_id].direction,
-                    time_order=self.level_data.connection.game_state.time_order
+        for player_node in self.player_nodes.values():
+            if isinstance(player_node, character_nodes.LocalPlayerNode):
+                self.level_data.connection.post_client_activity(
+                    player_node.get_move_activity(
+                        self.level_data.connection.game_state.time_order
+                    )
                 )
-            )
 
 class HUDLayer(cocos.layer.Layer):
 

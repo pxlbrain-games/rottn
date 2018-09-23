@@ -4,10 +4,11 @@ This module contains the clients subclasses of the core
 character types.
 '''
 
+import cocos
+import bossfight.core.activities as activities
 import bossfight.core.character_bases as character_bases
 import bossfight.client.player_controls as player_controls
 import bossfight.client.characters.character_animations as character_animations
-import cocos
 
 class PlayerNode(character_bases.PlayerCharacter, cocos.cocosnode.CocosNode):
     '''
@@ -37,6 +38,15 @@ class LocalPlayerNode(PlayerNode, player_controls.ControllableNode):
 
     def __init__(self, player_id, name, position=(0, 0)):
         super().__init__(player_id, name, position)
+
+    def get_move_activity(self, time_order):
+        return activities.move_player_activity(
+            self.player_id,
+            self.position,
+            self.velocity,
+            self.direction,
+            time_order
+        )
 
 class TestEnemyNode(character_bases.NonPlayerCharacter, cocos.cocosnode.CocosNode):
     def __init__(self):
