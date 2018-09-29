@@ -22,8 +22,10 @@ To shutdown the server, write a line containing `shutdown` to the processes
 import sys
 import pygase.shared
 import pygase.server
-from bossfight.core import SHARED_GAME_STATE
 from bossfight.server.game_loop import BFGameLoop
+
+SHARED_GAME_STATE = pygase.shared.GameState()
+SHARED_GAME_STATE.npcs = dict()
 
 if len(sys.argv) == 1:
     SERVER = pygase.server.Server(

@@ -14,7 +14,7 @@ import bossfight.client.characters.character_nodes as character_nodes
 
 class LevelData:
     def __init__(self, server_address, scrolling_manager):
-        self.connection = pygase.client.Connection(server_address, closed=True)
+        self.connection = pygase.client.Connection(server_address)
         self.scrolling_manager = scrolling_manager
         self.local_players = {}
 
@@ -37,7 +37,7 @@ class LevelScene(cocos.scene.Scene):
         self.level_data = LevelData(server_address, scrolling_manager)
         scrolling_manager.add(LevelLayer(self.level_data))
         self.add(HUDLayer(self.level_data))
-        self.level_data.connection.connect()
+        self.level_data.connection.connect() # Possibly unnecessary
         join_activities = [pygase.shared.join_server_activity(name) for name in local_player_names]
         self.join_local_players(join_activities)
 
@@ -87,10 +87,11 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             origin=(-1000, 0)
         )
         self.add(self.iso_map)
-        self.test_enemy = character_nodes.TestEnemyNode()
-        self.test_enemy.position = (200, -100)
-        self.add(self.test_enemy)
-        self.player_nodes = {}
+        self.npc_nodes = dict()
+        for npc_id, npc in self.level_data.connection.game_state.iter('npcs'):
+            self.npc_nodes[npc_id] = character_nodes.NPCNode(npc)
+            self.add(self.npc_nodes[npc_id])
+        self.player_nodes = dict()
         self.schedule(self.update_focus)
         self.schedule_interval(self.update_player_nodes, 0.02)
         self.schedule_interval(self.post_move_activity, 0.02)
@@ -114,16 +115,10 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             }
             for player_id, player in players_to_add.items():
                 if player_id in self.level_data.local_players:
-                    self.player_nodes[player_id] = character_nodes.LocalPlayerNode(
-                        player_id=player_id,
-                        name=player['name']
-                    )
+                    self.player_nodes[player_id] = character_nodes.LocalPlayerNode(player['name'])
                     self.add(self.player_nodes[player_id])
                 else:
-                    self.player_nodes[player_id] = character_nodes.PlayerNode(
-                        player_id=player_id,
-                        name=player['name']
-                    )
+                    self.player_nodes[player_id] = character_nodes.PlayerNode(player)
                     self.add(self.player_nodes[player_id])
         elif len(self.player_nodes) > len(self.level_data.connection.game_state.players):
             players_to_remove = {
@@ -134,11 +129,11 @@ class LevelLayer(cocos.layer.ScrollableLayer):
                 player_node.kill()
                 del self.player_nodes[player_id]
         # Update movement on all nodes from external players.
-        nodes_to_update = {
+        player_nodes_to_update = {
             p_id: p_node for (p_id, p_node) in self.player_nodes.items() \
             if p_id not in self.level_data.local_players
         }
-        for player_id, player_node in nodes_to_update.items():
+        for player_id, player_node in player_nodes_to_update.items():
             player = self.level_data.connection.game_state.players[player_id]
             vx = (player['position'][0] - player_node.position[0])/dt
             vy = (player['position'][1] - player_node.position[1])/dt
@@ -146,12 +141,22 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             ay = (player['velocity'][1] - player_node.velocity[1] + 0.08*vy)/dt
             player_node.acceleration = (ax, ay)
             player_node.direction = player['direction']
+        for npc_id, npc_node in self.npc_nodes.items():
+            npc = self.level_data.connection.game_state.npcs[npc_id]
+            vx = (npc['position'][0] - npc_node.position[0])/dt
+            vy = (npc['position'][1] - npc_node.position[1])/dt
+            ax = (npc['velocity'][0] - npc_node.velocity[0] + 0.08*vx)/dt
+            ay = (npc['velocity'][1] - npc_node.velocity[1] + 0.08*vy)/dt
+            npc_node.acceleration = (ax, ay)
+            npc_node.direction = npc['direction']
+        
 
     def post_move_activity(self, dt):
-        for player_node in self.player_nodes.values():
+        for player_id, player_node in self.player_nodes.items():
             if isinstance(player_node, character_nodes.LocalPlayerNode):
                 self.level_data.connection.post_client_activity(
                     player_node.get_move_activity(
+                        player_id,
                         self.level_data.connection.game_state.time_order
                     )
                 )
