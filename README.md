@@ -1,6 +1,6 @@
 # BossFight
 
-Indie game with only procedurally generated boss levels. Online/LAN-Coop. Aim: Boss-AI uses procedurally generated Neural Nets with Reinforcement Learning capacity. (This is all very much WIP, as can be seen from the screenshot below!)
+Indie game with only procedurally generated boss levels. Online/LAN-Coop. Aim: Boss-AI uses Deep Q Neural Nets in order to adapt to and learn from the player during a fight.
 
 ![Screenshot](/screenshot.png)
 
@@ -8,7 +8,7 @@ Indie game with only procedurally generated boss levels. Online/LAN-Coop. Aim: B
 
 This project is using Python 3.6.5 or newer (https://www.python.org/)
 
-Recommended IDE: VSCode + Python Extension (https://code.visualstudio.com/download)
+Recommended IDE: VSCode + "official" Python Extension (https://code.visualstudio.com/download)
 
 ### Windows
 
@@ -31,7 +31,11 @@ No setup scripts yet.
 
 ## Documentation
 
-Documentation stuff goes to `.\docs\`. Try and maintain good doumentation habits (it's hard, I know ...).
+Documentation stuff goes to `.\docs\`.
+
+**Navigation:**
+- [BossFight API Documentation](./docs/api/overview.md)
+- [BossFight Game Design Document](./docs/gamedesign/designdocument.md)
 
 ### Diagrams
 
@@ -47,7 +51,9 @@ When you made changes in an API module, just run `.\generate_api_docs.bat` to up
 If you added a new module, you have to add a line to the batch script. Example for new core module:
 `.\venv\Scripts\pydocmd.exe simple bossfight.core+ bossfight.core.myModule++ > .\docs\api\core.myModule.md`
 
-So for this project good API documentation means good docstrings (in markdown format)!
+### Game Design Documentation
+
+`.\docs\gamedesign\` contains a short design document that illustrates the overall vision and a player story map that contains the detailed design decisions.
 
 ## Testing
 
