@@ -4,6 +4,7 @@ Defines the controls for the player character.
 '''
 
 import math
+import euclid3 as euclid
 import pyglet
 import cocos
 from cocos.director import director
@@ -24,7 +25,7 @@ class ControllableNode(cocos.cocosnode.CocosNode):
     def __init__(self, position=(0, 0), direction=(0, 1), joystick=None, mouse_and_keyboard=True, speed=BASE_SPEED):
         super().__init__()
         self.position = position
-        self.direction = (cocos.euclid.Vector2(0, 0) + direction).normalize().xy
+        self.direction = (euclid.Vector2(0, 0) + direction).normalize().xy
         self.joystick = joystick
         if joystick is None:
             try:
@@ -50,20 +51,20 @@ class ControllableNode(cocos.cocosnode.CocosNode):
         self.schedule(self._update_movement)
 
     def on_mouse_motion(self, x, y, dx, dy):
-        turn = cocos.euclid.Matrix3.new_rotate(-0.01*dx)
-        self.direction = (turn*cocos.euclid.Vector2(self.direction[0], self.direction[1])).xy
+        turn = euclid.Matrix3.new_rotate(-0.01*dx)
+        self.direction = (turn*euclid.Vector2(self.direction[0], self.direction[1])).xy
 
     def _update_movement(self, dt):
         new_joy_direction = \
-            cocos.euclid.Vector2(self.joystick.rx, -self.joystick.ry) if self.joystick is not None \
+            euclid.Vector2(self.joystick.rx, -self.joystick.ry) if self.joystick is not None \
             else None
         if new_joy_direction is not None and new_joy_direction.magnitude_squared() > 0.1:
             new_joy_direction.normalize()
             direction = new_joy_direction
             self.direction = new_joy_direction.xy
         else:
-            direction = cocos.euclid.Vector2(self.direction[0], self.direction[1])
-        velocity = cocos.euclid.Vector2(0, 0)
+            direction = euclid.Vector2(self.direction[0], self.direction[1])
+        velocity = euclid.Vector2(0, 0)
         if self.joystick is None or \
           self.joystick.x*self.joystick.x + self.joystick.y*self.joystick.y < 0.05 and \
           self.keyboard is not None:

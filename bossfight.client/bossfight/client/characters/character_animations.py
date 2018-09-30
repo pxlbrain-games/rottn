@@ -5,6 +5,7 @@ This module deals with animated sprites for characters.
 
 import enum
 import math
+import euclid3 as euclid
 import pyglet
 import cocos
 
@@ -88,15 +89,15 @@ class AnimatedCharacter(cocos.batch.BatchableNode):
                 self.direction_state = new_direction_state
 
     def update_animation_state(self, dt):
-        v_squared = cocos.euclid.Vector2(
+        v_squared = euclid.Vector2(
             self.moving_parent.velocity[0], self.moving_parent.velocity[1]
         ).magnitude_squared()
-        if v_squared > 10 and self.animation_state == AnimationState.Idle:
+        if v_squared > 30 and self.animation_state == AnimationState.Idle:
             for part in CharacterPart:
                 self.sprites[self.animation_state][part][self.direction_state].visible = False
                 self.sprites[AnimationState.Running][part][self.direction_state].visible = True
             self.animation_state = AnimationState.Running
-        elif v_squared < 10 and self.animation_state == AnimationState.Running:
+        elif v_squared < 30 and self.animation_state == AnimationState.Running:
             for part in CharacterPart:
                 self.sprites[self.animation_state][part][self.direction_state].visible = False
                 self.sprites[AnimationState.Idle][part][self.direction_state].visible = True

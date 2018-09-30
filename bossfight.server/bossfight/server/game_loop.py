@@ -3,7 +3,7 @@
 import pygase.shared
 import pygase.server
 import bossfight.core.character_bases as character_bases
-import bossfight.server.agents as agents
+import bossfight.server.ai.actors as actors
 
 class BFGameLoop(pygase.server.GameLoop):
     '''
@@ -13,11 +13,15 @@ class BFGameLoop(pygase.server.GameLoop):
     def __init__(self, server: pygase.server.Server):
         super().__init__(server)
         self.player_characters = {}
-        self.test_enemy = agents.TestEnemyAgent('Test Enemy')
-        self.test_enemy.position = (400, -100)
-        self.test_enemy.direction = (-1, 0)
-        self.test_enemy.velocity = (-100, 0)
-        self.server.game_state.npcs[0] = self.test_enemy.get_state()
+        self.npc_actors = {}
+        test_enemy = actors.TestEnemyActor('Test Enemy')
+        test_enemy.position = (200, 100)
+        test_enemy.direction = (-1, 0)
+        test_enemy.velocity = (-100, 0)
+        self.npc_actors[0] = test_enemy
+        self.server.game_state.npcs[0] = test_enemy.get_state()
+
+        self.learn_counter = 0
 
     def on_join(self, player_id, update):
         '''
@@ -39,8 +43,13 @@ class BFGameLoop(pygase.server.GameLoop):
         '''
         BossFight game state update. Simulates enemies and game world objects.
         '''
-        self.test_enemy.position = (
-            self.test_enemy.position[0] + self.test_enemy.velocity[0]*dt,
-            self.test_enemy.position[1] + self.test_enemy.velocity[1]*dt
-        )
-        update.npcs = {0: self.test_enemy.get_state()}
+        #self.npc_actors[0].turn_by_angle(1.5*dt)
+        if 0 in self.player_characters.keys():
+            self.npc_actors[0].observe_and_act(self.player_characters[0])
+            if self.learn_counter >= 50:
+                self.npc_actors[0]._agent.replay(32)
+                self.learn_counter = 0
+            else:
+                self.learn_counter += 1
+        for npc_id, actor in self.npc_actors.items():
+            actor.update(npc_id, update, dt)

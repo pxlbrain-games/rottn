@@ -137,19 +137,18 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             player = self.level_data.connection.game_state.players[player_id]
             vx = (player['position'][0] - player_node.position[0])/dt
             vy = (player['position'][1] - player_node.position[1])/dt
-            ax = (player['velocity'][0] - player_node.velocity[0] + 0.08*vx)/dt
-            ay = (player['velocity'][1] - player_node.velocity[1] + 0.08*vy)/dt
+            ax = (player['velocity'][0] - player_node.velocity[0] + 0.11*vx)/dt
+            ay = (player['velocity'][1] - player_node.velocity[1] + 0.11*vy)/dt
             player_node.acceleration = (ax, ay)
             player_node.direction = player['direction']
         for npc_id, npc_node in self.npc_nodes.items():
             npc = self.level_data.connection.game_state.npcs[npc_id]
             vx = (npc['position'][0] - npc_node.position[0])/dt
             vy = (npc['position'][1] - npc_node.position[1])/dt
-            ax = (npc['velocity'][0] - npc_node.velocity[0] + 0.08*vx)/dt
-            ay = (npc['velocity'][1] - npc_node.velocity[1] + 0.08*vy)/dt
+            ax = (npc['velocity'][0] - npc_node.velocity[0] + 0.11*vx)/dt
+            ay = (npc['velocity'][1] - npc_node.velocity[1] + 0.11*vy)/dt
             npc_node.acceleration = (ax, ay)
             npc_node.direction = npc['direction']
-        
 
     def post_move_activity(self, dt):
         for player_id, player_node in self.player_nodes.items():

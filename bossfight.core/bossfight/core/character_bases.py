@@ -24,14 +24,13 @@ class Character:
             self.set_state(name_or_state)
 
     def get_state(self):
-        state = {
+        return {
             'name': self.name,
             'position': self.position,
             'velocity': self.velocity,
             'direction': self.direction,
             'damage': self.damage
         }
-        return state
 
     def set_state(self, state: dict):
         self.name = state['name']
@@ -60,16 +59,18 @@ class PlayerCharacter(Character):
         )
 
     def handle_move_activity(self, activity, update):
+        if not hasattr(update, 'players'):
+            update.players = dict()
         self.position = activity.activity_data['position']
         self.velocity = activity.activity_data['velocity']
         self.direction = activity.activity_data['direction']
-        update.players = {
+        update.players.update({
             activity.activity_data['player_id']: {
                 'position': self.position,
                 'velocity': self.velocity,
                 'direction': self.direction
             }
-        }
+        })
 
 class NonPlayerCharacter(Character):
     '''
