@@ -1,6 +1,6 @@
 # BossFight
 
-Indie game with only procedurally generated boss levels. Online/LAN-Coop. Aim: Boss-AI uses Deep Q Neural Nets in order to adapt to and learn from the player during a fight.
+Indie game with only procedurally generated boss levels. Online/LAN-Coop. Boss-AI uses Deep Q Neural Nets in order to adapt to and learn from the player during a fight.
 
 ![Screenshot](/screenshot.png)
 
