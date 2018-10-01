@@ -16,13 +16,6 @@ Recommended IDE: VSCode + "official" Python Extension (https://code.visualstudio
 1. Run `.\dev_setup.bat` as Administrator
 1. IDE-specific setup (VSCode: enable pytest for unit tests in `.\tests\`)
 
-If using pylint with VSCode: add
-`"python.linting.pylintArgs": [
-    "--ignored-modules=bossfight.client.config",
-    "--ignored-classes=bossfight.client.config",
-]`
-to *.\\.vscode\settings.json*
-
 If you're missing dependencies run `.\dev_update.bat` to install them in your venv.
 
 ### \*nix/MacOS
