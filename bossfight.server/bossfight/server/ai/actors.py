@@ -41,12 +41,13 @@ class TestEnemyActor(character_bases.NonPlayerCharacter):
         r_self = euclid.Vector2(self.position[0], self.position[1])
         r_player = euclid.Vector2(player.position[0], player.position[1])
         r = r_player - r_self
-        distance = r.magnitude_squared()
+        distance = r.magnitude()
         angle = math.atan2(r.y, r.x) - math.atan2(self.velocity[1], self.velocity[0])
-        observation = numpy.array([[distance, angle]])
+        observation = numpy.array([[distance, angle]], dtype=float)
+        #observation = numpy.reshape(observation, (1, 2))
         # calculate reward for last action and remember
         if self._last_action is not None:
-            reward = self._last_observation[0] - distance # positive reward for coming nearer to player
+            reward = self._last_observation[0][0] - 1.1*distance # positive reward for coming nearer to player
             self._agent.remember(self._last_observation, self._last_action, reward, observation, False)
         # act
         action = self._agent.predict_best_action(observation)
@@ -57,6 +58,6 @@ class TestEnemyActor(character_bases.NonPlayerCharacter):
 
     def perform_action(self, action):
         if action == 'TurnLeft':
-            self.turn_by_angle(0.1)
+            self.turn_by_angle(0.05)
         elif action == 'TurnRight':
-            self.turn_by_angle(-0.1)
+            self.turn_by_angle(-0.05)

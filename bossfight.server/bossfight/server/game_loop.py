@@ -4,6 +4,9 @@ import pygase.shared
 import pygase.server
 import bossfight.core.character_bases as character_bases
 import bossfight.server.ai.actors as actors
+import tensorflow
+
+GRAPH = None
 
 class BFGameLoop(pygase.server.GameLoop):
     '''
@@ -22,6 +25,8 @@ class BFGameLoop(pygase.server.GameLoop):
         self.server.game_state.npcs[0] = test_enemy.get_state()
 
         self.learn_counter = 0
+        global GRAPH 
+        GRAPH = tensorflow.get_default_graph()
 
     def on_join(self, player_id, update):
         '''
@@ -44,12 +49,14 @@ class BFGameLoop(pygase.server.GameLoop):
         BossFight game state update. Simulates enemies and game world objects.
         '''
         #self.npc_actors[0].turn_by_angle(1.5*dt)
-        if 0 in self.player_characters.keys():
-            self.npc_actors[0].observe_and_act(self.player_characters[0])
-            if self.learn_counter >= 50:
-                self.npc_actors[0]._agent.replay(32)
-                self.learn_counter = 0
-            else:
-                self.learn_counter += 1
+        global GRAPH
+        with GRAPH.as_default():
+            if 0 in self.player_characters.keys():
+                self.npc_actors[0].observe_and_act(self.player_characters[0])
+                if self.learn_counter >= 50:
+                    self.npc_actors[0]._agent.replay(32)
+                    self.learn_counter = 0
+                else:
+                    self.learn_counter += 1
         for npc_id, actor in self.npc_actors.items():
             actor.update(npc_id, update, dt)

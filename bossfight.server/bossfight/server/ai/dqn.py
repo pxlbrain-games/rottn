@@ -2,6 +2,7 @@
 
 import random
 from collections import deque
+import numpy
 import keras
 
 # Deep Q-learning Agent
@@ -30,17 +31,17 @@ class DQNAgent:
         self.memory.append((observation, action, reward, next_observation, done))
 
     def predict_best_action(self, observation):
-        if random.random() <= self.epsilon:
+        if numpy.random.rand() <= self.epsilon:
             return random.randrange(self.action_size)
         predicted_rewards = self.model.predict(observation)
-        return max(predicted_rewards[0])  # returns action index
+        return numpy.argmax(predicted_rewards[0])  # returns action index
 
     def replay(self, batch_size):
         minibatch = random.sample(self.memory, batch_size)
         for observation, action, reward, next_observation, done in minibatch:
             target = reward
             if not done:
-                target = reward + self.gamma*max(self.model.predict(next_observation)[0])
+                target = reward + self.gamma*numpy.amax(self.model.predict(next_observation)[0])
             target_f = self.model.predict(observation)
             target_f[0][action] = target
             self.model.fit(observation, target_f, epochs=1, verbose=0)
