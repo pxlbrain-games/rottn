@@ -2,6 +2,7 @@
 
 import pygase.shared
 import pygase.server
+import euclid3 as euclid
 import bossfight.core.character_bases as character_bases
 import bossfight.server.ai.actors as actors
 import tensorflow
@@ -20,7 +21,7 @@ class BFGameLoop(pygase.server.GameLoop):
         test_enemy = actors.TestEnemyActor('Test Enemy')
         test_enemy.position = (200, 100)
         test_enemy.direction = (-1, 0)
-        test_enemy.velocity = (-100, 0)
+        test_enemy.velocity = (-150, 0)
         self.npc_actors[0] = test_enemy
         self.server.game_state.npcs[0] = test_enemy.get_state()
 
@@ -48,15 +49,31 @@ class BFGameLoop(pygase.server.GameLoop):
         '''
         BossFight game state update. Simulates enemies and game world objects.
         '''
-        #self.npc_actors[0].turn_by_angle(1.5*dt)
+        done = False
+        if 0 in self.player_characters.keys():
+            r_player = euclid.Vector2(
+                self.player_characters[0].position[0],
+                self.player_characters[0].position[1]
+            )
+            r_enemy = euclid.Vector2(
+                self.npc_actors[0].position[0],
+                self.npc_actors[0].position[1]
+            )
+            distance = (r_player - r_enemy).magnitude()
+            if distance > 800:
+                done = True
+
         global GRAPH
         with GRAPH.as_default():
             if 0 in self.player_characters.keys():
-                self.npc_actors[0].observe_and_act(self.player_characters[0])
-                if self.learn_counter >= 50:
+                self.npc_actors[0].observe_and_act(self.player_characters[0], done)
+                if self.learn_counter >= 64:
                     self.npc_actors[0]._agent.replay(32)
                     self.learn_counter = 0
                 else:
                     self.learn_counter += 1
         for npc_id, actor in self.npc_actors.items():
-            actor.update(npc_id, update, dt)
+            if done:
+                actor.position = (r_player.x + 200, r_player.y + 100)
+            else:
+                actor.update(npc_id, update, dt)
