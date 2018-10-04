@@ -10,7 +10,7 @@ class DQNAgent:
     def __init__(self, observation_size, action_size):
         self.observation_size = observation_size
         self.action_size = action_size
-        self.memory = deque(maxlen=2000)
+        self.memory = deque(maxlen=3000)
         self.gamma = 0.95    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
@@ -21,9 +21,10 @@ class DQNAgent:
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = keras.Sequential()
-        model.add(keras.layers.Dense(24, input_dim=self.observation_size, activation='relu'))
+        model.add(keras.layers.Dense(24, input_dim=self.observation_size, activation='softmax'))
         model.add(keras.layers.Dense(24, activation='relu'))
-        model.add(keras.layers.Dense(self.action_size, activation='linear'))
+        model.add(keras.layers.Dense(24, activation='relu'))
+        model.add(keras.layers.Dense(self.action_size, activation='softmax'))
         model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=self.learning_rate))
         return model
 

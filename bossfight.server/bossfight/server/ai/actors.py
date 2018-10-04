@@ -10,7 +10,7 @@ class TestEnemyActor(character_bases.NonPlayerCharacter):
     def __init__(self, name):
         super().__init__(name)
         self.action_space = ['TurnLeft', 'TurnRight', 'StraightAhead']
-        self._agent = dqn.DQNAgent(3, 3)
+        self._agent = dqn.DQNAgent(4, 3)
         self._last_observation = None
         self._last_action = None
         self._state_update = dict()
@@ -42,18 +42,15 @@ class TestEnemyActor(character_bases.NonPlayerCharacter):
         r_player = euclid.Vector2(player.position[0], player.position[1])
         r = r_player - r_self
         distance = r.magnitude()
-        r_angle = math.atan2(self.velocity[1], self.velocity[0]) - math.atan2(r.y, r.x)
-        if player.velocity != (0, 0):
-            v_angle = math.atan2(self.velocity[1], self.velocity[0]) - math.atan2(player.velocity[1], player.velocity[0])
-        else:
-            v_angle = 0.0
-        observation = numpy.array([[distance, r_angle, v_angle]], dtype=float)
+        delta_distance = distance - self._last_observation[0][0] if self._last_observation is not None else 0
+        angle = math.atan2(self.velocity[1], self.velocity[0]) - math.atan2(r.y, r.x)
+        delta_angle = angle - self._last_observation[0][2] if self._last_observation is not None else 0
+        observation = numpy.array([[distance, delta_distance, angle, delta_angle]], dtype=float)
         # calculate reward for last action and remember
         if self._last_action is not None:
-            reward = self._last_observation[0][0] - 1.1*distance # reward for coming nearer to player, penalty for increasing distance
-            reward -= abs(r_angle)*0.1*distance # penalty for facing away from player, increasing with distance
+            reward = 50.0/distance
             if done:
-                reward = -200 # strong penalty for loosing
+                reward -= 20.0 # penalty for loosing
             self._agent.remember(self._last_observation, self._last_action, reward, observation, done)
         # act
         action = self._agent.predict_best_action(observation)

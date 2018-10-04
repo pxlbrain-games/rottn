@@ -2,6 +2,8 @@
 
 import pygase.shared
 import pygase.server
+import math
+import random
 import euclid3 as euclid
 import bossfight.core.character_bases as character_bases
 import bossfight.server.ai.actors as actors
@@ -67,13 +69,14 @@ class BFGameLoop(pygase.server.GameLoop):
         with GRAPH.as_default():
             if 0 in self.player_characters.keys():
                 self.npc_actors[0].observe_and_act(self.player_characters[0], done)
-                if self.learn_counter >= 64:
-                    self.npc_actors[0]._agent.replay(32)
+                if self.learn_counter >= 100:
+                    self.npc_actors[0]._agent.replay(80)
                     self.learn_counter = 0
                 else:
                     self.learn_counter += 1
         for npc_id, actor in self.npc_actors.items():
             if done:
-                actor.position = (r_player.x + 200, r_player.y + 100)
+                rand_angle = random.random()*2*math.pi
+                actor.position = (r_player.x + 400*math.sin(rand_angle), r_player.y + 400*math.cos(rand_angle))
             else:
                 actor.update(npc_id, update, dt)
