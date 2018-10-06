@@ -39,18 +39,23 @@ class TestEnemyActor(character_bases.NonPlayerCharacter):
     def observe_and_act(self, player: character_bases.Character, done=False):
         # observe current state
         r_self = euclid.Vector2(self.position[0], self.position[1])
+        v_self = euclid.Vector2(self.velocity[0], self.velocity[1])
         r_player = euclid.Vector2(player.position[0], player.position[1])
-        r = r_player - r_self
-        distance = r.magnitude()
-        delta_distance = distance - self._last_observation[0][0] if self._last_observation is not None else 0
-        angle = math.atan2(self.velocity[1], self.velocity[0]) - math.atan2(r.y, r.x)
-        delta_angle = angle - self._last_observation[0][2] if self._last_observation is not None else 0
-        observation = numpy.array([[distance, delta_distance, angle, delta_angle]], dtype=float)
+        v_player = euclid.Vector2(player.velocity[0], player.velocity[1])
+        r_rel = (r_player - r_self)
+        v_rel = (v_player - v_self)
+        n = v_self.normalized()
+        basis = [n, n.cross()]
+        r = euclid.Vector2(r_rel.dot(basis[0]), r_rel.dot(basis[1]))
+        v = euclid.Vector2(v_rel.dot(basis[0]), v_rel.dot(basis[1]))
+        observation = numpy.array([[r.x, r.y, v.x, v.y]], dtype=float)
         # calculate reward for last action and remember
-        if self._last_action is not None:
-            reward = 50.0/distance
+        if self._last_observation is not None:
+            distance = r.magnitude()
+            delta_distance = distance - self._last_observation[0][0]
+            reward = 1000.0/(distance + 0.01) - 10.0*delta_distance + 1/(r.angle(euclid.Vector2(0, 1)) + 0.01)
             if done:
-                reward -= 20.0 # penalty for loosing
+                reward -= 40.0 # penalty for loosing
             self._agent.remember(self._last_observation, self._last_action, reward, observation, done)
         # act
         action = self._agent.predict_best_action(observation)
