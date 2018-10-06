@@ -46,7 +46,7 @@ If you added a new module, you have to add a line to the batch script. Example f
 
 ### Game Design Documentation
 
-`.\docs\gamedesign\` contains a short design document that illustrates the overall vision and a player story map that contains the detailed design decisions.
+`.\docs\gamedesign\` contains a short design document that illustrates the overall vision and a player story map that contains the detailed design decisions. The story map is created and edited in [XMind](https://www.xmind.net/download/zen), an open source mind mapping tool.
 
 ## Testing
 
