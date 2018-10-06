@@ -69,8 +69,8 @@ class BFGameLoop(pygase.server.GameLoop):
         with GRAPH.as_default():
             if 0 in self.player_characters.keys():
                 self.npc_actors[0].observe_and_act(self.player_characters[0], done)
-                if self.learn_counter >= 100:
-                    self.npc_actors[0]._agent.replay(80)
+                if self.learn_counter >= 68:
+                    self.npc_actors[0]._agent.replay(66)
                     self.learn_counter = 0
                 else:
                     self.learn_counter += 1

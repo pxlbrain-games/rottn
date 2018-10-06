@@ -15,7 +15,7 @@ class DQNAgent:
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.03
         self.epsilon_decay = 0.99
-        self.learning_rate = 0.01
+        self.learning_rate = 0.009
         self.model = self._build_model()
 
     def _build_model(self):
