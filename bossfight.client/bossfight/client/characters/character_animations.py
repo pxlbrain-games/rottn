@@ -13,6 +13,7 @@ class AnimationState(enum.IntEnum):
     Idle = 1
     Running = 2
     Blocking = 3
+    Attacking = 4
 
 class DirectionState(enum.IntEnum):
     Left = 8
@@ -27,9 +28,12 @@ class DirectionState(enum.IntEnum):
 class CharacterPart(enum.IntEnum):
     Body = 1
     Head = 2
+    Weapon = 3
+    Shield = 4
 
 class AnimatedCharacter(cocos.batch.BatchableNode):
-    def __init__(self, moving_parent, body_spritesheet='clothes.png', head_spritesheet='male_head1.png', scale=2.5):
+    def __init__(self, moving_parent, body_spritesheet='clothes.png', head_spritesheet='male_head1.png', \
+      weapon_spritesheet=None, shield_spritesheet=None, scale=2.5):
         super().__init__()
         '''
         spritesheet-schema:
@@ -57,14 +61,37 @@ class AnimatedCharacter(cocos.batch.BatchableNode):
             CharacterPart.Body: create_animated_sprites(clothes_spritesheet, 4, 11, 0.09, scale),
             CharacterPart.Head: create_animated_sprites(head_spritesheet, 4, 11, 0.09, scale)
         }
+        attacking_sprites = {
+            CharacterPart.Body: create_animated_sprites(clothes_spritesheet, 12, 15, 0.1, scale),
+            CharacterPart.Head: create_animated_sprites(head_spritesheet, 12, 15, 0.1, scale)
+        }
+        if weapon_spritesheet is not None:
+            weapon_spritesheet = pyglet.image.ImageGrid(
+                pyglet.resource.image(weapon_spritesheet), 8, 32
+            )
+            idle_sprites[CharacterPart.Weapon] = create_animated_sprites(weapon_spritesheet, 0, 3, 0.2, scale)
+            running_sprites[CharacterPart.Weapon] = create_animated_sprites(weapon_spritesheet, 4, 11, 0.09, scale)
+            attacking_sprites[CharacterPart.Weapon] = create_animated_sprites(weapon_spritesheet, 12, 15, 0.1, scale)
+        if shield_spritesheet is not None:
+            shield_spritesheet = pyglet.image.ImageGrid(
+                pyglet.resource.image(shield_spritesheet), 8, 32
+            )
+            idle_sprites[CharacterPart.Shield] = create_animated_sprites(shield_spritesheet, 0, 3, 0.2, scale)
+            running_sprites[CharacterPart.Shield] = create_animated_sprites(shield_spritesheet, 4, 11, 0.09, scale)
+            attacking_sprites[CharacterPart.Shield] = create_animated_sprites(shield_spritesheet, 12, 15, 0.1, scale)
         self.sprites[AnimationState.Idle] = idle_sprites
-        for character_part in CharacterPart:
+        for character_part in self.sprites[AnimationState.Idle]:
             for direction_state, sprite in self.sprites[AnimationState.Idle][character_part].items():
                 self.add(sprite)
                 if direction_state != self.direction_state:
                     sprite.visible = False
         self.sprites[AnimationState.Running] = running_sprites
-        for character_part in CharacterPart:
+        for character_part in self.sprites[AnimationState.Running]:
+            for sprite in self.sprites[AnimationState.Running][character_part].values():
+                self.add(sprite)
+                sprite.visible = False
+        self.sprites[AnimationState.Attacking] = attacking_sprites
+        for character_part in self.sprites[AnimationState.Running]:
             for sprite in self.sprites[AnimationState.Running][character_part].values():
                 self.add(sprite)
                 sprite.visible = False
@@ -82,10 +109,9 @@ class AnimatedCharacter(cocos.batch.BatchableNode):
             if new_direction_state == 0:
                 new_direction_state = 8
             if new_direction_state != self.direction_state:
-                parts = {CharacterPart.Body, CharacterPart.Head}
-                for part in parts:
-                    self.sprites[self.animation_state][part][self.direction_state].visible = False
-                    self.sprites[self.animation_state][part][new_direction_state].visible = True
+                for character_part in self.sprites[self.animation_state]:
+                    self.sprites[self.animation_state][character_part][self.direction_state].visible = False
+                    self.sprites[self.animation_state][character_part][new_direction_state].visible = True
                 self.direction_state = new_direction_state
 
     def update_animation_state(self, dt):
@@ -93,15 +119,21 @@ class AnimatedCharacter(cocos.batch.BatchableNode):
             self.moving_parent.velocity[0], self.moving_parent.velocity[1]
         ).magnitude_squared()
         if v_squared > 30 and self.animation_state == AnimationState.Idle:
-            for part in CharacterPart:
-                self.sprites[self.animation_state][part][self.direction_state].visible = False
-                self.sprites[AnimationState.Running][part][self.direction_state].visible = True
+            for character_part in self.sprites[self.animation_state]:
+                self.sprites[self.animation_state][character_part][self.direction_state].visible = False
+                self.sprites[AnimationState.Running][character_part][self.direction_state].visible = True
             self.animation_state = AnimationState.Running
         elif v_squared < 30 and self.animation_state == AnimationState.Running:
-            for part in CharacterPart:
-                self.sprites[self.animation_state][part][self.direction_state].visible = False
-                self.sprites[AnimationState.Idle][part][self.direction_state].visible = True
+            for character_part in self.sprites[self.animation_state]:
+                self.sprites[self.animation_state][character_part][self.direction_state].visible = False
+                self.sprites[AnimationState.Idle][character_part][self.direction_state].visible = True
             self.animation_state = AnimationState.Idle
+    
+    def trigger_attack_animation(self):
+        self.animation_state = AnimationState.Attacking
+        for character_part in self.sprites[AnimationState.Attacking]:
+            self.sprites[AnimationState.Attacking][character_part][self.direction_state].restart_animation()
+            ### todo
 
 ### These are just helper functions for the isometric_hero spritesheet:
 
@@ -113,10 +145,25 @@ def create_animation(image_grid, row, start, end, duration=0.1):
 
 def create_animated_sprites(spritesheet, start, end, duration=0.1, scale=1):
     animations = [
-        create_animation(spritesheet, i, start, end, duration) for i in range(0,8)
+        create_animation(spritesheet, i, start, end, duration) for i in range(0, 8)
     ]
     sprites = {
-        i: cocos.sprite.Sprite(image=animations[i-1], position=(0, 75), scale=scale) \
-        for i in range(1,9)
+        i: AnimatedSprite(image=animations[i-1], position=(0, 75), scale=scale) \
+        for i in range(1, 9)
     }
     return sprites
+
+### This is a custom pyglet.sprite.Sprite subclass that allows some more interaction with animations
+
+class AnimatedSprite(cocos.sprite.Sprite):
+
+    def restart_animation(self):
+        if self._animation is not None:
+            pyglet.clock.unschedule(self._animate)
+            self._frame_index = 0
+            self._texture = self._animation.frames[0].image.get_texture()
+            self._next_dt = self._animation.frames[0].duration
+            if self._next_dt:
+                pyglet.clock.schedule_once(self._animate, self._next_dt)
+
+### might also come in handy: pause_animation, resume_animation

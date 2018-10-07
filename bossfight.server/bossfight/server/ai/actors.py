@@ -53,7 +53,7 @@ class TestEnemyActor(character_bases.NonPlayerCharacter):
         if self._last_observation is not None:
             distance = r.magnitude()
             delta_distance = distance - self._last_observation[0][0]
-            reward = 1000.0/(distance + 0.01) - 10.0*delta_distance + 1/(r.angle(euclid.Vector2(0, 1)) + 0.01)
+            reward = 100.0/(distance + 0.01) - 10.0*delta_distance + 1/(r.angle(euclid.Vector2(0, 1)) + 0.01)
             if done:
                 reward -= 40.0 # penalty for loosing
             self._agent.remember(self._last_observation, self._last_action, reward, observation, done)

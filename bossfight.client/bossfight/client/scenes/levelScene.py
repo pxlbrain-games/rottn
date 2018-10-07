@@ -83,8 +83,8 @@ class LevelLayer(cocos.layer.ScrollableLayer):
         self.level_data = level_data
         ### floor for testing!
         self.iso_map = create_iso_map(
-            dimensions=(15, 20),
-            origin=(-1000, 0)
+            dimensions=(30, 40),
+            origin=(-2000, 0)
         )
         self.add(self.iso_map)
         self.npc_nodes = dict()

@@ -26,7 +26,11 @@ class PlayerNode(character_bases.PlayerCharacter, cocos.cocosnode.CocosNode):
             anchor_y='center'
         )
         self.add(self.name_label)
-        self.animated_character = character_animations.AnimatedCharacter(self)
+        self.animated_character = character_animations.AnimatedCharacter(
+            moving_parent=self,
+            weapon_spritesheet='shortsword.png',
+            shield_spritesheet='buckler.png'
+        )
         self.add(self.animated_character)
         self.do(cocos.actions.Move())
 
@@ -59,6 +63,8 @@ class NPCNode(character_bases.NonPlayerCharacter, cocos.cocosnode.CocosNode):
             moving_parent=self,
             body_spritesheet='steel_armor.png',
             head_spritesheet='male_head3.png',
+            weapon_spritesheet='longsword.png',
+            shield_spritesheet='shield.png',
             scale=2.8
         )
         self.add(self.animated_character)
