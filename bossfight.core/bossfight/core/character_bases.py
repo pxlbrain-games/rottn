@@ -19,7 +19,7 @@ class Character:
             self.position = (0, 0)
             self.velocity = (0, 0)
             self.direction = (0, 1)
-            self.damage = 0
+            self.health = 100
         else:
             self.set_state(name_or_state)
 
@@ -29,7 +29,7 @@ class Character:
             'position': self.position,
             'velocity': self.velocity,
             'direction': self.direction,
-            'damage': self.damage
+            'health': self.health
         }
 
     def set_state(self, state: dict):
@@ -37,7 +37,7 @@ class Character:
         self.position = state['position']
         self.velocity = state['velocity']
         self.direction = state['direction']
-        self.damage = state['damage']
+        self.health = state['health']
 
 class PlayerCharacter(Character):
     '''
@@ -78,3 +78,16 @@ class NonPlayerCharacter(Character):
     '''
     def __init__(self, name_or_state):
         super().__init__(name_or_state)
+        self.attack_counter = 0.0
+
+    def get_state(self):
+        state = super().get_state()
+        state['attack_counter'] = self.attack_counter
+        return state
+
+    def set_state(self, state: dict):
+        super().set_state(state)
+        self.attack_counter = state['attack_counter']
+
+    def is_attacking(self):
+        return self.attack_counter > 0.0

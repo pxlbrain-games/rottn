@@ -6,11 +6,14 @@ import euclid3 as euclid
 import bossfight.core.character_bases as character_bases
 import bossfight.server.ai.dqn as dqn
 
+ATTACK_DURATION = 0.48
+ENEMY_VELOCITY = 150
+
 class TestEnemyActor(character_bases.NonPlayerCharacter):
     def __init__(self, name):
         super().__init__(name)
-        self.action_space = ['TurnLeft', 'TurnRight', 'StraightAhead']
-        self._agent = dqn.DQNAgent(4, 3)
+        self.action_space = ['TurnLeft', 'TurnRight', 'StraightAhead', 'Attack']
+        self._agent = dqn.DQNAgent(4, 4)
         self._last_observation = None
         self._last_action = None
         self._state_update = dict()
@@ -24,6 +27,13 @@ class TestEnemyActor(character_bases.NonPlayerCharacter):
                 self.position[1] + self.velocity[1]*dt
             )
             self._state_update.update({'position': self.position})
+        if self.is_attacking():
+            self.attack_counter -= dt
+            if self.attack_counter <= 0:
+                self.attack_counter = 0
+                self.velocity = (ENEMY_VELOCITY*euclid.Vector2(self.direction[0], self.direction[1])).xy
+                self._state_update.update({'velocity': self.velocity})
+            self._state_update.update({'attack_counter': self.attack_counter})
         update.npcs.update({npc_id: self._state_update.copy()})
         self._state_update.clear()
 
@@ -36,7 +46,15 @@ class TestEnemyActor(character_bases.NonPlayerCharacter):
             'direction': self.direction
         })
 
-    def observe_and_act(self, player: character_bases.Character, done=False):
+    def start_attack(self):
+        self.attack_counter = ATTACK_DURATION
+        self.velocity = (0, 0)
+        self._state_update.update({
+            'velocity': self.velocity,
+            'attack_counter': self.attack_counter
+        })
+
+    def observe_and_act(self, player: character_bases.Character, done=False, hit=False):
         # observe current state
         r_self = euclid.Vector2(self.position[0], self.position[1])
         v_self = euclid.Vector2(self.velocity[0], self.velocity[1])
@@ -44,7 +62,7 @@ class TestEnemyActor(character_bases.NonPlayerCharacter):
         v_player = euclid.Vector2(player.velocity[0], player.velocity[1])
         r_rel = (r_player - r_self)
         v_rel = (v_player - v_self)
-        n = v_self.normalized()
+        n = euclid.Vector2(self.direction[0], self.direction[1])
         basis = [n, n.cross()]
         r = euclid.Vector2(r_rel.dot(basis[0]), r_rel.dot(basis[1]))
         v = euclid.Vector2(v_rel.dot(basis[0]), v_rel.dot(basis[1]))
@@ -53,7 +71,11 @@ class TestEnemyActor(character_bases.NonPlayerCharacter):
         if self._last_observation is not None:
             distance = r.magnitude()
             delta_distance = distance - self._last_observation[0][0]
-            reward = 100.0/(distance + 0.01) - 10.0*delta_distance + 1/(r.angle(euclid.Vector2(0, 1)) + 0.01)
+            reward = 10.0/(distance + 0.01) - 10.0*delta_distance + 1/(r.angle(euclid.Vector2(0, 1)) + 0.01)
+            if self.is_attacking() and not hit:
+                reward -= 20.0
+            elif hit:
+                reward += 200.0
             if done:
                 reward -= 40.0 # penalty for loosing
             self._agent.remember(self._last_observation, self._last_action, reward, observation, done)
@@ -65,7 +87,10 @@ class TestEnemyActor(character_bases.NonPlayerCharacter):
         self._last_action = action
 
     def perform_action(self, action):
-        if action == 'TurnLeft':
-            self.turn_by_angle(0.05)
-        elif action == 'TurnRight':
-            self.turn_by_angle(-0.05)
+        if not self.is_attacking():
+            if action == 'TurnLeft':
+                self.turn_by_angle(0.05)
+            elif action == 'TurnRight':
+                self.turn_by_angle(-0.05)
+            elif action == 'Attack':
+                self.start_attack()

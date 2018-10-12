@@ -11,6 +11,7 @@ import pyglet
 import pygase.shared
 import pygase.client
 import bossfight.client.characters.character_nodes as character_nodes
+import bossfight.client.characters.character_animations as character_animations
 
 class LevelData:
     def __init__(self, server_address, scrolling_manager):
@@ -149,6 +150,10 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             ay = (npc['velocity'][1] - npc_node.velocity[1] + 0.11*vy)/dt
             npc_node.acceleration = (ax, ay)
             npc_node.direction = npc['direction']
+            npc_node.attack_counter = npc['attack_counter']
+            if npc_node.is_attacking and \
+               npc_node.animated_character.animation_state != character_animations.AnimationState.Attacking:
+                npc_node.animated_character.trigger_animation(character_animations.AnimationState.Attacking)
 
     def post_move_activity(self, dt):
         for player_id, player_node in self.player_nodes.items():
