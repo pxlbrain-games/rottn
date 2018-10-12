@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import pygase.shared
 import pygase.server
 import math
@@ -64,12 +65,15 @@ class BFGameLoop(pygase.server.GameLoop):
             )
             r = r_player - r_enemy
             distance = r.magnitude()
-            if distance > 800:
+            if distance > 900:
                 done = True
-            elif distance < 20 and self.npc_actors[0].is_attacking():
+                sys.stderr.write("Left arena\n")
+            elif distance < 140 and self.npc_actors[0].is_attacking():
                 d_enemy = euclid.Vector2(self.npc_actors[0].direction[0], self.npc_actors[0].direction[1])
-                if r.angle(d_enemy) < 0.5:
+                angle = r.angle(d_enemy)
+                if angle < 1.4 or (distance < 50 and angle < 1.57):
                     hit = True
+                    sys.stderr.write("Hit\n")
 
         global GRAPH
         with GRAPH.as_default():
@@ -81,8 +85,8 @@ class BFGameLoop(pygase.server.GameLoop):
                 else:
                     self.learn_counter += 1
         for npc_id, actor in self.npc_actors.items():
-            if done:
+            if done or hit:
                 rand_angle = random.random()*2*math.pi
-                actor.position = (r_player.x + 400*math.sin(rand_angle), r_player.y + 400*math.cos(rand_angle))
+                actor.position = (r_player.x + 600*math.sin(rand_angle), r_player.y + 600*math.cos(rand_angle))
             else:
                 actor.update(npc_id, update, dt)

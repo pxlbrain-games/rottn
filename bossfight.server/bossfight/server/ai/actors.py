@@ -6,14 +6,14 @@ import euclid3 as euclid
 import bossfight.core.character_bases as character_bases
 import bossfight.server.ai.dqn as dqn
 
-ATTACK_DURATION = 0.48
-ENEMY_VELOCITY = 150
+ATTACK_DURATION = 0.38
+ENEMY_VELOCITY = 200
 
 class TestEnemyActor(character_bases.NonPlayerCharacter):
     def __init__(self, name):
         super().__init__(name)
         self.action_space = ['TurnLeft', 'TurnRight', 'StraightAhead', 'Attack']
-        self._agent = dqn.DQNAgent(4, 4)
+        self._agent = dqn.DQNAgent(4, 4, [0.33, 0.33, 0.33, 0.01])
         self._last_observation = None
         self._last_action = None
         self._state_update = dict()
@@ -71,13 +71,13 @@ class TestEnemyActor(character_bases.NonPlayerCharacter):
         if self._last_observation is not None:
             distance = r.magnitude()
             delta_distance = distance - self._last_observation[0][0]
-            reward = 10.0/(distance + 0.01) - 10.0*delta_distance + 1/(r.angle(euclid.Vector2(0, 1)) + 0.01)
+            reward = 1.0/(distance + 0.02) - 10.0*delta_distance + 1/(r.angle(euclid.Vector2(0, 1)) + 0.04)
             if self.is_attacking() and not hit:
-                reward -= 30.0
+                reward -= 300.0
             elif hit:
-                reward += 200.0
+                reward += 1500.0
             if done:
-                reward -= 40.0 # penalty for loosing
+                reward -= 40.0 # penalty for going to far away
             self._agent.remember(self._last_observation, self._last_action, reward, observation, done)
         # act
         action = self._agent.predict_best_action(observation)

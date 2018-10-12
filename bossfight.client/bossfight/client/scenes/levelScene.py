@@ -151,7 +151,7 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             npc_node.acceleration = (ax, ay)
             npc_node.direction = npc['direction']
             npc_node.attack_counter = npc['attack_counter']
-            if npc_node.is_attacking and \
+            if npc_node.is_attacking() and \
                npc_node.animated_character.animation_state != character_animations.AnimationState.Attacking:
                 npc_node.animated_character.trigger_animation(character_animations.AnimationState.Attacking)
 
