@@ -73,7 +73,7 @@ class TestEnemyActor(character_bases.NonPlayerCharacter):
             delta_distance = distance - self._last_observation[0][0]
             reward = 10.0/(distance + 0.01) - 10.0*delta_distance + 1/(r.angle(euclid.Vector2(0, 1)) + 0.01)
             if self.is_attacking() and not hit:
-                reward -= 20.0
+                reward -= 30.0
             elif hit:
                 reward += 200.0
             if done:
