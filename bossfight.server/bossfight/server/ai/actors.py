@@ -68,6 +68,7 @@ class TestEnemyActor(character_bases.NonPlayerCharacter):
         v = euclid.Vector2(v_rel.dot(basis[0]), v_rel.dot(basis[1]))
         observation = numpy.array([[r.x, r.y, v.x, v.y]], dtype=float)
         # calculate reward for last action and remember
+        # Problem with this reward: Not attacking and staying near the player is the best policy to accumulate infinite reward
         if self._last_observation is not None:
             distance = r.magnitude()
             delta_distance = distance - self._last_observation[0][0]
