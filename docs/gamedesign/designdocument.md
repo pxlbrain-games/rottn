@@ -65,7 +65,7 @@ The GUI is minimalistic and non-invasive.
 
 TODO
 
-Post/Ambient Black Metal
+Procedurally generated context sensitive reto midi music inspired by Post/Ambient Black Metal, Drone and Funeral Doom.
 
 Include links to music and sound design similar to What you're trying to achieve. You can also list the emotional responses that the sound should invoke in the player.
 
