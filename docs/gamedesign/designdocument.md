@@ -42,24 +42,24 @@ The GUI is minimalistic and non-invasive.
 
 ### Visual Style Examples
 
-[Example](https://cdn.mos.cms.futurecdn.net/a14a71ff088dfc64ff9fd2d87720778e.png)
-[Example](https://78.media.tumblr.com/0be2d20ebe6f62871aea68ebd279646e/tumblr_nzo2b2ZnVp1u2uscho1_500.gif)
-[Example](https://f4.bcbits.com/img/a2167539703_16.jpg)
+![Example](https://cdn.mos.cms.futurecdn.net/a14a71ff088dfc64ff9fd2d87720778e.png)
+![Example](https://78.media.tumblr.com/0be2d20ebe6f62871aea68ebd279646e/tumblr_nzo2b2ZnVp1u2uscho1_500.gif)
+![Example](https://f4.bcbits.com/img/a2167539703_16.jpg)
 
 ### Monsters
 
-[Monster](https://i.pinimg.com/originals/65/77/e2/6577e2885eebec7e4a4c4fe43f269cb7.jpg)
-[Monster](https://i.pinimg.com/originals/94/5b/5a/945b5aed907d3cb5bdaf388e7cb7a9d5.jpg)
-[NPC](https://cdn.shopify.com/s/files/1/0225/4035/products/04_e9ffd24f-b947-484b-b386-a28a10b19978.jpg?v=1452162704)
-[Monster](https://i.pinimg.com/originals/03/2b/2a/032b2a4439d2d5f1f5e052b08013d8d7.jpg)
-[Monster](http://s3.gatheringmagic.com/uploads/2017/08/02/ML_27.jpg)
-[Monster](http://bloody-disgusting.com/wp-content/uploads/2014/07/HPL_1.png)
+![Monster](https://i.pinimg.com/originals/65/77/e2/6577e2885eebec7e4a4c4fe43f269cb7.jpg)
+![Monster](https://i.pinimg.com/originals/94/5b/5a/945b5aed907d3cb5bdaf388e7cb7a9d5.jpg)
+![NPC](https://cdn.shopify.com/s/files/1/0225/4035/products/04_e9ffd24f-b947-484b-b386-a28a10b19978.jpg?v=1452162704)
+![Monster](https://i.pinimg.com/originals/03/2b/2a/032b2a4439d2d5f1f5e052b08013d8d7.jpg)
+![Monster](http://s3.gatheringmagic.com/uploads/2017/08/02/ML_27.jpg)
+![Monster](http://bloody-disgusting.com/wp-content/uploads/2014/07/HPL_1.png)
 
 ### Environments
 
-[Level](https://i.pinimg.com/originals/c8/9f/d2/c89fd2b75b749d65fea5c0f07eb8fc52.jpg)
-[Level](https://pre00.deviantart.net/edd1/th/pre/f/2017/067/c/3/desolation_by_julian_faylona-db1lz7v.jpg)
-[Level](https://pre00.deviantart.net/411e/th/pre/i/2018/038/3/2/petrified_forest_by_shahabalizadeh-dc2gkvq.png)
+![Level](https://i.pinimg.com/originals/c8/9f/d2/c89fd2b75b749d65fea5c0f07eb8fc52.jpg)
+![Level](https://pre00.deviantart.net/edd1/th/pre/f/2017/067/c/3/desolation_by_julian_faylona-db1lz7v.jpg)
+![Level](https://pre00.deviantart.net/411e/th/pre/i/2018/038/3/2/petrified_forest_by_shahabalizadeh-dc2gkvq.png)
 
 ## Music/Sound: 
 
