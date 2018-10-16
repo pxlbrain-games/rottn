@@ -4,30 +4,30 @@ One-page design document.
 
 ## Game Identity / Mantra: 
 
-Hardcore Rogue-like Action RPG set in a grim and desolate nightmare realm, in which the player faces a neverending stream of ever more horrifying monsters.
+Hardcore Rogue-like Action RPG set in a grim and desolate nightmare realm, in which the player faces a neverending stream of ever more horrifying and dangerous boss monsters.
 
 ## Design Pillars:
 
-*Kafkaesque*
+*Desolation*
 
-*Cosmic*
+*Kafkaesque*
 
 *Survival*
 
 ## Genre/Story/Mechanics Summary:
 
-This game consists solely of **procedurally generated boss levels**, each of which poses a different hostile environment inhabited by an increasingly powerful entity that meets the player with either indifference, predatorial instinct, sadism, hatred or incomprehensible strangeness. This only ends when the player character dies.
+This game consists solely of **procedurally generated boss levels**, each of which poses a different hostile environment inhabited by an exceedingly powerful entity, that will meet the player with either indifference, predatorial instinct, sadism, hatred or utter strangeness. This only ends when the player character dies, in which case the character and all progress in permantly and irreversibly lost.
 
-The setting is one of **dark fantasy** in which man-made objects range from primitive to medieval and many other things are made of **weird alien technology** with seemingly random but powerful properties whose use mostly comes at a dangerous price.
+The setting is one of **dark fantasy** in which man-made objects range from primitive to medieval and where there are many other objects of **weird alien technology** with seemingly random but powerful properties, whose use almost always comes at a terrible price.
 
-After a boss is defeated in skill-based  **real-time combat** the player can safely wander the level, loot and on rare occasions interact with some non-hostile NPC, until the player enters the dominion of the next boss. Before entering a new boss level, you can invite friends to enter the level in **coop-mode**.
+After a boss has been defeated in skill-based **real-time combat** the player can safely wander the level, loot and on rare occasions interact with a non-hostile NPC, until the player enters the dominion of the next boss. Before entering the new level, you can invite friends to enter the level with you in **coop-mode**.
 
-*The game tells the story of a meaningless and torterous existence in a world that wants to kill you.*
+*The game tells the story of a meaningless and torterous existence, subjected to incomprehensible deadly forces in a world that hates you.*
 
 ## Unique Features:
 
 ### Deep Reinforcement Learning
-Deep Q Learning algorithms enable the enemy agents to adapt to the players behaviour and constantly enhance their action policy during a boss fight, making them harder to beat with every learning cycle that the player fails to beat them.
+Deep Q Learning algorithms enable the enemy agents to adapt to the players behaviour and constantly enhance their action policy during a boss fight, making them harder to beat with every learning cycle.
 
 ### Procedural Generation and Emergent Storytelling
 Levels, Bosses, NPCs, Items and powers are procedurally generated. Generative machine learning algorithms and semantic labels are used to generate consistent themes and emergent storylines/backgrounds for each boss level.
@@ -64,6 +64,8 @@ The GUI is minimalistic and non-invasive.
 ## Music/Sound: 
 
 TODO
+
+Post/Ambient Black Metal
 
 Include links to music and sound design similar to What you're trying to achieve. You can also list the emotional responses that the sound should invoke in the player.
 
