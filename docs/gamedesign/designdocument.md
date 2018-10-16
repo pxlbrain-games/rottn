@@ -16,7 +16,7 @@ Hardcore Rogue-like Action RPG set in a grim and desolate nightmare realm, in wh
 
 ## Genre/Story/Mechanics Summary:
 
-This game consists solely of **procedurally generated boss levels**, each of which poses a different hostile environment inhabited by an exceedingly powerful entity, that will meet the player with either indifference, predatorial instinct, sadism, hatred or utter strangeness. This only ends when the player character dies, in which case the character and all progress in permantly and irreversibly lost.
+This game consists solely of **procedurally generated boss levels**, each of which poses a different hostile environment inhabited by an exceedingly powerful entity, that will meet the player with either indifference, predatorial instinct, sadism, hatred or utter strangeness. This only ends when the player character dies, in which case the character and all progress is permantly and irreversibly lost.
 
 The setting is one of **dark fantasy** in which man-made objects range from primitive to medieval and where there are many other objects of **weird alien technology** with seemingly random but powerful properties, whose use almost always comes at a terrible price.
 
