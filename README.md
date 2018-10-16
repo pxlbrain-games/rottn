@@ -6,7 +6,7 @@ Indie game with only procedurally generated boss levels. Online/LAN-Coop. Boss-A
 
 ## Development Environment 
 
-This project is using Python 3.6.5 or newer (https://www.python.org/)
+This project is using Python 3.6.5 (https://www.python.org/downloads/release/python-365/)
 
 Recommended IDE: VSCode + "official" Python Extension (https://code.visualstudio.com/download)
 
