@@ -22,7 +22,7 @@ The setting is one of **dark fantasy** in which man-made objects range from prim
 
 After a boss has been defeated in skill-based **real-time combat** the player can safely wander the level, loot and on rare occasions interact with a non-hostile NPC, until the player enters the dominion of the next boss. Before entering the new level, you can invite friends to enter the level with you in **coop-mode**.
 
-*The game tells the story of a meaningless and torturous existence, subjected to incomprehensible deadly forces in a world that hates you.*
+*The game tells the story of a meaningless and torturous existence in an incomprehensible hateful world that wants to kill you.*
 
 ## Unique Features:
 
