@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Main script of bossfight.server package.
 
 - `bossfight.server` will run a local server on an arbitrary free port
@@ -17,7 +17,7 @@ port\\EOF`
 
 To shutdown the server, write a line containing `shutdown` to the processes
 *stdin* channel.
-'''
+"""
 
 import sys
 import pygase.shared
@@ -29,24 +29,24 @@ SHARED_GAME_STATE.npcs = dict()
 
 if len(sys.argv) == 1:
     SERVER = pygase.server.Server(
-        ip_address='localhost',
+        ip_address="localhost",
         port=0,
         game_loop_class=BFGameLoop,
-        game_state=SHARED_GAME_STATE
+        game_state=SHARED_GAME_STATE,
     )
 elif len(sys.argv) == 2:
     SERVER = pygase.server.Server(
         ip_address=sys.argv[1],
         port=0,
         game_loop_class=BFGameLoop,
-        game_state=SHARED_GAME_STATE
+        game_state=SHARED_GAME_STATE,
     )
 else:
     SERVER = pygase.server.Server(
         ip_address=sys.argv[1],
         port=int(sys.argv[2]),
         game_loop_class=BFGameLoop,
-        game_state=SHARED_GAME_STATE
+        game_state=SHARED_GAME_STATE,
     )
 
 print(SERVER.get_ip_address())
@@ -55,6 +55,6 @@ sys.stdout.close()
 
 SERVER.start()
 
-while not sys.stdin.readline().__contains__('shutdown'):
+while not sys.stdin.readline().__contains__("shutdown"):
     pass
 SERVER.shutdown()

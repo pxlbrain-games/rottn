@@ -1,53 +1,55 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 This module contains the clients subclasses of the core
 character types.
-'''
+"""
 
 import cocos
-import pygase.shared #required, otherwise MoveActivities don't work
-import bossfight.core.character_bases as character_bases
-import bossfight.client.player_controls as player_controls
-import bossfight.client.characters.character_animations as character_animations
+import pygase.shared  # required, otherwise MoveActivities don't work
+from bossfight.core import character_bases
+from bossfight.client import player_controls
+from bossfight.client.characters import character_animations
+
 
 class PlayerNode(character_bases.PlayerCharacter, cocos.cocosnode.CocosNode):
-    '''
+    """
     A **CocosNode** that represents a player in the game world.
-    '''
+    """
 
     def __init__(self, name_or_state):
         super().__init__(name_or_state)
         self.name_label = cocos.text.Label(
             text=self.name,
             position=(0, 120),
-            font_name='Arial',
+            font_name="Arial",
             font_size=24,
-            anchor_x='center',
-            anchor_y='center'
+            anchor_x="center",
+            anchor_y="center",
         )
         self.add(self.name_label)
         self.animated_character = character_animations.AnimatedCharacter(
             moving_parent=self,
-            weapon_spritesheet='shortsword.png',
-            shield_spritesheet='buckler.png'
+            weapon_spritesheet="shortsword.png",
+            shield_spritesheet="buckler.png",
         )
         self.add(self.animated_character)
         self.do(cocos.actions.Move())
 
 
 class LocalPlayerNode(PlayerNode, player_controls.ControllableNode):
-    '''
+    """
     A special kind of **PlayerNode** that reacts to player inputs.
-    '''
+    """
 
     def __init__(self, name, position=(0, 0)):
         super().__init__(name)
         self.position = position
 
+
 class NPCNode(character_bases.NonPlayerCharacter, cocos.cocosnode.CocosNode):
     def __init__(self, name_or_state):
         super().__init__(name_or_state)
-        '''
+        """
         fireball_spritesheet = pyglet.image.ImageGrid(
             pyglet.resource.image('fireball.png'), 1, 4
         )
@@ -58,14 +60,14 @@ class NPCNode(character_bases.NonPlayerCharacter, cocos.cocosnode.CocosNode):
             scale=2.5
         )
         self.add(self.sprite) Vector2
-        '''
+        """
         self.animated_character = character_animations.AnimatedCharacter(
             moving_parent=self,
-            body_spritesheet='steel_armor.png',
-            head_spritesheet='male_head3.png',
-            weapon_spritesheet='longsword.png',
-            shield_spritesheet='shield.png',
-            scale=2.8
+            body_spritesheet="steel_armor.png",
+            head_spritesheet="male_head3.png",
+            weapon_spritesheet="longsword.png",
+            shield_spritesheet="shield.png",
+            scale=2.8,
         )
         self.add(self.animated_character)
         self.do(cocos.actions.Move())
