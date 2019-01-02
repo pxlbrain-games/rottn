@@ -47,7 +47,7 @@ If you added a new module, you have to add a line to the batch script. Example f
 
 ### Game Design Documentation
 
-`.\docs\gamedesign\` contains a short design document that illustrates the overall vision and any documents we might come up with to describe game design aspects in the future. A [*Player Story Map*](https://app.wisemapping.com/c/maps/747726/edit) is maintained in [WiseMapping](https://app.wisemapping.com), an open source mind mapping tool, and contains a more detailed view on the features of the game.
+`.\docs\gamedesign\` contains a [short design document](./docs/gamedesign/designdocument.md) that illustrates the overall vision and any documents we might come up with to describe game design aspects in the future. A [*Player Story Map*](https://app.wisemapping.com/c/maps/747726/edit) is maintained in [WiseMapping](https://app.wisemapping.com), an open source mind mapping tool, and contains a more detailed view on the features of the game.
 
 ## Testing
 
