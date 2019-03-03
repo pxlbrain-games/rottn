@@ -131,6 +131,8 @@ class LevelLayer(cocos.layer.ScrollableLayer):
                     self.player_nodes[player_id] = character_nodes.LocalPlayerNode(
                         player["name"]
                     )
+                    self.player_nodes[player_id].push_handlers(on_left_click=self.on_left_click)
+                    self.player_nodes[player_id].animated_character.push_handlers(on_animation_end=self.on_animation_end)
                     self.add(self.player_nodes[player_id])
                 else:
                     self.player_nodes[player_id] = character_nodes.PlayerNode(player)
@@ -187,6 +189,15 @@ class LevelLayer(cocos.layer.ScrollableLayer):
                     )
                 )
 
+    def on_left_click(self, player_node):
+        if player_node.animated_character.animation_state != character_animations.AnimationState.Attacking:
+            player_node.animated_character.trigger_animation(
+                character_animations.AnimationState.Attacking
+            )
+            player_node.stop_movement()
+
+    def on_animation_end(self, animated_character):
+        animated_character.moving_parent.resume_movement()
 
 class HUDLayer(cocos.layer.Layer):
     def __init__(self, level_data: LevelData):

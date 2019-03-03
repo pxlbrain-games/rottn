@@ -35,7 +35,7 @@ class CharacterPart(enum.IntEnum):
     Shield = 4
 
 
-class AnimatedCharacter(cocos.batch.BatchableNode):
+class AnimatedCharacter(cocos.batch.BatchableNode, pyglet.event.EventDispatcher):
     def __init__(
         self,
         moving_parent,
@@ -209,11 +209,12 @@ class AnimatedCharacter(cocos.batch.BatchableNode):
             self.sprites[AnimationState.Idle][character_part][
                 self.direction_state
             ].visible = True
+        self.dispatch_event('on_animation_end', self)
         self.animation_state = AnimationState.Idle
 
+AnimatedCharacter.register_event_type('on_animation_end')
 
 ### These are just helper functions for the isometric_hero spritesheet:
-
 
 def create_animation(image_grid, row, start, end, duration=0.1, loop=True):
     frames = []

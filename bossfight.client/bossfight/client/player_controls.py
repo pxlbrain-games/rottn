@@ -14,8 +14,7 @@ BASE_SPEED = 300
 
 RAD_TO_DEG = 180 / math.pi
 
-
-class ControllableNode(cocos.cocosnode.CocosNode):
+class ControllableNode(cocos.cocosnode.CocosNode, pyglet.event.EventDispatcher):
     """
     A *CocosNode* that can be controlled by the player.
     Controllable Nodes automatically react to Controller or Mouse & Keyboard input.
@@ -53,16 +52,27 @@ class ControllableNode(cocos.cocosnode.CocosNode):
         else:
             self.keyboard = None
         self.speed = speed
+        self._speed = speed
         self.velocity = (0, 0)
         if cocos.actions.Move not in map(lambda x: x.__class__, self.actions):
             self.do(cocos.actions.Move())
         self.schedule(self._update_movement)
+
+    def stop_movement(self):
+        self.speed = 0
+
+    def resume_movement(self):
+        self.speed = self._speed
 
     def on_mouse_motion(self, x, y, dx, dy):
         turn = euclid.Matrix3.new_rotate(-0.01 * dx)
         self.direction = (
             turn * euclid.Vector2(self.direction[0], self.direction[1])
         ).xy
+
+    def on_mouse_press (self, x, y, buttons, modifiers):
+        if buttons == pyglet.window.mouse.LEFT:
+            self.dispatch_event('on_left_click', self)
 
     def _update_movement(self, dt):
         new_joy_direction = (
@@ -104,3 +114,5 @@ class ControllableNode(cocos.cocosnode.CocosNode):
                 velocity.normalize()
         velocity *= self.speed
         self.velocity = velocity.xy
+
+ControllableNode.register_event_type('on_left_click')
