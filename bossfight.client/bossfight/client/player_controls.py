@@ -70,9 +70,12 @@ class ControllableNode(cocos.cocosnode.CocosNode, pyglet.event.EventDispatcher):
             turn * euclid.Vector2(self.direction[0], self.direction[1])
         ).xy
 
-    def on_mouse_press (self, x, y, buttons, modifiers):
+    def on_mouse_press(self, x, y, buttons, modifiers):
         if buttons == pyglet.window.mouse.LEFT:
-            self.dispatch_event('on_left_click', self)
+            self.dispatch_event('on_attack', self)
+
+    def on_joybutton_press(self, joystick, button):
+        self.dispatch_event('on_attack', self)
 
     def _update_movement(self, dt):
         new_joy_direction = (
@@ -115,4 +118,4 @@ class ControllableNode(cocos.cocosnode.CocosNode, pyglet.event.EventDispatcher):
         velocity *= self.speed
         self.velocity = velocity.xy
 
-ControllableNode.register_event_type('on_left_click')
+ControllableNode.register_event_type('on_attack')
