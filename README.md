@@ -2,8 +2,6 @@
 
 Indie game with only procedurally generated boss levels. Online/LAN-Coop. Boss-AI uses Deep Q Neural Nets in order to adapt to and learn from the player during a fight.
 
-![Screenshot](/screenshot.png)
-
 ## Development Environment 
 
 This project is using Python 3.6.5 (https://www.python.org/downloads/release/python-365/)
@@ -57,3 +55,6 @@ You can run the server seperately with `python -m bossfight.server`, but current
 ### Unit Tests
 
 py.test (https://docs.pytest.org) unit tests in `.\tests\` folder.
+
+![Screenshot](/screenshot.png)
+
