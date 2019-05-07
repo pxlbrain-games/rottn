@@ -5,9 +5,6 @@ can subclass in order to create their respective versions of enemies, players
 and other NPCs.
 """
 
-import pygase.shared
-
-
 class Character:
     """
     Base class for any kind of character in the game.
@@ -49,33 +46,27 @@ class PlayerCharacter(Character):
     def __init__(self, name_or_state):
         super().__init__(name_or_state)
 
-    def get_move_activity(self, player_id, time_order):
-        return pygase.shared.ClientActivity(
-            activity_type=pygase.shared.ActivityType.MovePlayer,
-            activity_data={
-                "player_id": player_id,
-                "position": self.position,
-                "velocity": self.velocity,
-                "direction": self.direction,
-                "time_order": time_order,
-            },
-        )
+    def get_move_event_data(self, player_id):
+        return {
+            "player_id": player_id,
+            "position": self.position,
+            "velocity": self.velocity,
+            "direction": self.direction
+        }
 
-    def handle_move_activity(self, activity, update):
-        if not hasattr(update, "players"):
-            update.players = dict()
-        self.position = activity.activity_data["position"]
-        self.velocity = activity.activity_data["velocity"]
-        self.direction = activity.activity_data["direction"]
-        update.players.update(
-            {
-                activity.activity_data["player_id"]: {
+    def on_move(self, move_event_data):
+        self.position = move_event_data["position"]
+        self.velocity = move_event_data["velocity"]
+        self.direction = move_event_data["direction"]
+        return {
+            "players": {
+                move_event_data["player_id"]: {
                     "position": self.position,
                     "velocity": self.velocity,
                     "direction": self.direction,
                 }
             }
-        )
+        }
 
 
 class NonPlayerCharacter(Character):

@@ -19,41 +19,30 @@ To shutdown the server, write a line containing `shutdown` to the processes
 *stdin* channel.
 """
 
+import time
 import sys
-import pygase.shared
-import pygase.server
-from bossfight.server.game_loop import BFGameLoop
+from pygase import Server, GameStateStore, GameState
+from bossfight.server.game_loop import BFStateMachine
 
-SHARED_GAME_STATE = pygase.shared.GameState()
-SHARED_GAME_STATE.npcs = dict()
+SHARED_GAME_STATE = GameState(npcs=dict(), players=dict())
+GAME_STATE_STORE = GameStateStore(SHARED_GAME_STATE)
+SERVER = Server(GAME_STATE_STORE)
+GAME_STATE_MACHINE = BFStateMachine(GAME_STATE_STORE, SERVER)
 
+SERVER_ADDRESS = None
 if len(sys.argv) == 1:
-    SERVER = pygase.server.Server(
-        ip_address="localhost",
-        port=0,
-        game_loop_class=BFGameLoop,
-        game_state=SHARED_GAME_STATE,
-    )
+    SERVER_ADDRESS = ("localhost", 0)
 elif len(sys.argv) == 2:
-    SERVER = pygase.server.Server(
-        ip_address=sys.argv[1],
-        port=0,
-        game_loop_class=BFGameLoop,
-        game_state=SHARED_GAME_STATE,
-    )
+    SERVER_ADDRESS = (sys.argv[1], 0)
 else:
-    SERVER = pygase.server.Server(
-        ip_address=sys.argv[1],
-        port=int(sys.argv[2]),
-        game_loop_class=BFGameLoop,
-        game_state=SHARED_GAME_STATE,
-    )
+    SERVER_ADDRESS = (sys.argv[1], int(sys.argv[2]))
 
-print(SERVER.get_ip_address())
-print(SERVER.get_port())
+GAME_STATE_MACHINE.run_game_loop_in_thread()
+SERVER.run_in_thread(SERVER_ADDRESS[1], SERVER_ADDRESS[0], GAME_STATE_MACHINE)
+time.sleep(0.1)
+print(SERVER.hostname)
+print(SERVER.port)
 sys.stdout.close()
-
-SERVER.start()
 
 while not sys.stdin.readline().__contains__("shutdown"):
     pass

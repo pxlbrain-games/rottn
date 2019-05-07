@@ -3,7 +3,8 @@
 from pyglet.window import mouse
 import cocos
 from cocos.director import director
-import pygase.client
+from pygase import Client
+from pygase.connection import ConnectionStatus
 from bossfight.client import server_manager
 
 
@@ -93,7 +94,7 @@ class ServerListLayer(cocos.layer.Layer):
 
 
 class ConnectionTextLayer(cocos.layer.Layer):
-    def __init__(self, position, connection):
+    def __init__(self, position, client):
         super().__init__()
         self.add(
             cocos.text.Label(
@@ -117,19 +118,19 @@ class ConnectionTextLayer(cocos.layer.Layer):
             ),
             name="latency",
         )
-        self.connection = connection
+        self.client = client
         self.schedule(self.update_text)
 
     def update_text(self, dt):
-        if self.connection.is_connected():
+        if self.client.connection.status == ConnectionStatus.get("Connected"):
             self.get("latency").visible = True
             self.get("latency").element.text = (
-                "Latency: " + str(int(self.connection.latency)) + " ms"
+                "Latency: " + str(int(self.client.connection.latency)) + " ms"
             )
             self.get("status").element.text = "Connected"
         else:
             self.get("latency").visible = False
-            if self.connection.is_waiting():
+            if self.client.connection.status == ConnectionStatus.get("Connecting"):
                 self.get("status").element.text = "Waiting for server ..."
             else:
                 self.get("status").element.text = "Disconnected"
@@ -139,7 +140,7 @@ class ConnectionListEntryNode(cocos.text.Label):
 
     entry_counter = 1
 
-    def __init__(self, server_address, init_position, entry_number, connection):
+    def __init__(self, server_address, init_position, entry_number, client):
         self.index = ConnectionListEntryNode.entry_counter
         entry_text = (
             "Connection "
@@ -163,14 +164,14 @@ class ConnectionListEntryNode(cocos.text.Label):
         )
         ConnectionListEntryNode.entry_counter += 1
         self.add(
-            ConnectionTextLayer(position=(0, -100), connection=connection),
+            ConnectionTextLayer(position=(0, -100), client=client),
             name="text_layer",
         )
-        self.connection = connection
+        self.client = client
         self.schedule(self.update)
 
     def update(self, dt):
-        if not self.connection in self.parent.parent.connections:
+        if not self.client in self.parent.parent.clients:
             self.get("text_layer").kill()
             self.kill()
             for entry in self.parent.get_children():
@@ -198,13 +199,13 @@ class ConnectionListLayer(cocos.layer.Layer):
             )
         )
 
-    def add_entry(self, ip_address, port, connection):
+    def add_entry(self, ip_address, port, client):
         self.add(
             ConnectionListEntryNode(
                 server_address=(ip_address, port),
                 init_position=(1250, 800),
                 entry_number=len(self.children) - 1,
-                connection=connection,
+                client=client,
             )
         )
 
@@ -216,13 +217,15 @@ class ConnectionListLayer(cocos.layer.Layer):
                 if child.__class__ == ConnectionListEntryNode:
                     if upper_end > y > upper_end - 125:
                         if buttons & mouse.LEFT:
-                            if child.connection.is_connected():
-                                child.connection.disconnect()
+                            if child.client.connection.status == ConnectionStatus.get("Connected"):
+                                child.client.disconnect()
                             else:
-                                child.connection.connect()
+                                if child.client.connection:
+                                    addr = child.client.connection.remote_address
+                                    child.client.connect_in_thread(addr[1], addr[0])
                         else:
-                            child.connection.disconnect()
-                            self.parent.connections.remove(child.connection)
+                            child.client.disconnect()
+                            self.parent.clients.remove(child.client)
                     upper_end -= 140
 
 
@@ -304,12 +307,16 @@ class ServerTestMenuLayer(cocos.menu.Menu):
             pass
 
     def on_open_connection(self):
-        connection = pygase.client.Connection(self.selected_connection_address)
-        self.parent.connections.append(connection)
+        client = Client()
+        client.connect_in_thread(
+            self.selected_connection_address[1],
+            self.selected_connection_address[0]
+        )
+        self.parent.clients.append(client)
         self.parent.get("connection_list").add_entry(
             ip_address=self.selected_connection_address[0],
             port=self.selected_connection_address[1],
-            connection=connection,
+            client=client,
         )
 
     def on_shutdown_all(self):
@@ -325,12 +332,12 @@ class ServerTestMenuLayer(cocos.menu.Menu):
 class ServerTestScene(cocos.scene.Scene):
     def __init__(self):
         super().__init__()
-        self.connections = []
+        self.clients = []
         self.add(ServerTestMenuLayer(), name="menu_layer")
         self.add(ServerListLayer(), name="server_list")
         self.add(ConnectionListLayer(), name="connection_list")
 
     def on_exit(self):
-        for connection in self.connections:
-            connection.disconnect()
+        for client in self.clients:
+            client.disconnect()
         super().on_exit()

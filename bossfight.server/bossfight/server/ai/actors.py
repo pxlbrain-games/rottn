@@ -22,12 +22,10 @@ class TestEnemyActor(character_bases.NonPlayerCharacter):
         self._last_action = None
         self._state_update = dict()
 
-    def update(self, npc_id, update, dt):
+    def update(self, dt):
         """
         Updates the state of the test enemy NPC.
         """
-        if not hasattr(update, "npcs"):
-            update.npcs = dict()
         if self.velocity != (0, 0):
             self.position = (
                 self.position[0] + self.velocity[0] * dt,
@@ -44,8 +42,9 @@ class TestEnemyActor(character_bases.NonPlayerCharacter):
                 ).xy
                 self._state_update.update({"velocity": self.velocity})
             self._state_update.update({"attack_counter": self.attack_counter})
-        update.npcs.update({npc_id: self._state_update.copy()})
+        update = self._state_update.copy()
         self._state_update.clear()
+        return update
 
     def turn_by_angle(self, angle):
         turn = euclid.Matrix3.new_rotate(angle)

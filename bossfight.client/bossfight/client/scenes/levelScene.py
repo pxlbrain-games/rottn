@@ -8,17 +8,21 @@ import time
 import pyglet
 import cocos
 from cocos.director import director
-import pygase.shared
-import pygase.client
+from pygase import Client
+from pygase.connection import ConnectionStatus
 from bossfight.client.characters import character_nodes
 from bossfight.client.characters import character_animations
 
 
 class LevelData:
-    def __init__(self, server_address, scrolling_manager):
-        self.connection = pygase.client.Connection(server_address)
+    def __init__(self, scrolling_manager):
         self.scrolling_manager = scrolling_manager
-        self.local_players = {}
+        self.local_player_ids = set()
+        self.client = Client()
+        self.client.register_event_handler("PLAYER_CREATED", self.on_player_created)
+        
+    def on_player_created(self, player_id):
+        self.local_player_ids.add(player_id)
 
 
 class LevelScene(cocos.scene.Scene):
@@ -37,53 +41,27 @@ class LevelScene(cocos.scene.Scene):
         )
         self.add(scrolling_manager)
         director.window.set_exclusive_mouse(True)
-        self.level_data = LevelData(server_address, scrolling_manager)
+        self.level_data = LevelData(scrolling_manager)
+        self.level_data.client.connect_in_thread(server_address[1], server_address[0])
         scrolling_manager.add(LevelLayer(self.level_data))
         self.add(HUDLayer(self.level_data))
-        self.level_data.connection.connect()  # Possibly unnecessary
-        join_activities = [
-            pygase.shared.join_server_activity(name) for name in local_player_names
-        ]
-        self.join_local_players(join_activities)
-
-    def join_local_players(self, join_activities: list, retries=3):
-        for join_activity in join_activities:
-            self.level_data.connection.post_client_activity(join_activity)
-        t_0 = time.time()
-        while len(self.level_data.local_players) < len(join_activities):
-            for (player_id, player) in self.level_data.connection.game_state.iter(
-                "players"
-            ):
-                if player_id not in self.level_data.local_players and player[
-                    "join_id"
-                ] in [a.activity_data["join_id"] for a in join_activities]:
-                    self.level_data.local_players[player_id] = player["name"]
-            if time.time() - t_0 > 1.0 and retries > 0:
-                self.join_local_players(join_activities, retries - 1)
+        for name in local_player_names:
+            self.level_data.client.dispatch_event("JOIN", name, retries=3)
 
     def on_exit(self):
-        # LEAVING THE TEST LEVEL FREEZES THE HOST PROCESS
-        # REASON IS A TYPEERROR EXCEPTION IN LINE 128
         director.window.set_exclusive_mouse(False)
-        self.remove_local_players_from_server()
-        self.level_data.connection.disconnect()
-        super().on_exit()
-
-    def remove_local_players_from_server(self, retries=3):
-        for player_id in self.level_data.local_players:
-            self.level_data.connection.post_client_activity(
-                pygase.shared.leave_server_activity(player_id)
+        successful_leaves = set()
+        for player_id in self.level_data.local_player_ids:
+            self.level_data.client.dispatch_event(
+                "LEAVE",
+                player_id,
+                ack_callback=lambda: successful_leaves.add(player_id),
+                retries=3
             )
-        t_0 = time.time()
-        while (
-            self.level_data.connection._polled_client_activities
-            and time.time() - t_0 < 1.0
-        ):
+        while successful_leaves != self.level_data.local_player_ids:
             pass
-        if not set(self.level_data.local_players.keys()).isdisjoint(
-            set(self.level_data.connection.game_state.players.keys())
-        ):
-            self.remove_local_players_from_server(retries - 1)
+        self.level_data.client.disconnect()
+        super().on_exit()
 
 
 class LevelLayer(cocos.layer.ScrollableLayer):
@@ -98,20 +76,21 @@ class LevelLayer(cocos.layer.ScrollableLayer):
         self.iso_map = create_iso_map(dimensions=(30, 40), origin=(-2000, 0))
         self.add(self.iso_map)
         self.npc_nodes = dict()
-        for npc_id, npc in self.level_data.connection.game_state.iter("npcs"):
-            self.npc_nodes[npc_id] = character_nodes.NPCNode(npc)
-            self.add(self.npc_nodes[npc_id])
+        with self.level_data.client.access_game_state() as game_state:
+            for npc_id, npc in game_state.npcs.items():
+                self.npc_nodes[npc_id] = character_nodes.NPCNode(npc)
+                self.add(self.npc_nodes[npc_id])
         self.player_nodes = dict()
         self.schedule(self.update_focus)
         self.schedule_interval(self.update_player_nodes, 0.02)
-        self.schedule_interval(self.post_move_activity, 0.02)
+        self.schedule_interval(self.dispatch_move_events, 0.02)
 
     def update_focus(self, dt):
         try:
             focus_node = [
                 node
                 for player_id, node in self.player_nodes.items()
-                if player_id in self.level_data.local_players
+                if player_id in self.level_data.local_player_ids
             ][0]
             self.level_data.scrolling_manager.set_focus(
                 focus_node.position[0], focus_node.position[1]
@@ -120,14 +99,17 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             pass
 
     def update_player_nodes(self, dt):
-        if len(self.player_nodes) < len(self.level_data.connection.game_state.players):
+        with self.level_data.client.access_game_state() as game_state:
             players_to_add = {
-                p_id: p
-                for (p_id, p) in self.level_data.connection.game_state.iter("players")
+                p_id: p for p_id, p in game_state.players.items()
                 if p_id not in self.player_nodes
             }
+            players_to_remove = {
+                    p_id: p_node for p_id, p_node in self.player_nodes.items()
+                    if p_id not in game_state.players
+                }
             for player_id, player in players_to_add.items():
-                if player_id in self.level_data.local_players:
+                if player_id in self.level_data.local_player_ids:
                     self.player_nodes[player_id] = character_nodes.LocalPlayerNode(
                         player["name"]
                     )
@@ -137,57 +119,45 @@ class LevelLayer(cocos.layer.ScrollableLayer):
                 else:
                     self.player_nodes[player_id] = character_nodes.PlayerNode(player)
                     self.add(self.player_nodes[player_id])
-        elif len(self.player_nodes) > len(
-            self.level_data.connection.game_state.players
-        ):
-            players_to_remove = {
-                p_id: p_node
-                for (p_id, p_node) in self.player_nodes.items()
-                if p_id not in self.level_data.connection.game_state.players
-            }
             for player_id, player_node in players_to_remove.items():
                 player_node.kill()
                 del self.player_nodes[player_id]
-        # Update movement on all nodes from external players.
-        player_nodes_to_update = {
-            p_id: p_node
-            for (p_id, p_node) in self.player_nodes.items()
-            if p_id not in self.level_data.local_players
-        }
-        for player_id, player_node in player_nodes_to_update.items():
-            player = self.level_data.connection.game_state.players[player_id]
-            vx = (player["position"][0] - player_node.position[0]) / dt
-            vy = (player["position"][1] - player_node.position[1]) / dt
-            ax = (player["velocity"][0] - player_node.velocity[0] + 0.11 * vx) / dt
-            ay = (player["velocity"][1] - player_node.velocity[1] + 0.11 * vy) / dt
-            player_node.acceleration = (ax, ay)
-            player_node.direction = player["direction"]
-        for npc_id, npc_node in self.npc_nodes.items():
-            npc = self.level_data.connection.game_state.npcs[npc_id]
-            vx = (npc["position"][0] - npc_node.position[0]) / dt
-            vy = (npc["position"][1] - npc_node.position[1]) / dt
-            ax = (npc["velocity"][0] - npc_node.velocity[0] + 0.11 * vx) / dt
-            ay = (npc["velocity"][1] - npc_node.velocity[1] + 0.11 * vy) / dt
-            npc_node.acceleration = (ax, ay)
-            npc_node.direction = npc["direction"]
-            npc_node.attack_counter = npc["attack_counter"]
-            if (
-                npc_node.is_attacking()
-                and npc_node.animated_character.animation_state
-                != character_animations.AnimationState.Attacking
-            ):
-                npc_node.animated_character.trigger_animation(
-                    character_animations.AnimationState.Attacking
-                )
+            # Update movement on all nodes from external players.
+            player_nodes_to_update = {
+                p_id: p_node
+                for (p_id, p_node) in self.player_nodes.items()
+                if p_id not in self.level_data.local_player_ids
+            }
+            for player_id, player_node in player_nodes_to_update.items():
+                player = game_state.players[player_id]
+                vx = (player["position"][0] - player_node.position[0]) / dt
+                vy = (player["position"][1] - player_node.position[1]) / dt
+                ax = (player["velocity"][0] - player_node.velocity[0] + 0.11 * vx) / dt
+                ay = (player["velocity"][1] - player_node.velocity[1] + 0.11 * vy) / dt
+                player_node.acceleration = (ax, ay)
+                player_node.direction = player["direction"]
+            for npc_id, npc_node in self.npc_nodes.items():
+                npc = game_state.npcs[npc_id]
+                vx = (npc["position"][0] - npc_node.position[0]) / dt
+                vy = (npc["position"][1] - npc_node.position[1]) / dt
+                ax = (npc["velocity"][0] - npc_node.velocity[0] + 0.11 * vx) / dt
+                ay = (npc["velocity"][1] - npc_node.velocity[1] + 0.11 * vy) / dt
+                npc_node.acceleration = (ax, ay)
+                npc_node.direction = npc["direction"]
+                npc_node.attack_counter = npc["attack_counter"]
+                if (
+                    npc_node.is_attacking()
+                    and npc_node.animated_character.animation_state
+                    != character_animations.AnimationState.Attacking
+                ):
+                    npc_node.animated_character.trigger_animation(
+                        character_animations.AnimationState.Attacking
+                    )
 
-    def post_move_activity(self, dt):
+    def dispatch_move_events(self, dt):
         for player_id, player_node in self.player_nodes.items():
             if isinstance(player_node, character_nodes.LocalPlayerNode):
-                self.level_data.connection.post_client_activity(
-                    player_node.get_move_activity(
-                        player_id, self.level_data.connection.game_state.time_order
-                    )
-                )
+                self.level_data.client.dispatch_event("MOVE", player_node.get_move_event_data(player_id))
 
     def on_attack(self, player_node):
         if player_node.animated_character.animation_state != character_animations.AnimationState.Attacking:
@@ -203,9 +173,9 @@ class HUDLayer(cocos.layer.Layer):
     def __init__(self, level_data: LevelData):
         super().__init__()
         self.level_data = level_data
-        ip = level_data.connection.server_address[0]
-        port = str(level_data.connection.server_address[1])
-        connection_text = "Server Address: " + ip + ":" + port
+        ip_address = level_data.client.connection.remote_address[0]
+        port = str(level_data.client.connection.remote_address[1])
+        connection_text = "Server Address: " + ip_address + ":" + port
         connection_label = cocos.text.Label(
             text=connection_text,
             position=(1920, 1080),
@@ -215,18 +185,11 @@ class HUDLayer(cocos.layer.Layer):
             anchor_y="top",
         )
         self.add(connection_label)
-        self.connection_status_texts = [
-            "Connected",
-            "Waiting for Server ...",
-            "Disconnnected",
-        ]
         self.connection_status_label = cocos.text.Label(
-            text=self.connection_status_texts[
-                level_data.connection.connection_status - 1
-            ]
+            text=ConnectionStatus.get(level_data.client.connection.status)
             + " - "
             + "Latency: "
-            + str(int(level_data.connection.latency))
+            + str(int(level_data.client.connection.latency))
             + " ms",
             position=(1920, 1050),
             font_name="Arial",
@@ -248,23 +211,19 @@ class HUDLayer(cocos.layer.Layer):
 
     def update_text(self, dt):
         self.connection_status_label.element.text = (
-            self.connection_status_texts[
-                self.level_data.connection.connection_status - 1
-            ]
+            ConnectionStatus.get(self.level_data.client.connection.status)
             + " - "
             + "Latency: "
-            + str(int(self.level_data.connection.latency))
+            + str(int(self.level_data.client.connection.latency))
             + " ms"
         )
         player_list_text = ""
-        for (
-            player_id,
-            player,
-        ) in self.level_data.connection.game_state.players.copy().items():
-            player_list_text += player["name"]
-            if player_id in self.level_data.local_players:
-                player_list_text += " (local)"
-            player_list_text += ", "
+        with self.level_data.client.access_game_state() as game_state:
+            for player_id, player in game_state.players.items():
+                player_list_text += player["name"]
+                if player_id in self.level_data.local_player_ids:
+                    player_list_text += " (local)"
+                player_list_text += ", "
         self.player_list_label.element.text = player_list_text[:-2]
 
 

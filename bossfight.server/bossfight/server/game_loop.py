@@ -3,24 +3,25 @@
 import sys
 import math
 import random
-import pygase.shared
-import pygase.server
 import tensorflow
 import euclid3 as euclid
+from pygase import GameStateMachine
+from pygase.gamestate import GameStateUpdate, TO_DELETE
 from bossfight.core import character_bases
 from bossfight.server.ai import actors
 
 GRAPH = None
 
 
-class BFGameLoop(pygase.server.GameLoop):
+class BFStateMachine(GameStateMachine):
     """
     Subclasses the GameLoop from the PyGaSe package and defines server-side
     game logic.
     """
 
-    def __init__(self, server: pygase.server.Server):
-        super().__init__(server)
+    def __init__(self, game_state_store, server):
+        super().__init__(game_state_store)
+        self.server = server
         self.player_characters = {}
         self.npc_actors = {}
         test_enemy = actors.TestEnemyActor("Test Enemy")
@@ -28,29 +29,43 @@ class BFGameLoop(pygase.server.GameLoop):
         test_enemy.direction = (-1, 0)
         test_enemy.velocity = (-1 * actors.ENEMY_VELOCITY, 0)
         self.npc_actors[0] = test_enemy
-        self.server.game_state.npcs[0] = test_enemy.get_state()
+        add_enemy = GameStateUpdate(
+            self._game_state_store.get_game_state().time_order + 1,
+            npcs={0: test_enemy.get_state()}
+        )
+        self._game_state_store.push_update(add_enemy)
+        self.register_event_handler("JOIN", self.on_join)
+        self.register_event_handler("MOVE", self.on_move)
+        self.register_event_handler("LEAVE", self.on_leave)
 
         self.learn_counter = 0
         global GRAPH
         GRAPH = tensorflow.get_default_graph()
 
-    def on_join(self, player_id, update):
+    def on_join(self, player_name, game_state, client_address, **kwargs):
         """
         Initial assignments for when a new player joins the game.
         """
-        new_player = character_bases.PlayerCharacter(update.players[player_id]["name"])
-        update.players[player_id].update(new_player.get_state())
+        new_player = character_bases.PlayerCharacter(player_name)
+        player_id = len(game_state.players)
         self.player_characters[player_id] = new_player
+        self.server.dispatch_event("PLAYER_CREATED", player_id, target_client=client_address)
+        return {
+            "players": {
+                player_id: new_player.get_state()
+            }
+        }
 
-    def handle_activity(self, activity: pygase.shared.ClientActivity, update, dt):
+    def on_leave(self, player_id, **kwargs):
+        return {"players": {player_id: TO_DELETE}}
+
+    def on_move(self, move_event_data, **kwargs):
         """
         Handling of custom BossFight client activities, like player movement or actions.
         """
-        if activity.activity_type == pygase.shared.ActivityType.MovePlayer:
-            player = self.player_characters[activity.activity_data["player_id"]]
-            player.handle_move_activity(activity, update)
+        return self.player_characters[move_event_data["player_id"]].on_move(move_event_data)
 
-    def update_game_state(self, update, dt):
+    def time_step(self, game_state, dt):
         """
         BossFight game state update. Simulates enemies and game world objects.
         """
@@ -87,6 +102,7 @@ class BFGameLoop(pygase.server.GameLoop):
                     self.learn_counter = 0
                 else:
                     self.learn_counter += 1
+        update = {"npcs": {}}
         for npc_id, actor in self.npc_actors.items():
             if done or hit:
                 rand_angle = random.random() * 2 * math.pi
@@ -95,4 +111,5 @@ class BFGameLoop(pygase.server.GameLoop):
                     r_player.y + 600 * math.cos(rand_angle),
                 )
             else:
-                actor.update(npc_id, update, dt)
+                update["npcs"][npc_id] = actor.update(dt)
+        return update

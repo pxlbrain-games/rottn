@@ -5,7 +5,6 @@ character types.
 """
 
 import cocos
-import pygase.shared  # required, otherwise MoveActivities don't work
 from bossfight.core import character_bases
 from bossfight.client import player_controls
 from bossfight.client.characters import character_animations
