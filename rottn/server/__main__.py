@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Main script of bossfight.server package.
+Main script of rottn.server package.
 
-- `bossfight.server` will run a local server on an arbitrary free port
-- `bossfight.server ip_address` will start a server on an arbitrary free port
+- `rottn.server` will run a local server on an arbitrary free port
+- `rottn.server ip_address` will start a server on an arbitrary free port
 bound to the given IP address.
-- `bossfight.server ip_address port` will run a server on the specified port
+- `rottn.server ip_address port` will run a server on the specified port
 and IP address.
 
 In either case the server process will give the following output on stdout
@@ -22,7 +22,7 @@ To shutdown the server, write a line containing `shutdown` to the processes
 import time
 import sys
 from pygase import Server, GameStateStore, GameState
-from bossfight.server.game_loop import BFStateMachine
+from rottn.server.game_loop import BFStateMachine
 
 SHARED_GAME_STATE = GameState(npcs=dict(), players=dict())
 GAME_STATE_STORE = GameStateStore(SHARED_GAME_STATE)

@@ -3,10 +3,10 @@
 import cocos
 from cocos.director import director
 from pyglet.window import NoSuchScreenModeException
-import bossfight.client.config as config
-import bossfight.client.server_manager as server_manager
-from bossfight.client.scenes.serverTestScene import ServerTestScene
-from bossfight.client.scenes.levelScene import LevelScene
+import rottn.client.config as config
+import rottn.client.server_manager as server_manager
+from rottn.client.scenes.serverTestScene import ServerTestScene
+from rottn.client.scenes.levelScene import LevelScene
 
 
 class MainMenuScene(cocos.scene.Scene):
@@ -26,7 +26,7 @@ class MainMenuScene(cocos.scene.Scene):
 
 class MainMenuLayer(cocos.menu.Menu):
     def __init__(self):
-        super().__init__(title="BossFight")
+        super().__init__(title="ROTTN")
         self.font_title.update({"font_size": 128, "bold": True})
         self.font_item.update({"font_size": 64})
         self.font_item_selected.update(self.font_item)

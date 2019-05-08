@@ -15,20 +15,18 @@ import appdirs
 # and this should be changed to a "proper" .exe later on.
 _DEFAULT_CONFIG = {
     "screen_mode": {"width": 854, "height": 480, "fullscreen": False},
-    "local_server_exec": [sys.executable, "-m", "bossfight.server"],
+    "local_server_exec": [sys.executable, "-m", "rottn.server"],
 }
 
 # Keep different config files for regular python and experimental PyPy version.
-# The "company" name 'ePyCom' is just for fun right now, it stands for:
-# "ePyCom Python Company" (or "epic Python Company", whichever you prefer)
 if "pypy3.exe" in sys.executable:
     CONFIG_PATH = os.path.join(
-        appdirs.AppDirs(appname="bossfight", appauthor="ePyCom").user_config_dir,
+        appdirs.AppDirs(appname="rottn", appauthor="pxlbrain").user_config_dir,
         "client_config_pypy.json",
     )
 else:
     CONFIG_PATH = os.path.join(
-        appdirs.AppDirs(appname="bossfight", appauthor="ePyCom").user_config_dir,
+        appdirs.AppDirs(appname="rottn", appauthor="pxlbrain").user_config_dir,
         "client_config.json",
     )
 _CURRENT_CONFIG = {}
@@ -55,7 +53,7 @@ def save():
     """
     Saves the client configuration data in a json file in the application data directory.
 
-    Windows 7+: `C:\\Users\\{username}\\AppData\\Local\\ePyCom\\bossfight\\client_config.json`
+    Windows 7+: `C:\\Users\\{username}\\AppData\\Local\\pxlbrain\\rottn\\client_config.json`
     """
     if not os.path.exists(os.path.dirname(CONFIG_PATH)):
         os.makedirs(os.path.dirname(CONFIG_PATH))
@@ -67,7 +65,7 @@ def load():
     """
     Loads the client configuration data from a json file in the application data directory.
 
-    Windows 7+: `C:\\Users\\{username}\\AppData\\Local\\ePyCom\\bossfight\\client_config.json`
+    Windows 7+: `C:\\Users\\{username}\\AppData\\Local\\pxlbrain\\rottn\\client_config.json`
     """
     if os.path.exists(CONFIG_PATH):
         with open(CONFIG_PATH, mode="r") as file:

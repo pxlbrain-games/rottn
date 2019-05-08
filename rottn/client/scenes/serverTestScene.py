@@ -5,7 +5,7 @@ import cocos
 from cocos.director import director
 from pygase import Client
 from pygase.connection import ConnectionStatus
-from bossfight.client import server_manager
+from rottn.client import server_manager
 
 
 class ServerListEntryNode(cocos.text.Label):

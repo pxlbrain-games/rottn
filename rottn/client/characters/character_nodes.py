@@ -5,9 +5,9 @@ character types.
 """
 
 import cocos
-from bossfight.core import character_bases
-from bossfight.client import player_controls
-from bossfight.client.characters import character_animations
+from rottn.core import character_bases
+from rottn.client import player_controls
+from rottn.client.characters import character_animations
 
 
 class PlayerNode(character_bases.PlayerCharacter, cocos.cocosnode.CocosNode):

@@ -1,4 +1,4 @@
-# BossFight
+# ROTTN
 
 One-page design document.
 
@@ -10,19 +10,27 @@ Hardcore Rogue-like Action RPG set in a grim and desolate nightmare realm, in wh
 
 *Desolation*
 
-*Kafkaesque*
+*Decay*
 
 *Survival*
 
 ## Genre/Story/Mechanics Summary:
 
-This game consists solely of **procedurally generated boss levels**, each of which poses a different hostile environment inhabited by an exceedingly powerful entity, that will meet the player with either indifference, predatorial instinct, sadism, hatred or utter strangeness. This only ends when the player character dies, in which case the character and all progress is permantly and irreversibly lost.
+This game consists solely of **procedurally generated boss levels**, each of which contains a different hostile environment inhabited by a very powerful entity, that will meet the player with either indifference, predatory instinct, sadism, hatred or utter strangeness. This only ends when the player character dies, in which case the character and all progress is permantly and irreversibly lost.
 
-The setting is one of **dark fantasy** in which man-made objects range from primitive to medieval and where there are many other objects of **weird alien technology** with seemingly random but powerful properties, whose use almost always comes at a terrible price.
+---
+*Option: Upon death the character enters limbo, hades, an endless realm of decay in which all dead player*
+*character wander aimlessly and hopelessly around, while harsh death winds eat away at them, slowly turning them to dust.*
+*Only killing another player character and consuming their remaining essence can prolong their inevitable fate.*
+*If you're good, it's basically an open-ended PVP area.*
 
-After a boss has been defeated in skill-based **real-time combat** the player can safely wander the level, loot and on rare occasions interact with a non-hostile NPC, until the player enters the dominion of the next boss. Before entering the new level, you can invite friends to enter the level with you in **coop-mode**.
+---
 
-*The game tells the story of a meaningless and torturous existence in an incomprehensible hateful world that wants to kill you.*
+The setting is one of **dark cosmic fantasy** in which man-made objects range from primitive to medieval and where there are many other objects of **weird alien technology** with seemingly random but powerful properties, whose use almost always comes at a terrible price.
+
+After a boss has been defeated in skill-based **real-time combat** the player can safely explore the level, loot and on rare occasions interact with a non-hostile NPC, until the player enters the dominion of the next boss. Before entering the next level, you can invite friends to enter the level with you in **coop-mode**.
+
+*The game tells the story of a meaningless and torturous existence in an incomprehensible and hateful world that wants to kill you.*
 
 ## Unique Features:
 
@@ -63,11 +71,15 @@ The GUI is minimalistic and non-invasive.
 
 ## Music/Sound: 
 
-TODO
-
 Procedurally generated context sensitive retro midi music inspired by Post/Ambient Black Metal, Drone and Funeral Doom.
 
-Include links to music and sound design similar to What you're trying to achieve. You can also list the emotional responses that the sound should invoke in the player.
+**Examples**
+- [https://www.youtube.com/watch?v=20n4O-th6nY]
+- [https://www.soundclick.com/bands3/default.cfm?bandID=1083253]
+- [https://www.ultimate-guitar.com/static/storage/forum/attachment/1/e/69177__A%20Serpent's%20Conclave.zip]
+
+**Inspirations**
+- [https://www.youtube.com/watch?v=QRg_8NNPTD8]
 
 ## Development Roadmap / Launch Criteria: 
 

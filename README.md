@@ -1,4 +1,4 @@
-# BossFight
+# ROTTN
 
 Indie game with only procedurally generated boss levels. Online/LAN-Coop. Boss-AI uses Deep Q Neural Nets in order to adapt to and learn from the player during a fight.
 
@@ -25,8 +25,8 @@ No setup scripts yet.
 Documentation stuff goes to `.\docs\`.
 
 **Navigation:**
-- [BossFight API Documentation](./docs/api/overview.md)
-- [BossFight Game Design Document](./docs/gamedesign/designdocument.md)
+- [ROTTN API Documentation](./docs/api/overview.md)
+- [ROTTN Game Design Document](./docs/gamedesign/designdocument.md)
 - [Player Story Map](https://app.wisemapping.com/c/maps/747726/public)
 
 ### Diagrams
@@ -38,10 +38,6 @@ Save diagrams (.xml and exported .pdf with same name) to `.\docs\diagrams\`.
 ### API Documentation
 
 We generate markdown files from docstrings using *pydocmd* (https://github.com/NiklasRosenstein/pydoc-markdown).
-When you made changes in an API module, just run `.\generate_api_docs.bat` to update the documentation.
-
-If you added a new module, you have to add a line to the batch script. Example for new core module:
-`.\venv\Scripts\pydocmd.exe simple bossfight.core+ bossfight.core.myModule++ > .\docs\api\core.myModule.md`
 
 ### Game Design Documentation
 
@@ -49,8 +45,8 @@ If you added a new module, you have to add a line to the batch script. Example f
 
 ## Testing
 
-Start the client with `python -m bossfight.client`.
-You can run the server seperately with `python -m bossfight.server`, but currently it is expected that the client starts the server as a subprocess.
+Start the client with `python -m rottn.client`.
+You can run the server seperately with `python -m rottn.server`, but currently it is expected that the client starts the server as a subprocess.
 
 ### Unit Tests
 

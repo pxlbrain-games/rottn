@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import os
-from bossfight.client import config
+from rottn.client import config
 
-# from bossfight.client.config import config
+# from rottn.client.config import config
 
 
 class Testconfig:

@@ -2,12 +2,12 @@
 
 import pyglet.resource
 from cocos.director import director
-from bossfight.client.scenes.mainMenuScene import MainMenuScene
-from bossfight.client import config
-from bossfight.client import server_manager
+from rottn.client.scenes.mainMenuScene import MainMenuScene
+from rottn.client import config
+from rottn.client import server_manager
 
 director.init(
-    caption="BossFight", fullscreen=False, width=1920, height=1080, vsync=False
+    caption="ROTTN", fullscreen=False, width=1920, height=1080, vsync=False
 )
 pyglet.resource.path = [
     "resources/spritesheets",

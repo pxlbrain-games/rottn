@@ -7,8 +7,8 @@ import tensorflow
 import euclid3 as euclid
 from pygase import GameStateMachine
 from pygase.gamestate import GameStateUpdate, TO_DELETE
-from bossfight.core import character_bases
-from bossfight.server.ai import actors
+from rottn.core import character_bases
+from rottn.server.ai import actors
 
 GRAPH = None
 
@@ -61,13 +61,13 @@ class BFStateMachine(GameStateMachine):
 
     def on_move(self, move_event_data, **kwargs):
         """
-        Handling of custom BossFight client activities, like player movement or actions.
+        Handling of custom ROTTN client activities, like player movement or actions.
         """
         return self.player_characters[move_event_data["player_id"]].on_move(move_event_data)
 
     def time_step(self, game_state, dt):
         """
-        BossFight game state update. Simulates enemies and game world objects.
+        ROTTN game state update. Simulates enemies and game world objects.
         """
         done = False
         hit = False

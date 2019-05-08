@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-A module that helps with running and maintaining bossfight.server processes.
+A module that helps with running and maintaining rottn.server processes.
 """
 
 import threading
 import subprocess
 import ifaddr
-from bossfight.client import config
+from rottn.client import config
 
 _RUNNING_PROCESSES = {}
 _UPDATE_THREAD = threading.Thread()

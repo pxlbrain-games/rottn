@@ -2,8 +2,8 @@
 
 import numpy
 import euclid3 as euclid
-from bossfight.core import character_bases
-from bossfight.server.ai import dqn
+from rottn.core import character_bases
+from rottn.server.ai import dqn
 
 ATTACK_DURATION = 0.38
 ENEMY_VELOCITY = 200

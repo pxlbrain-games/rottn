@@ -10,8 +10,8 @@ import cocos
 from cocos.director import director
 from pygase import Client
 from pygase.connection import ConnectionStatus
-from bossfight.client.characters import character_nodes
-from bossfight.client.characters import character_animations
+from rottn.client.characters import character_nodes
+from rottn.client.characters import character_animations
 
 
 class LevelData:
