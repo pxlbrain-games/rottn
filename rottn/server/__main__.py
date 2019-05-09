@@ -29,16 +29,14 @@ GAME_STATE_STORE = GameStateStore(SHARED_GAME_STATE)
 SERVER = Server(GAME_STATE_STORE)
 GAME_STATE_MACHINE = BFStateMachine(GAME_STATE_STORE, SERVER)
 
-SERVER_ADDRESS = None
-if len(sys.argv) == 1:
-    SERVER_ADDRESS = ("localhost", 0)
-elif len(sys.argv) == 2:
-    SERVER_ADDRESS = (sys.argv[1], 0)
-else:
-    SERVER_ADDRESS = (sys.argv[1], int(sys.argv[2]))
+IP_ADDRESS, PORT = ('localhost', 0)
+if len(sys.argv) > 1:
+    IP_ADDRESS = sys.argv[1]
+if len(sys.argv) > 2:
+    PORT = int(sys.argv[2])
 
 GAME_STATE_MACHINE.run_game_loop_in_thread()
-SERVER.run_in_thread(SERVER_ADDRESS[1], SERVER_ADDRESS[0], GAME_STATE_MACHINE)
+SERVER.run_in_thread(PORT, IP_ADDRESS, GAME_STATE_MACHINE)
 time.sleep(0.1)
 print(SERVER.hostname)
 print(SERVER.port)

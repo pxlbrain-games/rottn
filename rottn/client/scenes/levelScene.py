@@ -60,7 +60,7 @@ class LevelScene(cocos.scene.Scene):
             )
         while successful_leaves != self.level_data.local_player_ids:
             pass
-        self.level_data.client.disconnect()
+        self.level_data.client.disconnect(shutdown_server=True)
         super().on_exit()
 
 
@@ -130,20 +130,10 @@ class LevelLayer(cocos.layer.ScrollableLayer):
             }
             for player_id, player_node in player_nodes_to_update.items():
                 player = game_state.players[player_id]
-                vx = (player["position"][0] - player_node.position[0]) / dt
-                vy = (player["position"][1] - player_node.position[1]) / dt
-                ax = (player["velocity"][0] - player_node.velocity[0] + 0.11 * vx) / dt
-                ay = (player["velocity"][1] - player_node.velocity[1] + 0.11 * vy) / dt
-                player_node.acceleration = (ax, ay)
-                player_node.direction = player["direction"]
+                player_node.move_state_update(player, dt)
             for npc_id, npc_node in self.npc_nodes.items():
                 npc = game_state.npcs[npc_id]
-                vx = (npc["position"][0] - npc_node.position[0]) / dt
-                vy = (npc["position"][1] - npc_node.position[1]) / dt
-                ax = (npc["velocity"][0] - npc_node.velocity[0] + 0.11 * vx) / dt
-                ay = (npc["velocity"][1] - npc_node.velocity[1] + 0.11 * vy) / dt
-                npc_node.acceleration = (ax, ay)
-                npc_node.direction = npc["direction"]
+                npc_node.move_state_update(npc, dt)
                 npc_node.attack_counter = npc["attack_counter"]
                 if (
                     npc_node.is_attacking()
@@ -225,7 +215,6 @@ class HUDLayer(cocos.layer.Layer):
                     player_list_text += " (local)"
                 player_list_text += ", "
         self.player_list_label.element.text = player_list_text[:-2]
-
 
 def create_iso_map(dimensions, origin):
     image = pyglet.resource.image("iso_floor_tiles.png")

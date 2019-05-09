@@ -5,7 +5,6 @@ from cocos.director import director
 from pyglet.window import NoSuchScreenModeException
 import rottn.client.config as config
 import rottn.client.server_manager as server_manager
-from rottn.client.scenes.serverTestScene import ServerTestScene
 from rottn.client.scenes.levelScene import LevelScene
 
 
@@ -33,7 +32,6 @@ class MainMenuLayer(cocos.menu.Menu):
         self.font_item_selected.update({"color": (255, 255, 255, 255)})
         menu_items = [
             cocos.menu.MenuItem("Test Level", self.on_test_level),
-            cocos.menu.MenuItem("Test Server", self.on_test_server),
             cocos.menu.MenuItem("Options", self.on_options),
             cocos.menu.MenuItem("Quit", self.on_quit),
         ]
@@ -46,9 +44,6 @@ class MainMenuLayer(cocos.menu.Menu):
     def on_test_level(self):
         self.parent.open_test_level_menu()
         self.kill()
-
-    def on_test_server(self):
-        director.push(ServerTestScene())
 
     def on_options(self):
         self.parent.open_options_menu()

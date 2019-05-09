@@ -9,8 +9,21 @@ from rottn.core import character_bases
 from rottn.client import player_controls
 from rottn.client.characters import character_animations
 
+class CharacterNode(cocos.cocosnode.CocosNode):
 
-class PlayerNode(character_bases.PlayerCharacter, cocos.cocosnode.CocosNode):
+    def __init__(self):
+        super().__init__()
+        self.velocity = (0, 0)
+
+    def move_state_update(self, new_state, dt):
+        vx = (new_state["position"][0] - self.position[0]) / dt
+        vy = (new_state["position"][1] - self.position[1]) / dt
+        ax = (new_state["velocity"][0] - self.velocity[0] + 0.11 * vx) / dt
+        ay = (new_state["velocity"][1] - self.velocity[1] + 0.11 * vy) / dt
+        self.acceleration = (ax, ay)
+        self.direction = new_state["direction"]
+
+class PlayerNode(character_bases.PlayerCharacter, CharacterNode):
     """
     A **CocosNode** that represents a player in the game world.
     """
@@ -45,21 +58,9 @@ class LocalPlayerNode(PlayerNode, player_controls.ControllableNode):
         self.position = position
 
 
-class NPCNode(character_bases.NonPlayerCharacter, cocos.cocosnode.CocosNode):
+class NPCNode(character_bases.NonPlayerCharacter, CharacterNode):
     def __init__(self, name_or_state):
         super().__init__(name_or_state)
-        """
-        fireball_spritesheet = pyglet.image.ImageGrid(
-            pyglet.resource.image('fireball.png'), 1, 4
-        )
-        fireball_animation = pyglet.image.Animation.from_image_sequence(fireball_spritesheet, 0.1)
-        self.sprite = cocos.sprite.Sprite(
-            image=fireball_animation,
-            position=(0, 50),
-            scale=2.5
-        )
-        self.add(self.sprite) Vector2
-        """
         self.animated_character = character_animations.AnimatedCharacter(
             moving_parent=self,
             body_spritesheet="steel_armor.png",
