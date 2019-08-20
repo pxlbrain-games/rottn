@@ -25,8 +25,7 @@ No setup scripts yet.
 Documentation stuff goes to `.\docs\`.
 
 **Navigation:**
-- [ROTTN API Documentation](./docs/api/overview.md)
-- [ROTTN Game Design Document](./docs/gamedesign/designdocument.md)
+- [ROTTN Game Design Document](./designdocument.md)
 - [Player Story Map](https://app.wisemapping.com/c/maps/747726/public)
 
 ### Diagrams
