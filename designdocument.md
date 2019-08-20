@@ -20,7 +20,7 @@ This game consists solely of **procedurally generated boss levels**, each of whi
 
 ---
 *Option: Upon death the character enters limbo, hades, an endless realm of decay in which all dead player*
-*character wander aimlessly and hopelessly around, while harsh death winds eat away at them, slowly turning them to dust.*
+*characters wander aimlessly and hopelessly around, while harsh death winds eat away at them, slowly turning them to dust.*
 *Only killing another player character and consuming their remaining essence can prolong their inevitable fate.*
 *If you're good, it's basically an open-ended PVP area.*
 
