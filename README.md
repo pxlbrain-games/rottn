@@ -1,4 +1,4 @@
-# ROTTN
+![logo](./rottn-logo-hr.png)
 
 Indie game with only procedurally generated boss levels. Online/LAN-Coop. Boss-AI uses Deep Q Neural Nets in order to adapt to and learn from the player during a fight.
 
